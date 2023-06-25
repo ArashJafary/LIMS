@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Projects\\BigBlueApi\\BigBlueApi\\BigBlueApi.csproj": {}
+    "C:\\Moghaddam\\Projects\\BigBlueApi\\BigBlueApi\\BigBlueApi.csproj": {}
   },
   "projects": {
-    "C:\\Projects\\BigBlueApi\\BigBlueApi\\BigBlueApi.csproj": {
+    "C:\\Moghaddam\\Projects\\BigBlueApi\\BigBlueApi\\BigBlueApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\BigBlueApi\\BigBlueApi\\BigBlueApi.csproj",
+        "projectUniqueName": "C:\\Moghaddam\\Projects\\BigBlueApi\\BigBlueApi\\BigBlueApi.csproj",
         "projectName": "BigBlueApi",
-        "projectPath": "C:\\Projects\\BigBlueApi\\BigBlueApi\\BigBlueApi.csproj",
+        "projectPath": "C:\\Moghaddam\\Projects\\BigBlueApi\\BigBlueApi\\BigBlueApi.csproj",
         "packagesPath": "C:\\Users\\Dev\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\BigBlueApi\\BigBlueApi\\obj\\",
+        "outputPath": "C:\\Moghaddam\\Projects\\BigBlueApi\\BigBlueApi\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Dev\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -46,6 +46,10 @@
               "version": "[1.0.2, )"
             },
             "Microsoft.AspNetCore.OpenApi": {
+              "target": "Package",
+              "version": "[7.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
               "version": "[7.0.8, )"
             },
