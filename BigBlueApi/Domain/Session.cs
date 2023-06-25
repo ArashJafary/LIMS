@@ -10,7 +10,8 @@ public class Session
     public DateTime StartDateTime { get; private set; }
     public DateTime EndDateTime { get; private set; }
     public bool IsRunning { get; set; }
-    public List<User> Users { get; set; }
+    public Server Server { get; }
+    public IReadOnlyList<User> Users { get; }
 
     private Session() { }
 
