@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 namespace BigBlueApi.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("[controller]/[action]")]
 public class MeetController : ControllerBase
 {
     private readonly BigBlueContext _context;
@@ -35,7 +35,7 @@ public class MeetController : ControllerBase
         }
     }
 
-    [HttpGet("[action]")]
+    [HttpGet]
     public async Task<IActionResult> GetMeetingInformations([FromQuery] string mettingId)
     {
         var result = await _client.IsMeetingRunningAsync(
@@ -44,7 +44,7 @@ public class MeetController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("[action]")]
+    [HttpPost]
     public async Task<IActionResult> CreateMeeting([FromBody] CreateMeetingRequestModel request)
     {
         var meetingCreateRequest = new CreateMeetingRequest
@@ -85,7 +85,7 @@ public class MeetController : ControllerBase
         return await _context.SaveChangesAsync();
     }
 
-    [HttpPost("[action]")]
+    [HttpPost]
     public async Task<IActionResult> JoinMeeting([FromBody] JoinMeetingRequestModel request)
     {
         var requestJoin = new JoinMeetingRequest { meetingID = request.MeetingId };
@@ -105,7 +105,7 @@ public class MeetController : ControllerBase
         return Redirect(url);
     }
 
-    [HttpGet("[action]")]
+    [HttpGet]
     public async Task<IActionResult> EndMeeting(string meetingId, string password)
     {
         var result = await _client.EndMeetingAsync(
