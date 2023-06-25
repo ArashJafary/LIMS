@@ -2,8 +2,8 @@ namespace BigBlueApi.Domain;
 
 public class User
 {
-    public int Id { get; set; }
-    public string FullName { get; set; }
+    public int Id { get; }
+    public string FullName { get; private set; }
     public string Alias { get; set; }
     public UserRole Role { get; set; }
     public List<Session> Sessions { get; set; }

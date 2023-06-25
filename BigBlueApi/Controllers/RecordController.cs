@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BigBlueApi.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("[controller]/[action]")]
 public class RecordController : ControllerBase
 {
     private readonly BigBlueButtonAPIClient _client;
@@ -29,7 +29,7 @@ public class RecordController : ControllerBase
         }
     }
 
-    [HttpGet("[action]")]
+    [HttpGet]
     public async Task<ActionResult> Recordings()
     {
         var setupOk = await IsBigBlueSettingsOkAsync();
@@ -39,7 +39,7 @@ public class RecordController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("[action]")]
+    [HttpPost]
     public async Task<ActionResult> PublishRecordings(string recordID, string type)
     {
         var request = new PublishRecordingsRequest { recordID = recordID, publish = type == "1" };
