@@ -5,6 +5,7 @@ public class MemberShip
     public int Id { get; set; }
     public Session Session { get; set; }
     public User User { get; set; }
+    public Server Server { get; set; }
     public DateTime JoinedDateTime { get; set; }
     public int LimitCapacity { get; set; }
 }
