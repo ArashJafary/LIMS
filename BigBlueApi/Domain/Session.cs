@@ -18,6 +18,13 @@ public class Session
 
     private Session() { }
 
+    public Session(bool record,string name,string moderatorpassword,string attendeepassword)
+    {
+        Recorded = record;
+        Name = name;
+        ModeratorPassword = moderatorpassword;
+        AttendeePassword = attendeepassword;
+    }
     public Session(
         string meetingId,
         bool recorded,
