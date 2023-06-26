@@ -14,5 +14,6 @@ public class SessionEntityConfiguration : IEntityTypeConfiguration<Session>
             .HasOne(session => session.Server)
             .WithMany(server => server.Sessions)
             .HasForeignKey("ServerId");
+        builder.HasMany(session => session.MemberShips).WithMany(member => member.Sessions);
     }
 }
