@@ -14,6 +14,7 @@ public class Session
     public bool IsRunning { get; set; }
     public Server Server { get; }
     public IReadOnlyList<User> Users { get; }
+    public int LimitCapacity { get; set; }
 
     private Session() { }
 
@@ -24,7 +25,8 @@ public class Session
         string moderatorPassword,
         string attendeePassword,
         DateTime startDateTime,
-        DateTime endDateTime
+        DateTime endDateTime,
+        int limitcapacity
     )
     {
         IsValid(meetingId, recorded, name, moderatorPassword, attendeePassword);
@@ -32,9 +34,12 @@ public class Session
             throw new ArgumentException($"The {nameof(startDateTime)} is Null Or Invalid.");
         if (endDateTime < DateTime.UtcNow)
             throw new ArgumentException($"The {nameof(endDateTime)} is Null Or Invalid.");
+        if (LimitCapacity <= 0)
+            throw new ArgumentException($"The {nameof(LimitCapacity)}  Cant be zero or less");
 
         StartDateTime = startDateTime;
         IsRunning = true;
+        LimitCapacity = limitcapacity;
     }
     public void Update(string meetingId,
         bool recorded,
