@@ -2,6 +2,7 @@ namespace BigBlueApi.Domain;
 
 public class Session
 {
+    public int Id { get; }
     public string MeetingId { get; private set; }
     public bool Recorded { get; private set; }
     public string Name { get; private set; }
