@@ -22,6 +22,12 @@ namespace BigBlueApi.Persistence.Repository
             _sessions.Update(Seesion);
         }
 
+        public async ValueTask<Session> Find(string meetingID)
+        {
+            var session = await _sessions.FirstOrDefaultAsync(se=>se.MeetingId==meetingID);
+            return session!;
+        }
+
         public async Task StopRunnig(string id)
         {
             var Seesion = await _sessions.FirstOrDefaultAsync(se => se.MeetingId == id);
