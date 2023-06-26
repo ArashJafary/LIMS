@@ -1,3 +1,5 @@
+using Microsoft.Identity.Client;
+
 namespace BigBlueApi.Domain;
 
 public class Session
@@ -25,6 +27,37 @@ public class Session
         DateTime endDateTime
     )
     {
+        IsValid(meetingId, recorded, name, moderatorPassword, attendeePassword);
+        if (startDateTime < DateTime.UtcNow)
+            throw new ArgumentException($"The {nameof(startDateTime)} is Null Or Invalid.");
+        if (endDateTime < DateTime.UtcNow)
+            throw new ArgumentException($"The {nameof(endDateTime)} is Null Or Invalid.");
+
+        StartDateTime = startDateTime;
+        IsRunning = true;
+    }
+    public void Update(string meetingId,
+        bool recorded,
+        string name,
+        string ModertorPass,
+        string attendeePass)
+    {
+        IsValid(meetingId,
+            recorded,
+            name,
+            ModertorPass,
+            attendeePass);
+    }
+
+
+    private void IsValid(
+    string meetingId,
+    bool recorded,
+    string name,
+    string moderatorPassword,
+    string attendeePassword
+)
+    {
         if (string.IsNullOrWhiteSpace(meetingId))
             throw new ArgumentNullException($"The {nameof(meetingId)} is Null Or Invalid.");
         if (string.IsNullOrWhiteSpace(name))
@@ -33,14 +66,10 @@ public class Session
             throw new ArgumentNullException($"The {nameof(moderatorPassword)} is Null Or Invalid.");
         if (string.IsNullOrWhiteSpace(attendeePassword))
             throw new ArgumentNullException($"The {nameof(attendeePassword)} is Null Or Invalid.");
-        if (startDateTime < DateTime.UtcNow)
-            throw new ArgumentException($"The {nameof(startDateTime)} is Null Or Invalid.");
-        if (endDateTime < DateTime.UtcNow)
-            throw new ArgumentException($"The {nameof(endDateTime)} is Null Or Invalid.");
         MeetingId = meetingId;
         Name = name;
+        Recorded = recorded;
         ModeratorPassword = moderatorPassword;
         AttendeePassword = attendeePassword;
-        StartDateTime = startDateTime;
     }
 }
