@@ -13,7 +13,7 @@ public class ServerRepository : IServerRepository
     public async ValueTask<bool> CanJoinServer(int id)
     {
         var server = await _servers.FirstOrDefaultAsync(server => server.Id == id);
-        int usersCount = server.Sessions.Sum(session => session.Users.Count);
+        int usersCount = server!.Sessions.Sum(session => session.Users.Count);
         if (server.ServerLimit <= usersCount)
             return false;
         return true;
