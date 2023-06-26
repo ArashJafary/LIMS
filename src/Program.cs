@@ -10,9 +10,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<BigBlueContext>(
-    options => options.UseSqlServer(builder.Configuration.GetConnectionString("MSSQL"))
+    options => options.UseSqlServer(builder.Configuration.GetConnectionString("MSSQL")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
 );
-System.Console.WriteLine(builder.Configuration.GetConnectionString("MSSQL"));
+
 builder.Services.AddOptions();
 builder.Services.AddHttpClient();
 
