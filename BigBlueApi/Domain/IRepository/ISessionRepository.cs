@@ -1,6 +1,7 @@
 namespace BigBlueApi.Domain.IRepository;
 public interface ISessionRepository 
 {
-    Task<int> CreateSession(Session session);
-    Task EditSession(int id,Session session);
+    ValueTask<string> CreateSession(Session session);
+    ValueTask EditSession(string id,Session session);
+    ValueTask StopRunnig(string id);
 }
