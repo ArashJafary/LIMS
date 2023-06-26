@@ -11,7 +11,8 @@ public class BigBlueContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<UserRole> UserRoles { get; set; }
     public DbSet<Session> Sessions { get; set; }
-
+    public DbSet<Server> Servers { get; set; }
+    public DbSet<MemberShip> MemberShips { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(BigBlueContext).Assembly);
