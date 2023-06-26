@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using BigBlueApi.Persistence;
 using BigBlueButtonAPI.Core;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<BigBlueContext>(
-    options => options.UseSqlServer(builder.Configuration.GetConnectionString("MSSQL")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+    options =>
+        options
+            .UseSqlServer(builder.Configuration.GetConnectionString("MSSQL"))
+            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
 );
 
 builder.Services.AddOptions();

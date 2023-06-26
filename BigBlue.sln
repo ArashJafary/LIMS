@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BigBlueApi", "src\BigBlueApi.csproj", "{F2D0389F-8D0A-4C1A-AA3C-67D17FA7C66C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "test\test.csproj", "{C7F3BFC6-7FBB-480E-98D5-EA1195DF5C21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BigBlueTest", "test\BigBlueTest.csproj", "{C7F3BFC6-7FBB-480E-98D5-EA1195DF5C21}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
