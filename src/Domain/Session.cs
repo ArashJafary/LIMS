@@ -13,6 +13,10 @@ public class Session
     public bool IsRunning { get; set; }
     public Server Server { get; }
     public IReadOnlyList<User> Users { get; }
+    
+
+
+    public List<MemberShip> MemberShips { get; set; }
 
     private Session() { }
 
