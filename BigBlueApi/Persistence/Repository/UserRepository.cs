@@ -22,5 +22,11 @@ namespace BigBlueApi.Persistence.Repository
           User = user;
          _user.Update(User);
         }
+
+        public async ValueTask<User> Find(int userId)
+        {
+            var user = await _user.FirstOrDefaultAsync(us => us.Id == userId);
+            return user!;
+        }
     }
 }
