@@ -1,3 +1,4 @@
+using BigBlueApi.Application.Services;
 using BigBlueApi.Domain;
 using BigBlueApi.Models;
 using BigBlueApi.Persistence;
@@ -11,11 +12,11 @@ namespace BigBlueApi.Controllers;
 [Route("[controller]/[action]")]
 public class MeetController : ControllerBase
 {
-    private readonly BigBlueContext _context;
+    private readonly ServerServiceImp _serverService;
     private readonly BigBlueButtonAPIClient _client;
 
-    public MeetController(BigBlueButtonAPIClient client, BigBlueContext context) =>
-        (_context, _client) = (context, client);
+    public MeetController(BigBlueButtonAPIClient client, ServerServiceImp serverService) =>
+        (_serverService, _client) = (serverService, client);
 
     [NonAction]
     private async Task<bool> IsBigBlueSettingsOkAsync()
@@ -79,11 +80,11 @@ public class MeetController : ControllerBase
         return Ok(jsonResult);
     }
 
-    private async Task<int> InsertSession(Session session)
-    {
-        await _context.AddAsync(session);
-        return await _context.SaveChangesAsync();
-    }
+    // private async Task<int> InsertSession(Session session)
+    // {
+    //     await _context.AddAsync(session);
+    //     return await _context.SaveChangesAsync();
+    // }
 
     [HttpPost]
     public async Task<IActionResult> JoinMeeting([FromBody] JoinMeetingRequestModel request)
