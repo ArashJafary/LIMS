@@ -36,11 +36,9 @@ public class MeetController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetMeetingInformations([FromQuery] string mettingId)
+    public async Task<IActionResult> GetMeetingInformations([FromQuery] string meetingId)
     {
-        var result = await _client.IsMeetingRunningAsync(
-            new IsMeetingRunningRequest { meetingID = Guid.NewGuid().ToString() }
-        );
+        var result = await _client.GetMeetingInfoAsync(new GetMeetingInfoRequest { meetingID = meetingId });
         return Ok(result);
     }
 
@@ -51,7 +49,7 @@ public class MeetController : ControllerBase
         {
             name = request.Name,
             meetingID = request.MeetingId,
-            record = true
+            record = true,
         };
         var result = await _client.CreateMeetingAsync(meetingCreateRequest);
         if (result.returncode == Returncode.FAILED)
@@ -60,29 +58,12 @@ public class MeetController : ControllerBase
         var meetingInfoRequest = new GetMeetingInfoRequest { meetingID = request.MeetingId };
         var resultInfo = await _client.GetMeetingInfoAsync(meetingInfoRequest);
 
-        //var session = new Session(
-        //    resultInfo.meetingID,
-        //    resultInfo.recording.Value ? true : false,
-        //    resultInfo.meetingName,
-        //    resultInfo.moderatorPW,
-        //    resultInfo.attendeePW,
-        //    DateTime.Now,
-        //    resultInfo.endTime is null
-        //        ? DateTime.Now.AddHours((double)resultInfo.endTime)
-        //        : DateTime.Now
-        //);
-
+      
         System.Xml.XmlDocument xmlDoc = new System.Xml.XmlDocument();
         xmlDoc.LoadXml(result.ToString()!);
         string jsonResult = JsonConvert.SerializeXmlNode(xmlDoc, Formatting.Indented, true);
 
         return Ok(jsonResult);
-    }
-
-    private async Task<int> InsertSession(Session session)
-    {
-        await _context.AddAsync(session);
-        return await _context.SaveChangesAsync();
     }
 
     [HttpPost]
@@ -93,13 +74,13 @@ public class MeetController : ControllerBase
         {
             requestJoin.password = request.Password;
             requestJoin.userID = "10000";
-            requestJoin.fullName = "Admin";
+            requestJoin.fullName = "Moderator";
         }
         else
         {
             requestJoin.password = request.Password;
             requestJoin.userID = "20000";
-            requestJoin.fullName = "User";
+            requestJoin.fullName = "Attendee";
         }
         var url = _client.GetJoinMeetingUrl(requestJoin);
         return Redirect(url);
