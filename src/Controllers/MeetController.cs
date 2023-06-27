@@ -1,6 +1,8 @@
+using BigBlueApi.Application.Services;
 using BigBlueApi.Domain;
 using BigBlueApi.Models;
 using BigBlueApi.Persistence;
+using BigBlueApi.Persistence.Repository;
 using BigBlueButtonAPI.Core;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -11,11 +13,14 @@ namespace BigBlueApi.Controllers;
 [Route("[controller]/[action]")]
 public class MeetController : ControllerBase
 {
-    private readonly BigBlueContext _context;
+    private readonly SessionServiceImp _sessionService;
+    private readonly ServerServiceImp _serverService;
+    private readonly UserServiceImp _userService;
+    private readonly MemberShipServiceImp _memberShipService;
     private readonly BigBlueButtonAPIClient _client;
 
-    public MeetController(BigBlueButtonAPIClient client, BigBlueContext context) =>
-        (_context, _client) = (context, client);
+    public MeetController(SessionServiceImp sessionService, ServerServiceImp serverService , UserServiceImp userService , MemberShipServiceImp memberShipService, BigBlueButtonAPIClient client) =>
+        (_sessionService,_serverService,_userService,_memberShipService,_client) = (sessionService, serverService, userService, memberShipService, client);
 
     [NonAction]
     private async Task<bool> IsBigBlueSettingsOkAsync()

@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BigBlueApi.Persistence.Repository;
 
-public class ServerRepositoryd : IServerRepository
+public class ServerRepository : IServerRepository
 {
     private readonly DbSet<Server> _servers;
 
-    public ServerRepositoryd(BigBlueContext context) => _servers = context.Set<Server>();
+    public ServerRepository(BigBlueContext context) => _servers = context.Set<Server>();
 
     public async ValueTask<bool> CanJoinServer(int id)
     {
@@ -19,10 +19,10 @@ public class ServerRepositoryd : IServerRepository
         return true;
     }
 
-    public async ValueTask<int> CreateServer(Server server)
+    public async ValueTask<Server> CreateServer(Server server)
     {
         var newServer = await _servers.AddAsync(server);
-        return newServer.Entity.Id;
+        return newServer.Entity;
     }
 
     public async ValueTask EditServer(int id, Server server)

@@ -7,7 +7,7 @@ namespace BigBlueApi.Application.Services
     public class MemberShipServiceImp
     {
         private readonly IUnitOfWork _uow;
-        private readonly IMemberShipRepository _repository;
+        private readonly IMemberShipRepository _memberShipRepository;
         private readonly IUserRepository _userRepository;
         private readonly ISessionRepository _sessionRepository;
 
@@ -16,15 +16,15 @@ namespace BigBlueApi.Application.Services
             UserRepository userRepository,
             SessionRepository sessionRepository)
         {
-         _repository = repository;
+         _memberShipRepository = repository;
          _uow = uow;
          _userRepository = userRepository;
          _sessionRepository = sessionRepository;
         }
 
-        public async ValueTask<MemberShip> Find(int MemberShipID)
+        public async ValueTask<bool> CanJoinUserOnSession(int MemberShipID)
         {
-            var memberShip = await _repository.Find(MemberShipID);
+            var memberShip = await _memberShipRepository.CanJoinUserOnSession(MemberShipID);
             return memberShip;
         }
 
@@ -34,7 +34,7 @@ namespace BigBlueApi.Application.Services
             Session session = await _sessionRepository.Find(MeetingId);
             if(session is null)
                 return 0;
-            var Result = await _repository.JoinUser(session, user);
+            var Result = await _memberShipRepository.JoinUser(session, user);
             await _uow.SaveChangesAsync();
             return Result;
         }
