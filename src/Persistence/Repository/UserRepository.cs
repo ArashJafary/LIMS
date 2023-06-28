@@ -16,7 +16,7 @@ namespace BigBlueApi.Persistence.Repository
             return  User.Entity.Id;
         }
 
-        public async Task EditUser(int id, User user)
+        public async Task EditUser(int Id, User user)
         {
          var User = await _user.FirstOrDefaultAsync(us => us.Id == user.Id);
           User = user;

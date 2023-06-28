@@ -1,47 +1,43 @@
+using BigBlueApi.Application.DTOs;
 using BigBlueApi.Domain;
 using BigBlueApi.Domain.IRepository;
 using Microsoft.EntityFrameworkCore;
 
 namespace BigBlueApi.Persistence.Repository;
 
-public class ServerRepository : IServerRepository
+public class ServerServiceImp 
 {
-    private readonly DbSet<Server> servers;
+    private readonly IServerRepository _servers;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public ServerRepository(BigBlueContext context) => servers = context.Set<Server>();
+    public ServerServiceImp(IServerRepository serverRepository,IUnitOfWork unitOfWork)
+    {
+        _servers = serverRepository;
+        _unitOfWork = unitOfWork;
+    }
 
     public async ValueTask<bool> CanJoinServer(int id)
     {
-        var server = await servers.FirstOrDefaultAsync(server => server.Id == id);
-        int usersCount = server.Sessions.Sum(session => session.Users.Count);
-        if (server.ServerLimit <= usersCount)
-            return false;
-        return true;
+      return await _servers.CanJoinServer(id);
     }
 
-    public async ValueTask<int> CreateServer(Server server)
+    public async ValueTask<int> CreateServer(ServerAddEditDto serverAddEditDto)
     {
-        var newServer = await servers.AddAsync(server);
-        return newServer.Entity.Id;
+        var server =await _servers.CreateServer(ServerDtoMapper.Map(serverAddEditDto));
+        await _unitOfWork.SaveChangesAsync();
+        return server.Id;
     }
 
-    public async ValueTask EditServer(int id, Server server)
+    public async ValueTask EditServer(int id, ServerAddEditDto serverAddEditDto)
     {
-        var newServer = await servers.FirstOrDefaultAsync(server => server.Id == id);
-        newServer!.UpdateServer(server.ServerUrl, server.SharedSecret, server.ServerLimit);
-        servers.Update(newServer);
+        await _servers.EditServer(id, ServerDtoMapper.Map(serverAddEditDto));
+        await _unitOfWork.SaveChangesAsync();
     }
 
-    public async ValueTask<Server> MostCapableServer()
+    public async ValueTask<ServerAddEditDto> MostCapableServer()
     {
-        return await Task.Run(
-            () =>
-                servers
-                    .OrderBy(
-                        server =>
-                            server.ServerLimit - server.Sessions.Sum(session => session.Users.Count)
-                    )
-                    .FirstOrDefault()!
-        );
+        var server = await _servers.MostCapableServer();
+        var ServerDto=ServerDtoMapper.Map(server);
+        return ServerDto;
     }
 }

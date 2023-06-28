@@ -1,6 +1,10 @@
+using System.Xml;
+using BigBlueApi.Application.DTOs;
+using BigBlueApi.Application.Services;
 using BigBlueApi.Domain;
 using BigBlueApi.Models;
 using BigBlueApi.Persistence;
+using BigBlueApi.Persistence.Repository;
 using BigBlueButtonAPI.Core;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -8,14 +12,29 @@ using Newtonsoft.Json;
 namespace BigBlueApi.Controllers;
 
 [ApiController]
-[Route("[controller]/[action]")]
+[Route("[controller]")]
 public class MeetController : ControllerBase
 {
-    private readonly BigBlueContext _context;
+    private readonly SessionServiceImp _sessionService;
+    private readonly ServerServiceImp _serverService;
+    private readonly UserServiceImp _userService;
+    private readonly MemberShipServiceImp _memberShipService;
     private readonly BigBlueButtonAPIClient _client;
 
-    public MeetController(BigBlueButtonAPIClient client, BigBlueContext context) =>
-        (_context, _client) = (context, client);
+    public MeetController(
+        SessionServiceImp sessionService,
+        ServerServiceImp serverService,
+        UserServiceImp userService,
+        MemberShipServiceImp memberShipService,
+        BigBlueButtonAPIClient client
+    ) =>
+        (_sessionService, _serverService, _userService, _memberShipService, _client) = (
+            sessionService,
+            serverService,
+            userService,
+            memberShipService,
+            client
+        );
 
     [NonAction]
     private async Task<bool> IsBigBlueSettingsOkAsync()
@@ -35,74 +54,104 @@ public class MeetController : ControllerBase
         }
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetMeetingInformations([FromQuery] string mettingId)
+    [HttpGet("[action]", Name = nameof(GetMeetingInformations))]
+    public async Task<IActionResult> GetMeetingInformations([FromQuery] string meetingId)
     {
-        var result = await _client.IsMeetingRunningAsync(
-            new IsMeetingRunningRequest { meetingID = Guid.NewGuid().ToString() }
+        var result = await _client.GetMeetingInfoAsync(
+            new GetMeetingInfoRequest { meetingID = meetingId }
         );
         return Ok(result);
     }
 
-    [HttpPost]
+    [HttpPost("[action]", Name = nameof(CreateMeeting))]
     public async Task<IActionResult> CreateMeeting([FromBody] CreateMeetingRequestModel request)
     {
+        var server = await _serverService.MostCapableServer();
+
         var meetingCreateRequest = new CreateMeetingRequest
         {
             name = request.Name,
             meetingID = request.MeetingId,
-            record = true
+            record = request.Record,
         };
         var result = await _client.CreateMeetingAsync(meetingCreateRequest);
+
         if (result.returncode == Returncode.FAILED)
             return BadRequest("A Problem Has Been Occurred in Creating Meet.");
 
+        await _sessionService.CreateSession(
+            new SessionAddEditDto(
+                result.meetingID,
+                request.Record,
+                meetingCreateRequest.name,
+                result.moderatorPW,
+                result.attendeePW
+            )
+        );
+
         var meetingInfoRequest = new GetMeetingInfoRequest { meetingID = request.MeetingId };
+
         var resultInfo = await _client.GetMeetingInfoAsync(meetingInfoRequest);
 
-        //var session = new Session(
-        //    resultInfo.meetingID,
-        //    resultInfo.recording.Value ? true : false,
-        //    resultInfo.meetingName,
-        //    resultInfo.moderatorPW,
-        //    resultInfo.attendeePW,
-        //    DateTime.Now,
-        //    resultInfo.endTime is null
-        //        ? DateTime.Now.AddHours((double)resultInfo.endTime)
-        //        : DateTime.Now
-        //);
-
-        System.Xml.XmlDocument xmlDoc = new System.Xml.XmlDocument();
+        var xmlDoc = new XmlDocument();
         xmlDoc.LoadXml(result.ToString()!);
-        string jsonResult = JsonConvert.SerializeXmlNode(xmlDoc, Formatting.Indented, true);
+        string jsonResult = JsonConvert.SerializeXmlNode(
+            xmlDoc,
+            Newtonsoft.Json.Formatting.Indented,
+            true
+        );
 
         return Ok(jsonResult);
     }
 
-    private async Task<int> InsertSession(Session session)
+    [HttpPost("[action]", Name = nameof(JoinMeeting))]
+    public async ValueTask<IActionResult> JoinMeeting([FromBody] JoinMeetingRequestModel request)
     {
-        await _context.AddAsync(session);
-        return await _context.SaveChangesAsync();
-    }
+        var server = await _sessionService.Find(request.MeetingId);
 
-    [HttpPost]
-    public async Task<IActionResult> JoinMeeting([FromBody] JoinMeetingRequestModel request)
-    {
+        if (await _memberShipService.CanJoinUserOnSession(request.MeetingId))
+            return BadRequest("Joining into This Class Not Accessed.");
+
+        if (await _serverService.CanJoinServer(server.Id))
+            return BadRequest("Server is Fulled!");
+
+        if (!await _sessionService.CanLogin(request.MeetingId, request.Role, request.Password))
+            return BadRequest("Your Credentials are Not Valid.");
+
+        var userId = await _userService.CreateUser(
+            new UserAddEditDto(request.FullName, request.Alias, request.Role)
+        );
+
         var requestJoin = new JoinMeetingRequest { meetingID = request.MeetingId };
-        if (request.Role == "1")
+        if (request.Role == UserRoles.Moderator)
         {
             requestJoin.password = request.Password;
-            requestJoin.userID = "10000";
-            requestJoin.fullName = "Admin";
+            requestJoin.userID = "1";
+            requestJoin.fullName = request.FullName;
+        }
+        else if (request.Role == UserRoles.Attendee)
+        {
+            requestJoin.password = request.Password;
+            requestJoin.userID = "2";
+            requestJoin.fullName = request.FullName;
         }
         else
         {
-            requestJoin.password = request.Password;
-            requestJoin.userID = "20000";
-            requestJoin.fullName = "User";
+            requestJoin.guest = true;
+            requestJoin.fullName = request.FullName;
         }
-        var url = _client.GetJoinMeetingUrl(requestJoin);
-        return Redirect(url);
+
+        try
+        {
+            var url = _client.GetJoinMeetingUrl(requestJoin);
+            await _memberShipService.JoinUser(request.MeetingId, userId);
+
+            return Redirect(url);
+        }
+        catch (System.Exception exception)
+        {
+            return BadRequest(new { Message = exception.Message, Data = exception.Data });
+        }
     }
 
     [HttpGet]
@@ -113,6 +162,8 @@ public class MeetController : ControllerBase
         );
         if (result.returncode == Returncode.FAILED)
             return BadRequest(result.message);
+
+        await _sessionService.StopRunning(meetingId);
         return Ok("Meeting is End.");
     }
 }

@@ -5,7 +5,7 @@ namespace BigBlueApi.Application.Mappers
 {
     public static class SessionMapper
     {
-        public static Session Map(SessionEditDto sessionEditDto) =>
+        public static Session Map(SessionAddEditDto sessionEditDto) =>
             new Session(
                  sessionEditDto.Recorded,
                  sessionEditDto.Name,
@@ -13,8 +13,9 @@ namespace BigBlueApi.Application.Mappers
                  sessionEditDto.AttendeePassword
                 );
 
-        public static SessionEditDto Map(Session session) =>
-            new SessionEditDto(
+        public static SessionAddEditDto Map(Session session) =>
+            new SessionAddEditDto(
+                session.MeetingId,
                 session.Recorded,
                 session.Name, 
                 session.ModeratorPassword, 

@@ -1,4 +1,8 @@
+using BigBlueApi.Application.Services;
+using BigBlueApi.Domain.IRepository;
 using BigBlueApi.Persistence;
+using BigBlueApi.Persistence.Repository;
+using BigBlueApi.RegesterExtention;
 using BigBlueButtonAPI.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -9,12 +13,22 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<BigBlueContext>(
-    options =>
-        options
-            .UseSqlServer(builder.Configuration.GetConnectionString("MSSQL"))
-            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-);
+builder.Services.RegesterDi();
+
+var connectionString = builder.Configuration.GetConnectionString("MSSQL");
+builder.Services.AddDbContext<BigBlueContext>(options =>
+{
+    options
+        .UseSqlServer(connectionString)
+        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+});
+
+if (EF.IsDesignTime)
+{
+    var efDesignModeApp = builder.Build();
+    efDesignModeApp.Run();
+    return;
+}
 
 builder.Services.AddOptions();
 builder.Services.AddHttpClient();

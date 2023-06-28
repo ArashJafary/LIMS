@@ -8,7 +8,8 @@ public class User
     public UserRole Role { get; set; }
     public List<Session> Sessions { get; set; }
 
-    public User(string fullName, UserRole role,string alias) => (FullName, Role,Alias) = (fullName, role,alias);
+    public User(string fullName, string alias, UserRole role) =>
+        (FullName, Alias, role) = (fullName, alias, role);
 
     private User() { }
 }

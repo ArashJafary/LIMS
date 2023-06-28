@@ -2,6 +2,6 @@ namespace BigBlueApi.Domain.IRepository;
 
 public interface IMemberShipRepository
 {
-    ValueTask<MemberShip> Find(int MemberShipID);
+    ValueTask<bool> CanJoinUserOnSession(string meetingId);
     ValueTask<int> JoinUser(Session session, User user);
 }
