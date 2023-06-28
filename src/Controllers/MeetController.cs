@@ -1,3 +1,4 @@
+using BigBlueApi.Application.DTOs;
 using BigBlueApi.Application.Services;
 using BigBlueApi.Domain;
 using BigBlueApi.Models;
@@ -19,8 +20,20 @@ public class MeetController : ControllerBase
     private readonly MemberShipServiceImp _memberShipService;
     private readonly BigBlueButtonAPIClient _client;
 
-    public MeetController(SessionServiceImp sessionService, ServerServiceImp serverService , UserServiceImp userService , MemberShipServiceImp memberShipService, BigBlueButtonAPIClient client) =>
-        (_sessionService,_serverService,_userService,_memberShipService,_client) = (sessionService, serverService, userService, memberShipService, client);
+    public MeetController(
+        SessionServiceImp sessionService,
+        ServerServiceImp serverService,
+        UserServiceImp userService,
+        MemberShipServiceImp memberShipService,
+        BigBlueButtonAPIClient client
+    ) =>
+        (_sessionService, _serverService, _userService, _memberShipService, _client) = (
+            sessionService,
+            serverService,
+            userService,
+            memberShipService,
+            client
+        );
 
     [NonAction]
     private async Task<bool> IsBigBlueSettingsOkAsync()
@@ -43,7 +56,9 @@ public class MeetController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetMeetingInformations([FromQuery] string meetingId)
     {
-        var result = await _client.GetMeetingInfoAsync(new GetMeetingInfoRequest { meetingID = meetingId });
+        var result = await _client.GetMeetingInfoAsync(
+            new GetMeetingInfoRequest { meetingID = meetingId }
+        );
         return Ok(result);
     }
 
@@ -63,7 +78,6 @@ public class MeetController : ControllerBase
         var meetingInfoRequest = new GetMeetingInfoRequest { meetingID = request.MeetingId };
         var resultInfo = await _client.GetMeetingInfoAsync(meetingInfoRequest);
 
-      
         System.Xml.XmlDocument xmlDoc = new System.Xml.XmlDocument();
         xmlDoc.LoadXml(result.ToString()!);
         string jsonResult = JsonConvert.SerializeXmlNode(xmlDoc, Formatting.Indented, true);
@@ -72,14 +86,21 @@ public class MeetController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> JoinMeeting([FromBody] JoinMeetingRequestModel request)
+    public async ValueTask<IActionResult> JoinMeeting([FromBody] JoinMeetingRequestModel request)
     {
+        if (await _memberShipService.CanJoinUserOnSession(request.MeetingId))
+            return BadRequest("Joining into This Class Not Accessed.");
+        var server = await _sessionService.Find(request.MeetingId);
+        if (await _serverService.CanJoinServer(server.Id))
+            return BadRequest("Server is Fulled!");
+
+        await _userService.CreateUser(new UserAddEditDto(request.FullName,request.Alias,request.Role));
         var requestJoin = new JoinMeetingRequest { meetingID = request.MeetingId };
-        if (request.Role == "1")
+        if (request.Role == UserRoles.Moderator)
         {
             requestJoin.password = request.Password;
             requestJoin.userID = "10000";
-            requestJoin.fullName = "Moderator";
+            requestJoin.fullName = request.FullName;
         }
         else
         {
@@ -87,8 +108,15 @@ public class MeetController : ControllerBase
             requestJoin.userID = "20000";
             requestJoin.fullName = "Attendee";
         }
-        var url = _client.GetJoinMeetingUrl(requestJoin);
-        return Redirect(url);
+                    return Redirect("");
+
+        try
+        {
+            var url = _client.GetJoinMeetingUrl(requestJoin);
+            // _memberShipService.JoinUser(request.MeetingId,)
+            return Redirect(url);
+        }
+        catch (System.Exception exception) { }
     }
 
     [HttpGet]
@@ -99,6 +127,8 @@ public class MeetController : ControllerBase
         );
         if (result.returncode == Returncode.FAILED)
             return BadRequest(result.message);
+
+        await _sessionService.StopRunning(meetingId);
         return Ok("Meeting is End.");
     }
 }

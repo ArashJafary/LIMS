@@ -12,10 +12,10 @@ namespace BigBlueApi.Persistence.Repository
             _memberShips = context.Set<MemberShip>();
         }
 
-        public async ValueTask<bool> CanJoinUserOnSession(int sessionId)
+        public async ValueTask<bool> CanJoinUserOnSession(string meetingId)
         {
-            int limitSession = _memberShips.FirstOrDefault(session => session.Id == sessionId)!.Session.LimitCapacity;
-            int membersCount = _memberShips.Where(member => member.Session.Id == sessionId && member.Session.IsRunning).Count();
+            int limitSession = _memberShips.FirstOrDefault(session => session.Session.MeetingId == meetingId)!.Session.LimitCapacity;
+            int membersCount = _memberShips.Where(member => member.Session.MeetingId == meetingId && member.Session.IsRunning).Count();
             return membersCount <= limitSession;
         }
 

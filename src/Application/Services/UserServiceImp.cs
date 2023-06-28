@@ -1,4 +1,6 @@
-﻿using BigBlueApi.Domain;
+﻿using BigBlueApi.Application.DTOs;
+using BigBlueApi.Application.Mappers;
+using BigBlueApi.Domain;
 using BigBlueApi.Domain.IRepository;
 using BigBlueApi.Persistence.Repository;
 
@@ -11,28 +13,25 @@ namespace BigBlueApi.Application.Services
 
         public UserServiceImp(IUserRepository repository,IUnitOfWork uow)
         {
-         _uow=uow;
-         _Repository=repository;
+            _uow = uow;
+            _Repository = repository;
         }
 
-
-        public async ValueTask<int> CreateUser(User user)
+        public async ValueTask<int> CreateUser(UserAddEditDto user)
         {
-            var User = await _Repository.CreateUser(user);
+            var newUser = UserDtoMapper.Map(user);
+            await _Repository.CreateUser(newUser);
             await _uow.SaveChangesAsync();
-            return user.Id;
+            return newUser.Id;
         }
 
-        public async Task EditUser(int Id, User user)
+        public async Task EditUser(int Id, UserAddEditDto user)
         {
-            var User = _Repository.EditUser(Id,user);
+            var newUser = UserDtoMapper.Map(user);
+            await _Repository.EditUser(Id, newUser);
             await _uow.SaveChangesAsync();
         }
 
-        public async ValueTask<User> Find(int userId)
-        {
-            var user = await _Repository.Find(userId);
-            return user;
-        }
+        public async ValueTask<User> Find(int userId) => await _Repository.Find(userId);
     }
 }

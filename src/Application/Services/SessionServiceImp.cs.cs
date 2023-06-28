@@ -11,12 +11,8 @@ namespace BigBlueApi.Application.Services
         private readonly ISessionRepository _repository;
         private readonly IUnitOfWork _uow;
 
-        public SessionServiceImp(ISessionRepository repository,IUnitOfWork uow)
-        {
-            _repository = repository;
-            _uow = uow;
-        }
-
+        public SessionServiceImp(SessionRepository repository, IUnitOfWork uow) =>
+            (_repository, _uow) = (repository, uow);
 
         public async ValueTask<string> CreateSession(Session sessionDto)
         {
@@ -29,25 +25,17 @@ namespace BigBlueApi.Application.Services
                 sessionDto.StartDateTime,
                 sessionDto.EndDateTime,
                 sessionDto.LimitCapacity
-                );
-           await _repository.CreateSession( sesssion );
+            );
+            await _repository.CreateSession(sesssion);
             await _uow.SaveChangesAsync();
             return sesssion.MeetingId;
         }
-        public async ValueTask<Session> Find(string meetingID)
-        {
-            var Result = await _repository.Find( meetingID );
-            return Result;
-        }
-        public async Task EditSession(string id, SessionEditDto session)
-        {
-            await _repository.EditSession(id,
-                SessionMapper
-                .Map(session));
-        }
-        public async Task StopRunnig(string id)
-        {
-            await _repository.StopRunnig(id);
-        }
+
+        public async ValueTask<Session> Find(string meetingID) => await _repository.Find(meetingID);
+
+        public async Task EditSession(string id, SessionEditDto session) =>
+            await _repository.EditSession(id, SessionMapper.Map(session));
+
+        public async Task StopRunning(string id) => await _repository.EndSession(id);
     }
 }
