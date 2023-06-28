@@ -16,7 +16,7 @@ namespace BigBlueApi.Persistence.Repository
             return Session.Entity.MeetingId;
         }
 
-        public async Task EditSession(string meetingId, Session session)
+        public async ValueTask EditSession(string meetingId, Session session)
         {
             var Seesion = await _sessions.FirstOrDefaultAsync(se => se.MeetingId == meetingId);
             Seesion = session;
@@ -36,7 +36,7 @@ namespace BigBlueApi.Persistence.Repository
             return session!;
         }
 
-        public async Task EndSession(string meetingId)
+        public async ValueTask EndSession(string meetingId)
         {
             var Seesion = await _sessions.FirstOrDefaultAsync(se => se.MeetingId == meetingId);
             Seesion!.IsRunning = false;

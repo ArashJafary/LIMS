@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BigBlueApi.Migrations
 {
     [DbContext(typeof(BigBlueContext))]
-    [Migration("20230627060133_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20230628122122_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
