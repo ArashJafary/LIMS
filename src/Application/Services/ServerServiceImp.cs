@@ -10,7 +10,7 @@ public class ServerServiceImp
     private readonly IServerRepository _servers;
     private readonly IUnitOfWork _unitOfWork;
 
-    public ServerServiceImp(ServerRepository serverRepository,IUnitOfWork unitOfWork)
+    public ServerServiceImp(IServerRepository serverRepository,IUnitOfWork unitOfWork)
     {
         _servers = serverRepository;
         _unitOfWork = unitOfWork;

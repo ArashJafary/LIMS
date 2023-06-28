@@ -30,7 +30,7 @@ public class RecordController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult> Recordings()
+    public async Task<ActionResult> IsRecordings(string MeetingId)
     {
         var setupOk = await IsBigBlueSettingsOkAsync();
         if (!setupOk)

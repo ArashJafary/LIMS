@@ -11,12 +11,10 @@ namespace BigBlueApi.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly ISessionRepository _sessionRepository;
 
-        public MemberShipServiceImp(
-            IUnitOfWork uow,
-            MemberShipRepository repository,
-            UserRepository userRepository,
-            SessionRepository sessionRepository
-        )
+        public MemberShipServiceImp(IUnitOfWork uow ,
+            IMemberShipRepository repository,
+            IUserRepository userRepository,
+            ISessionRepository sessionRepository)
         {
             _memberShipRepository = repository;
             _uow = uow;

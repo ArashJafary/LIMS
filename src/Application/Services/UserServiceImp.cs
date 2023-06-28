@@ -11,7 +11,7 @@ namespace BigBlueApi.Application.Services
         private readonly IUnitOfWork _uow;
         private readonly IUserRepository _Repository;
 
-        public UserServiceImp(UserRepository repository, IUnitOfWork uow)
+        public UserServiceImp(IUserRepository repository,IUnitOfWork uow)
         {
             _uow = uow;
             _Repository = repository;
