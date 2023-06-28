@@ -2,7 +2,8 @@
 
 namespace BigBlueApi.Application.DTOs
 {
-    public record SessionEditDto(
+    public record SessionAddEditDto(
+        string MeetingId,
         bool Recorded,
         string Name,
         string ModeratorPassword,
