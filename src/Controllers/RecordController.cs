@@ -29,20 +29,36 @@ public class RecordController : ControllerBase
         }
     }
 
-    [HttpGet]
-    public async Task<ActionResult> IsRecordings(string MeetingId)
+    [HttpGet(Name =nameof(IsRecordings))]
+    public async ValueTask<ActionResult> IsRecordings(string MeetingId)
     {
-        var setupOk = await IsBigBlueSettingsOkAsync();
-        if (!setupOk)
-            return BadRequest();
-        var result = await _client.GetRecordingsAsync();
-        return Ok(result);
+        //var setupOk = await IsBigBlueSettingsOkAsync();
+        //if (!setupOk)
+        //    return BadRequest();
+        //var result = await _client.GetRecordingsAsync();
+        //return Ok(result);
+
+        var Request = new GetRecordingsRequest
+        {
+            meetingID = MeetingId
+        };
+        var Result= await _client.GetRecordingsAsync(Request);
+        if(Result is null)
+            return NotFound();
+
+        return Ok(true);
+        
+            
+        
     }
 
-    [HttpPost]
-    public async Task<ActionResult> PublishRecordings(string recordID, string type)
+    [HttpPost(Name =nameof(PublishRecordings))]
+    public async ValueTask<ActionResult> PublishRecordings(string recordID, bool publish)
     {
-        var request = new PublishRecordingsRequest { recordID = recordID, publish = type == "1" };
+        var request = new PublishRecordingsRequest { 
+            recordID = recordID,
+            publish = publish 
+        };
         var result = await _client.PublishRecordingsAsync(request);
 
         if (result.returncode == Returncode.FAILED)
