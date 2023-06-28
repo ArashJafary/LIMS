@@ -14,6 +14,7 @@ public class RecordController : ControllerBase
     [NonAction]
     private async Task<bool> IsBigBlueSettingsOkAsync()
     {
+    
         try
         {
             var result = await _client.IsMeetingRunningAsync(
@@ -33,11 +34,8 @@ public class RecordController : ControllerBase
     public async ValueTask<ActionResult> IsRecordings(string MeetingId)
     {
         //var setupOk = await IsBigBlueSettingsOkAsync();
-        //if (!setupOk)
-        //    return BadRequest();
         //var result = await _client.GetRecordingsAsync();
         //return Ok(result);
-
         var Request = new GetRecordingsRequest
         {
             meetingID = MeetingId
@@ -45,11 +43,7 @@ public class RecordController : ControllerBase
         var Result= await _client.GetRecordingsAsync(Request);
         if(Result is null)
             return NotFound();
-
         return Ok(true);
-        
-            
-        
     }
 
     [HttpPost(Name =nameof(PublishRecordings))]
