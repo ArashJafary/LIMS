@@ -30,7 +30,7 @@ public class RecordController : ControllerBase
         }
     }
 
-    [HttpGet(Name =nameof(IsRecordings))]
+    [HttpGet("[action]",Name =nameof(IsRecordings))]
     public async ValueTask<ActionResult> IsRecordings(string MeetingId)
     {
         //var setupOk = await IsBigBlueSettingsOkAsync();
@@ -46,7 +46,7 @@ public class RecordController : ControllerBase
         return Ok(true);
     }
 
-    [HttpPost(Name =nameof(PublishRecordings))]
+    [HttpPost("[action]",Name =nameof(PublishRecordings))]
     public async ValueTask<ActionResult> PublishRecordings(string recordID, bool publish)
     {
         var request = new PublishRecordingsRequest { 
