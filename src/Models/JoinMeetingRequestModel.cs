@@ -1,2 +1,4 @@
+using BigBlueApi.Domain;
+
 namespace BigBlueApi.Models;
-public record JoinMeetingRequestModel(string MeetingId,string Role,string Password,string Token);
+public record JoinMeetingRequestModel(string MeetingId,string FullName,string Alias,UserRoles Role,string Password,string Token);
