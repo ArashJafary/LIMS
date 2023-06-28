@@ -11,7 +11,7 @@ namespace BigBlueApi.Application.Services
         private readonly ISessionRepository _repository;
         private readonly IUnitOfWork _uow;
 
-        public SessionServiceImp(SessionRepository repository,IUnitOfWork uow)
+        public SessionServiceImp(ISessionRepository repository,IUnitOfWork uow)
         {
             _repository = repository;
             _uow = uow;
