@@ -6,6 +6,11 @@ MinimumVisualStudioVersion = 10.0.40219.1
 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigBlueApi", "src\BigBlueApi.csproj", "{5E4C3186-EE53-4A5C-9B59-07DF56EEE8E6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BigBlueTest", "test\BigBlueTest.csproj", "{65970F8F-60B7-4F86-8F31-049893A8956B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BBB-common", "BBB-common\BBB-common.csproj", "{A90F372B-18E1-4FD0-8824-98AAE339F63B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BigBlueButtonAPI.NET", "BigBlueButtonAPI.NET\BigBlueButtonAPI.NET.csproj", "{775E400B-FC99-4990-98E9-CB2E23B21C03}"
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigBlueTest", "test\BigBlueTest.csproj", "{65970F8F-60B7-4F86-8F31-049893A8956B}"
 
 EndProject
@@ -27,5 +32,13 @@ Global
 		{65970F8F-60B7-4F86-8F31-049893A8956B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65970F8F-60B7-4F86-8F31-049893A8956B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65970F8F-60B7-4F86-8F31-049893A8956B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A90F372B-18E1-4FD0-8824-98AAE339F63B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A90F372B-18E1-4FD0-8824-98AAE339F63B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A90F372B-18E1-4FD0-8824-98AAE339F63B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A90F372B-18E1-4FD0-8824-98AAE339F63B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
 EndGlobalSection
 EndGlobal
