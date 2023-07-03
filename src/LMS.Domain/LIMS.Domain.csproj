@@ -6,4 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="AdminPanel\" />
+    <Folder Include="BBB\" />
+    <Folder Include="AdobeConnect\" />
+  </ItemGroup>
+
 </Project>
