@@ -1,5 +1,5 @@
 namespace BigBlueApi.Domain;
-public enum UserRoles
+public enum UserRoleTypes
 {
     Moderator = 1,
     Attendee = 0,

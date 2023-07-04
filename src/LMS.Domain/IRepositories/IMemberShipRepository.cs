@@ -1,9 +1,11 @@
 using LIMS.Domain.Entity;
 
-namespace BigBlueApi.Domain.IRepository;
+namespace BigBlueApi.Domain.IRepositories;
 
 public interface IMemberShipRepository
 {
-    ValueTask<bool> CanJoinUserOnSession(string meetingId);
-    ValueTask<int> JoinUser(Session session, User user);
+    ValueTask<bool> CanJoinUserOnMeetingAsync(long meetingId);
+    Task BanUserAsync(long userId, long meetingId);
+    ValueTask<long> JoinUserAsync(Meeting meeting, User user);
 }
+

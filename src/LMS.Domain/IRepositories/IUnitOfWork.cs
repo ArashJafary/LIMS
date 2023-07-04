@@ -1,6 +1,6 @@
 namespace BigBlueApi.Domain.IRepository;
-public interface IUnitOfWork 
+public interface IUnitOfWork
 {
- //   Task<int> SaveChangesAsync(CancellationToken cancellationToken);
-    Task<int> SaveChangesAsync();
+    ValueTask<int> SaveChangesAsync(CancellationToken cancellationToken);
+    ValueTask<int> SaveChangesAsync();
 }
