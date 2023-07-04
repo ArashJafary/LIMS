@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LIMS.Infrastructure.Persistence.Configuration;
 
-public class SessionEntityConfiguration : IEntityTypeConfiguration<Session>
+public class MeetingEntityConfiguration : IEntityTypeConfiguration<Meeting>
 {
-    public void Configure(EntityTypeBuilder<Session> builder)
+    public void Configure(EntityTypeBuilder<Meeting> builder)
     {
         builder.HasKey(session => session.Id);
         builder.HasMany(session => session.Users).WithMany(user => user.Sessions);
@@ -14,6 +14,6 @@ public class SessionEntityConfiguration : IEntityTypeConfiguration<Session>
             .HasOne(session => session.Server)
             .WithMany(server => server.Sessions)
             .HasForeignKey("ServerId");
-        builder.HasMany(session => session.MemberShips).WithOne(member => member.Session);
+        builder.HasMany(session => session.MemberShips).WithOne(member => member.Meeting);
     }
 }
