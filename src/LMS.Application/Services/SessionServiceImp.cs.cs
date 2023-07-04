@@ -4,40 +4,42 @@ using BigBlueApi.Domain;
 using BigBlueApi.Domain.IRepository;
 using BigBlueApi.Persistence.Repository;
 using LIMS.Domain.Entity;
+using LIMS.Domain.IRepositories;
 
 namespace BigBlueApi.Application.Services
 {
     public class SessionServiceImp
     {
-        private readonly ISessionRepository _repository;
+        private readonly IMeetingRepository _repository;
         private readonly IUnitOfWork _uow;
 
-        public SessionServiceImp(ISessionRepository repository, IUnitOfWork uow) =>
+        public SessionServiceImp(IMeetingRepository repository, IUnitOfWork uow) =>
             (_repository, _uow) = (repository, uow);
 
-        public async ValueTask<string> CreateSession(SessionAddEditDto sessionDto)
+        public async ValueTask<string> CreateMeetingAsync(SessionAddEditDto sessionDto)
         {
-            await _repository.CreateSession(SessionMapper.Map(sessionDto));
+            await _repository.CreateMeetingAsync(SessionMapper.Map(sessionDto));
             await _uow.SaveChangesAsync();
             return sessionDto.MeetingId;
         }
 
-        public async ValueTask<bool> CanLogin(string meetindId, UserRoles role, string password)
+        public async ValueTask<bool> CanLogin(long id, UserRoleTypes role, string password)
         {
-            var session = await _repository.Find(meetindId);
-            if (role == UserRoles.Attendee)
-                return session.AttendeePassword == password;
-            else if (role == UserRoles.Moderator)
-                return session.ModeratorPassword == password;
+            var meeting = await _repository.FindAsync(id);
+            if (role == UserRoleTypes.Attendee)
+                return meeting.AttendeePassword == password;
+            else if (role == UserRoleTypes.Moderator)
+                return meeting.ModeratorPassword == password;
             else
-                return true;
+                return false;
         }
 
-        public async ValueTask<Session> Find(string meetingID) => await _repository.Find(meetingID);
+        public async ValueTask<Meeting> Find(long id) => await _repository.FindAsync(id);
 
-        public async ValueTask EditSession(string id, SessionAddEditDto session) =>
-            await _repository.EditSession(id, SessionMapper.Map(session));
+        public async ValueTask EditSession(long id, SessionAddEditDto session) =>
+            await _repository.UpdateMeetingAsync(id, SessionMapper.Map(session));
 
-        public async ValueTask StopRunning(string id) => await _repository.EndSession(id);
+        public async ValueTask StopRunning(long id) 
+            => await _repository.EndMeetingAsync(id);
     }
 }
