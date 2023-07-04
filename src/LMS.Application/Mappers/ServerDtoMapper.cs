@@ -1,5 +1,5 @@
 using BigBlueApi.Application.DTOs;
-using BigBlueApi.Domain;
+using LIMS.Domain.Entity;
 
 public static class ServerDtoMapper
 {

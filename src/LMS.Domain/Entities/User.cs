@@ -1,4 +1,4 @@
-namespace BigBlueApi.Domain;
+namespace LIMS.Domain.Entity;
 
 public class User
 {

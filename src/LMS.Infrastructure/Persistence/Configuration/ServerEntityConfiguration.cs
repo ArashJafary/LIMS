@@ -1,13 +1,13 @@
-using BigBlueApi.Domain;
+using LIMS.Domain.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace BigBlueApi.Persistence.Configuration;
+namespace LIMS.Infrastructure.Persistence.Configuration;
 public class ServerEntityConfiguration : IEntityTypeConfiguration<Server>
 {
     public void Configure(EntityTypeBuilder<Server> builder)
     {
-       builder.HasKey(entity => entity.Id);
+        builder.HasKey(entity => entity.Id);
         builder
             .HasMany(entity => entity.Sessions)
             .WithOne(entity => entity.Server)

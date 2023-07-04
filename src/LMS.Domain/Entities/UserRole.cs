@@ -1,4 +1,6 @@
-namespace BigBlueApi.Domain;
+using BigBlueApi.Domain;
+
+namespace LIMS.Domain.Entity;
 
 public class UserRole
 {

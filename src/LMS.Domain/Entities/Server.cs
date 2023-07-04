@@ -1,4 +1,4 @@
-namespace BigBlueApi.Domain;
+namespace LIMS.Domain.Entity;
 
 public class Server
 {
@@ -25,7 +25,7 @@ public class Server
     }
     public void UpdateServer(string serverUrl, string sharedSecret, int serverLimit)
     {
-        IsValid(serverUrl,serverLimit);
+        IsValid(serverUrl, serverLimit);
         if (serverLimit <= 0)
             throw new ArgumentOutOfRangeException("Server Limit Cant Be Less Than ZERO.");
         ServerUrl = serverUrl;
