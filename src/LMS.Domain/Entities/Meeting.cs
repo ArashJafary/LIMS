@@ -1,32 +1,33 @@
+using LIMS.Domain.Entities;
+
 namespace LIMS.Domain.Entity;
 
-public class Session
+public sealed class Meeting : BaseEntity
 {
-    public int Id { get; set; }
     public string MeetingId { get; private set; }
-    public bool Recorded { get; private set; }
+    public bool Record { get; private set; }
     public string Name { get; private set; }
     public string ModeratorPassword { get; private set; }
     public string AttendeePassword { get; private set; }
     public DateTime StartDateTime { get; private set; }
     public DateTime EndDateTime { get; private set; }
-    public bool IsRunning { get; set; }
+    public bool IsRunning { get; private set; }
+    public int LimitCapacity { get; private set; }
+
     public Server Server { get; }
     public IReadOnlyList<User> Users { get; }
-    public int LimitCapacity { get; set; }
+    public List<MemberShip> MemberShips { get; }
 
-    public List<MemberShip> MemberShips { get; set; }
+    private Meeting() { }
 
-    private Session() { }
-
-    public Session(bool record, string name, string moderatorpassword, string attendeepassword)
+    public Meeting(bool record, string name, string moderatorPassword, string attendeePassword)
     {
-        Recorded = record;
+        Record = record;
         Name = name;
-        ModeratorPassword = moderatorpassword;
-        AttendeePassword = attendeepassword;
+        ModeratorPassword = moderatorPassword;
+        AttendeePassword = attendeePassword;
     }
-    public Session(
+    public Meeting(
         string meetingId,
         bool recorded,
         string name,
@@ -34,55 +35,52 @@ public class Session
         string attendeePassword,
         DateTime startDateTime,
         DateTime endDateTime,
-        int limitcapacity
+        int limitCapacity
     )
     {
-        IsValid(meetingId, recorded, name, moderatorPassword, attendeePassword);
+        IsValid(recorded, name, moderatorPassword, attendeePassword);
         if (startDateTime < DateTime.UtcNow)
             throw new ArgumentException($"The {nameof(startDateTime)} is Null Or Invalid.");
         if (endDateTime < DateTime.UtcNow)
             throw new ArgumentException($"The {nameof(endDateTime)} is Null Or Invalid.");
-        if (LimitCapacity <= 0)
+        if (limitCapacity <= 0)
             throw new ArgumentException($"The {nameof(LimitCapacity)}  Cant be zero or less");
 
         StartDateTime = startDateTime;
         IsRunning = true;
-        LimitCapacity = limitcapacity;
+        LimitCapacity = limitCapacity;
     }
-    public void Update(string meetingId,
-        bool recorded,
+    public void Update(
+        bool record,
         string name,
-        string ModertorPass,
-        string attendeePass)
+        string moderatorPassword,
+        string attendeePassword)
     {
-        IsValid(meetingId,
-            recorded,
+        IsValid(
+            record,
             name,
-            ModertorPass,
-            attendeePass);
+            moderatorPassword,
+            attendeePassword);
+        Name = name;
+        Record = record;
+        ModeratorPassword = moderatorPassword;
+        AttendeePassword = attendeePassword;
     }
 
+    public void EndSession(DateTime now) => (IsRunning, EndDateTime) = (false, now);
 
     private void IsValid(
-    string meetingId,
     bool recorded,
     string name,
     string moderatorPassword,
     string attendeePassword
 )
     {
-        if (string.IsNullOrWhiteSpace(meetingId))
-            throw new ArgumentNullException($"The {nameof(meetingId)} is Null Or Invalid.");
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentNullException($"The {nameof(name)} is Null Or Invalid.");
         if (string.IsNullOrWhiteSpace(moderatorPassword))
             throw new ArgumentNullException($"The {nameof(moderatorPassword)} is Null Or Invalid.");
         if (string.IsNullOrWhiteSpace(attendeePassword))
             throw new ArgumentNullException($"The {nameof(attendeePassword)} is Null Or Invalid.");
-        MeetingId = meetingId;
-        Name = name;
-        Recorded = recorded;
-        ModeratorPassword = moderatorPassword;
-        AttendeePassword = attendeePassword;
     }
 }

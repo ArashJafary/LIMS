@@ -1,17 +1,13 @@
 using BigBlueApi.Domain;
+using LIMS.Domain.Entities;
 
 namespace LIMS.Domain.Entity;
 
-public class UserRole
+public sealed class UserRole : BaseEntity
 {
-    public int Id { get; set; }
-    public string RoleName { get; set; }
-    public List<User> Users { get; set; }
-
-    public UserRole(UserRoles role)
-    {
-        RoleName = role.ToString();
-    }
-
+    public string RoleName { get; private set; }
+    public IEnumerable<User> Users { get; }
+    public UserRole(UserRoleTypes role)
+        => RoleName = role.ToString();
     private UserRole() { }
 }
