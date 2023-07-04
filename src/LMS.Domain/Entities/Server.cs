@@ -1,12 +1,12 @@
 namespace LIMS.Domain.Entity;
 
-public class Server
+public sealed class Server
 {
     public int Id { get; set; }
     public string ServerUrl { get; private set; }
     public string SharedSecret { get; private set; }
     public int ServerLimit { get; private set; }
-    public List<Session> Sessions { get; set; }
+    public List<Meeting> Sessions { get; set; }
 
     public Server(string serverUrl, string sharedSecret, int serverLimit)
     {
