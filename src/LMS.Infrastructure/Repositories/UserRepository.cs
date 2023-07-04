@@ -10,14 +10,24 @@ namespace BigBlueApi.Persistence.Repositories
         private readonly DbSet<User> _user;
         public UserRepository(LimsContext context) => _user = context.Set<User>(); 
         
-        
         public async ValueTask<long> CreateUser(User user)
         {
           var User =  await _user.AddAsync(user);
             return  User.Entity.Id;
         }
 
-        public async Task EditUser(int Id, User user)
+        public async ValueTask<User> GetUser(long userId) => await  _user.FirstOrDefaultAsync(user => user.Id == userId);
+
+        public async ValueTask<IEnumerable<User>> GetAllUsers() => await _user.ToListAsync();
+
+        public async Task<long> DeleteUser(long userId)
+        {
+            var user = await _user.FirstOrDefaultAsync(user => user.Id == userId);
+            _user.Remove(user);
+            return user.Id;
+        }
+
+        public async Task EditUser(long Id, User user)
         {
          var User = await _user.FirstOrDefaultAsync(us => us.Id == user.Id);
           User = user;
