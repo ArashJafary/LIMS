@@ -1,3 +1,5 @@
+using LIMS.Domain.Entity;
+
 namespace BigBlueApi.Domain.IRepository;
 public interface ISessionRepository 
 {

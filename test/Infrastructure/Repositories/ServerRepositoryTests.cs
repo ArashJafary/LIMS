@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BigBlueApi.Domain;
-using BigBlueApi.Persistence;
 using BigBlueApi.Persistence.Repository;
+using LIMS.Domain.Entity;
+using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 namespace BigBlueTest.Persistence.Repository

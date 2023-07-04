@@ -1,8 +1,9 @@
-using BigBlueApi.Domain;
 using BigBlueApi.Domain.IRepository;
+using LIMS.Domain.Entity;
+using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace BigBlueApi.Persistence.Repository;
+namespace BigBlueApi.Persistence.Repositories;
 
 public class ServerRepository : IServerRepository
 {

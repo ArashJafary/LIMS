@@ -1,8 +1,8 @@
-using BigBlueApi.Domain;
+using LIMS.Domain.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace BigBlueApi.Persistence.Configuration;
+namespace LIMS.Infrastructure.Persistence.Configuration;
 
 public class SessionEntityConfiguration : IEntityTypeConfiguration<Session>
 {

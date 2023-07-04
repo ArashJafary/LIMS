@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 
-namespace BigBlueApi.Persistence;
+namespace LIMS.Infrastructure.Persistence;
 
 public class BigBlueContextFactory : IDesignTimeDbContextFactory<BigBlueContext>
 {

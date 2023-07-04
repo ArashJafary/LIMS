@@ -1,10 +1,10 @@
-using BigBlueApi.Domain;
 using BigBlueApi.Domain.IRepository;
+using LIMS.Domain.Entity;
 using Microsoft.EntityFrameworkCore;
 
-namespace BigBlueApi.Persistence;
+namespace LIMS.Infrastructure.Persistence;
 
-public class BigBlueContext : DbContext,IUnitOfWork
+public class BigBlueContext : DbContext, IUnitOfWork
 {
     public BigBlueContext(DbContextOptions<BigBlueContext> options)
         : base(options) { }

@@ -1,5 +1,4 @@
-
-namespace BigBlueApi.Domain;
+namespace LIMS.Domain.Entity;
 
 public class Session
 {
@@ -16,11 +15,11 @@ public class Session
     public IReadOnlyList<User> Users { get; }
     public int LimitCapacity { get; set; }
 
-    public List<MemberShip> MemberShips{ get; set; }
+    public List<MemberShip> MemberShips { get; set; }
 
     private Session() { }
 
-    public Session(bool record,string name,string moderatorpassword,string attendeepassword)
+    public Session(bool record, string name, string moderatorpassword, string attendeepassword)
     {
         Recorded = record;
         Name = name;

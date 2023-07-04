@@ -1,6 +1,6 @@
-﻿using BigBlueApi.Domain;
-using BigBlueApi.Domain.IRepository;
+﻿using BigBlueApi.Domain.IRepository;
 using BigBlueApi.Persistence.Repository;
+using LIMS.Domain.Entity;
 
 namespace BigBlueApi.Application.Services
 {
