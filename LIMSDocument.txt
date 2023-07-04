@@ -1,0 +1,108 @@
+ACTION :
+
+BBB : 
+SESSION MANAGEMENT
+Create Session
+End Session
+Get Session Information
+Session and its Settings is Ok
+Get All Sessions of Server
+Get Session Configurations
+Set or Change Configuration Sessions
+
+RECORDING
+Get All Recorded Videos in Session
+Publish a Record of Session
+Delete a Record
+Update a Record
+
+USER MANAGMENT
+Join a Motherator
+Join a Attendee
+Sign Out From Session
+
+Adobe Connect : 
+User Password Update
+
+
+
+
+
+PROBLEM DOMAIN : Learning Managment System
+SubDomains :
+1. Session Managment 
+2. Server Managment
+3. User Managment
+4. Record Managment
+5. Configuration 
+
+
+
+
+Common Operations :
+1.Meeting {
+Create
+End
+GetAll
+GetOne 
+IsValid
+CanJoin
+Join
+Ban
+}
+2.Record {
+Start
+Publish
+GetAll
+Get
+Delete
+}
+3.Server {
+Create
+Delete
+Update
+GetAll
+Get
+CanJoin
+IsActive
+CapablestServer
+}
+4.User {
+GetAll
+Update
+Delete
+Get
+}
+
+
+
+
+MODULES :
+Admin Panel
+{
+    Sessions => GetAll , Update 
+    Users => CRUD
+    Servers => CRUD
+    Record => GetBySession , GetAll , GetByServer , Delete
+}
+Common {
+    Session => Create , End , GetAll , GetOne , IsValid , CanJoin , Join , Ban
+    Users => GetAll , Update , Delete , Get
+    Record => Start , GetAll , Get , Delete
+}
+Connect Managment {
+    Sessions => 
+    Users => GetAll , Update , Create
+    Servers => CRUD
+    Record => GetBySession , GetAll , GetByServer , Delete
+}
+BBB Managment {
+    Record => Publish 
+    Users => 
+}
+
+
+
+
+
+
