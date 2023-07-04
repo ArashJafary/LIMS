@@ -8,10 +8,10 @@ namespace BigBlueApi.Persistence.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly DbSet<User> _user;
-        public UserRepository(BigBlueContext context) => _user = context.Set<User>(); 
+        public UserRepository(LimsContext context) => _user = context.Set<User>(); 
         
         
-        public async ValueTask<int> CreateUser(User user)
+        public async ValueTask<long> CreateUser(User user)
         {
           var User =  await _user.AddAsync(user);
             return  User.Entity.Id;
