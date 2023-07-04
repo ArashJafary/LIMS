@@ -7,9 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="AdminPanel\" />
-    <Folder Include="BBB\" />
-    <Folder Include="AdobeConnect\" />
+    <Compile Remove="AdminPanel\**" />
+    <Compile Remove="AdobeConnect\**" />
+    <Compile Remove="BBB\**" />
+    <EmbeddedResource Remove="AdminPanel\**" />
+    <EmbeddedResource Remove="AdobeConnect\**" />
+    <EmbeddedResource Remove="BBB\**" />
+    <None Remove="AdminPanel\**" />
+    <None Remove="AdobeConnect\**" />
+    <None Remove="BBB\**" />
   </ItemGroup>
 
 </Project>
