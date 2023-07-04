@@ -9,12 +9,12 @@ namespace BigBlueApi.Application.Services
         private readonly IUnitOfWork _uow;
         private readonly IMemberShipRepository _memberShipRepository;
         private readonly IUserRepository _userRepository;
-        private readonly ISessionRepository _sessionRepository;
+        private readonly IMeetingRepository _sessionRepository;
 
         public MemberShipServiceImp(IUnitOfWork uow ,
             IMemberShipRepository repository,
             IUserRepository userRepository,
-            ISessionRepository sessionRepository)
+            IMeetingRepository sessionRepository)
         {
             _memberShipRepository = repository;
             _uow = uow;
@@ -28,7 +28,7 @@ namespace BigBlueApi.Application.Services
         public async ValueTask<int> JoinUser(string MeetingId, int UserId)
         {
             User user = await _userRepository.Find(UserId);
-            Session session = await _sessionRepository.Find(MeetingId);
+            Meeting session = await _sessionRepository.Find(MeetingId);
             if (session is null)
                 return 0;
             var Result = await _memberShipRepository.JoinUser(session, user);
