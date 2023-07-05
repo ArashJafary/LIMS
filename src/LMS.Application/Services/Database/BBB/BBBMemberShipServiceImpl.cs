@@ -5,14 +5,14 @@ using LIMS.Domain.IRepositories;
 
 namespace LIMS.Application.Services.Database.BBB
 {
-    public class MemberShipServiceImp
+    public class BBBMemberShipServiceImpl
     {
         private readonly IUnitOfWork _uow;
         private readonly IMemberShipRepository _memberShipRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMeetingRepository _meetingRepository;
 
-        public MemberShipServiceImp(IUnitOfWork uow,
+        public BBBMemberShipServiceImpl(IUnitOfWork uow,
             IMemberShipRepository repository,
             IUserRepository userRepository,
             IMeetingRepository meetingRepository)

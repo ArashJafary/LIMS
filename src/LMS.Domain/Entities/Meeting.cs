@@ -35,6 +35,8 @@ public sealed class Meeting : BaseEntity
             throw new ArgumentNullException($"The {nameof(attendeePassword)} is Null Or Invalid.");
     }
 
+
+
     public Meeting(
         string meetingId,
         bool isRecord,
