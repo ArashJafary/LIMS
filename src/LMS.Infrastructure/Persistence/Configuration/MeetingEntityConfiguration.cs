@@ -9,7 +9,7 @@ public class MeetingEntityConfiguration : IEntityTypeConfiguration<Meeting>
     public void Configure(EntityTypeBuilder<Meeting> builder)
     {
         builder.HasKey(session => session.Id);
-        builder.HasMany(session => session.Users).WithMany(user => user.Sessions);
+        builder.HasMany(session => session.Users).WithMany(user => user.Meeting);
         builder
             .HasOne(session => session.Server)
             .WithMany(server => server.Sessions)

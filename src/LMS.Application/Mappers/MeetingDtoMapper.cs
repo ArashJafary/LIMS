@@ -7,19 +7,20 @@ namespace BigBlueApi.Application.Mappers
     {
         public static Meeting Map(MeetingAddEditDto meetingDto) =>
             new Meeting(
-                 meetingDto.Recorded,
+                 meetingDto.MeetingId,
+                 meetingDto.IsRecord,
                  meetingDto.Name,
                  meetingDto.ModeratorPassword,
                  meetingDto.AttendeePassword
                 );
 
-        public static MeetingAddEditDto Map(Meeting record) =>
+        public static MeetingAddEditDto Map(Meeting meeting) =>
             new MeetingAddEditDto(
-                record.MeetingId,
-                record.IsRecord,
-                record.Name, 
-                record.ModeratorPassword, 
-                record.AttendeePassword
+                meeting.MeetingId,
+                meeting.IsRecord,
+                meeting.Name,
+                meeting.ModeratorPassword,
+                meeting.AttendeePassword
                 );
 
     }

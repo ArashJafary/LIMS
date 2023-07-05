@@ -1,8 +1,8 @@
 ﻿using BigBlueApi.Application.DTOs;
 using BigBlueApi.Application.Mappers;
 using BigBlueApi.Domain.IRepository;
-using BigBlueApi.Models;
 using LIMS.Domain.Entity;
+using LIMS.Domain.Models;
 
 namespace LIMS.Application.Services.Database.BBB
 {

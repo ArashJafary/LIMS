@@ -1,40 +1,80 @@
-﻿using BigBlueApi.Domain.IRepositories;
+﻿using BigBlueApi.Application.Mappers;
+using BigBlueApi.Domain.IRepositories;
 using BigBlueApi.Domain.IRepository;
 using LIMS.Domain.Entity;
 using LIMS.Domain.IRepositories;
+using LIMS.Domain.Models;
 
 namespace LIMS.Application.Services.Database.BBB
 {
     public class BBBMemberShipServiceImpl
     {
         private readonly IUnitOfWork _uow;
-        private readonly IMemberShipRepository _memberShipRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly IMeetingRepository _meetingRepository;
+        private readonly IMemberShipRepository _memberShips;
+        private readonly IUserRepository _users;
+        private readonly IMeetingRepository _meetings;
 
         public BBBMemberShipServiceImpl(IUnitOfWork uow,
-            IMemberShipRepository repository,
-            IUserRepository userRepository,
-            IMeetingRepository meetingRepository)
+            IMemberShipRepository memberShips,
+            IUserRepository users,
+            IMeetingRepository meetings)
+                => (_uow, _memberShips, _users, _meetings) = (uow, memberShips, users, meetings);
+
+        public async ValueTask<OperationResult<bool>> CanJoinUserOnMeetingAsync(long id)
         {
-            _memberShipRepository = repository;
-            _uow = uow;
-            _userRepository = userRepository;
-            _meetingRepository = meetingRepository;
+            try
+            {
+                await _memberShips.CanJoinUserOnMeetingAsync(id);
+                return OperationResult<bool>.OnSuccess(true);
+            }
+            catch (Exception exception)
+            {
+                return OperationResult<bool>.OnException(exception);
+            }
         }
 
-        public async ValueTask<bool> CanJoinUserOnMeetingAsync(long id) =>
-            await _memberShipRepository.CanJoinUserOnMeetingAsync(id);
-
-        public async ValueTask<int> JoinUserAsync(string meetingId, int UserId)
+        public async ValueTask<OperationResult<long>> JoinUserAsync(long userId, string meetingId)
         {
-            var user = await _userRepository.GetUser(UserId);
-            var meeting = await _meetingRepository.FindByMeetingIdAsync(meetingId);
-            if (meeting is null)
-                return 0;
-            var Result = await _memberShipRepository.JoinUserAsync(meeting, user);
-            await _uow.SaveChangesAsync();
-            return Result;
+            try
+            {
+                var user = await _users.GetUser(userId);
+                if (user is null)
+                    return OperationResult<long>.OnFailed("User is Not Valid.");
+                var meeting = await _meetings.FindByMeetingIdAsync(meetingId);
+                if (meeting is null)
+                    return OperationResult<long>.OnFailed("Meeting is Not Valid.");
+
+                var result = await _memberShips.JoinUserAsync(meeting, user);
+                await _uow.SaveChangesAsync();
+
+                return OperationResult<long>.OnSuccess(result);
+            }
+            catch (Exception exception)
+            {
+                return OperationResult<long>.OnException(exception);
+            }
+        }
+
+        public async ValueTask<OperationResult> BanUserFromMeeting(long userId, string meetingId)
+        {
+            try
+            {
+                var user = await _users.GetUser(userId);
+                if (user is null)
+                    return OperationResult.OnFailed("User is Not Valid.");
+                var meeting = await _meetings.FindByMeetingIdAsync(meetingId);
+                if (meeting is null)
+                    return OperationResult.OnFailed("Meeting is Not Valid.");
+
+                await _memberShips.BanUserAsync(user.Id, meeting.Id);
+                await _uow.SaveChangesAsync();
+
+                return new OperationResult();
+            }
+            catch (Exception exception)
+            {
+                return OperationResult.OnException(exception);
+            }
         }
     }
 }

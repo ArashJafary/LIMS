@@ -42,6 +42,22 @@ public sealed class Meeting : BaseEntity
         bool isRecord,
         string name,
         string moderatorPassword,
+        string attendeePassword
+    )
+    {
+        IsValid(name, moderatorPassword, attendeePassword);
+        MeetingId = meetingId;
+        IsRecord = isRecord;
+        Name = name;
+        ModeratorPassword = moderatorPassword;
+        AttendeePassword = attendeePassword;
+    }
+
+    public Meeting(
+        string meetingId,
+        bool isRecord,
+        string name,
+        string moderatorPassword,
         string attendeePassword,
         DateTime startDateTime,
         DateTime endDateTime,

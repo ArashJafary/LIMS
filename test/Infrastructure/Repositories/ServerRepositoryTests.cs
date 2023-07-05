@@ -12,9 +12,9 @@ namespace BigBlueTest.Persistence.Repository
 {
     public class ServerRepositoryTests
     {
-        private readonly Mock<DbSet<Server>> _dbSet;
-        private readonly Mock<BigBlueContext> _context;
-        public ServerRepositoryTests() => (_dbSet, _context) = (CreateMockDbSet(), CreateMockContext(_dbSet));
+        private readonly Mock<DbSet<Server>> _servers;
+        private readonly Mock<LimsContext> _context;
+        public ServerRepositoryTests() => (_servers, _context) = (CreateMockDbSet(), CreateMockContext(_servers));
         private Mock<DbSet<Server>> CreateMockDbSet()
         {
             var servers = new List<Server>()
@@ -28,13 +28,13 @@ namespace BigBlueTest.Persistence.Repository
             mockDbSet.As<IQueryable<Server>>().Setup(m => m.Provider).Returns(servers.AsQueryable().Provider);
             mockDbSet.As<IQueryable<Server>>().Setup(m => m.Expression).Returns(servers.AsQueryable().Expression);
             mockDbSet.As<IQueryable<Server>>().Setup(m => m.ElementType).Returns(servers.AsQueryable().ElementType);
-
             mockDbSet.As<IQueryable<Server>>().Setup(m => m.GetEnumerator()).Returns(servers.AsQueryable().GetEnumerator());
+
             return mockDbSet;
         }
-        private Mock<BigBlueContext> CreateMockContext(Mock<DbSet<Server>> mockDbSet)
+        private Mock<LimsContext> CreateMockContext(Mock<DbSet<Server>> mockDbSet)
         {
-            var mockContext = new Mock<BigBlueContext>();
+            var mockContext = new Mock<LimsContext>();
             object value = mockContext.Setup(c => c.Set<Server>()).Returns(mockDbSet.Object);
 
             return mockContext;
