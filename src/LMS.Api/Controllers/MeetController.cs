@@ -2,7 +2,6 @@ using System.Xml;
 using BigBlueApi.Application.DTOs;
 using BigBlueApi.Domain;
 using BigBlueApi.Models;
-using BigBlueApi.Persistence;
 using BigBlueButtonAPI.Core;
 using LIMS.Application.Services.Database.BBB;
 using Microsoft.AspNetCore.Mvc;
@@ -14,20 +13,20 @@ namespace BigBlueApi.Controllers;
 [Route("[controller]")]
 public class MeetController : ControllerBase
 {
-    private readonly SessionServiceImp _sessionService;
+    private readonly BBBMeetingServiceImpl _meetingService;
     private readonly BBBServerServiceImpl _serverService;
     private readonly BBBUserServiceImpl _userService;
     private readonly MemberShipServiceImp _memberShipService;
     private readonly BigBlueButtonAPIClient _client;
 
     public MeetController(
-        SessionServiceImp sessionService,
+        BBBMeetingServiceImpl sessionService,
         BBBServerServiceImpl serverService,
         BBBUserServiceImpl userService,
         MemberShipServiceImp memberShipService,
         BigBlueButtonAPIClient client
     ) =>
-        (_sessionService, _serverService, _userService, _memberShipService, _client) = (
+        (_meetingService, _serverService, _userService, _memberShipService, _client) = (
             sessionService,
             serverService,
             userService,
@@ -78,8 +77,8 @@ public class MeetController : ControllerBase
         if (result.returncode == Returncode.FAILED)
             return BadRequest("A Problem Has Been Occurred in Creating Meet.");
 
-        await _sessionService.CreateSession(
-            new SessionAddEditDto(
+        await _meetingService.CreateNewMeetingAsync(
+            new MeetingAddEditDto(
                 result.meetingID,
                 request.Record,
                 meetingCreateRequest.name,
@@ -106,15 +105,17 @@ public class MeetController : ControllerBase
     [HttpPost("[action]", Name = nameof(JoinMeeting))]
     public async ValueTask<IActionResult> JoinMeeting([FromBody] JoinMeetingRequestModel request)
     {
-        var server = await _sessionService.Find(request.MeetingId);
 
-        if (await _memberShipService.CanJoinUserOnSession(request.MeetingId))
+        var server = await _meetingService.FindMeeting(request.MeetingId);
+
+        if (await _memberShipService.CanJoinUserOnMeetingAsync(request.MeetingId))
             return BadRequest("Joining into This Class Not Accessed.");
 
-        if (await _serverService.CanJoinServer(server.Id))
+        if (await _serverService.CanJoinServer(server))
             return BadRequest("Server is Fulled!");
 
-        if (!await _sessionService.CanLogin(request.MeetingId, request.Role, request.Password))
+        var canLogin = _meetingService.CanLoginOnExistMeeting(request.MeetingId, request.Role, request.Password).Result;
+        if (!canLogin.Result)
             return BadRequest("Your Credentials are Not Valid.");
 
         var userId = await _userService.CreateUser(
@@ -122,13 +123,13 @@ public class MeetController : ControllerBase
         );
 
         var requestJoin = new JoinMeetingRequest { meetingID = request.MeetingId };
-        if (request.Role == UserRoles.Moderator)
+        if (request.Role == UserRoleTypes.Moderator)
         {
             requestJoin.password = request.Password;
             requestJoin.userID = "1";
             requestJoin.fullName = request.FullName;
         }
-        else if (request.Role == UserRoles.Attendee)
+        else if (request.Role == UserRoleTypes.Attendee)
         {
             requestJoin.password = request.Password;
             requestJoin.userID = "2";
@@ -143,7 +144,7 @@ public class MeetController : ControllerBase
         try
         {
             var url = _client.GetJoinMeetingUrl(requestJoin);
-            await _memberShipService.JoinUser(request.MeetingId, userId);
+            await _memberShipService.JoinUserAsync(request.MeetingId, userId);
 
             return Redirect(url);
         }
@@ -162,7 +163,7 @@ public class MeetController : ControllerBase
         if (result.returncode == Returncode.FAILED)
             return BadRequest(result.message);
 
-        await _sessionService.StopRunning(meetingId);
+        await _meetingService.StopRunning(meetingId);
         return Ok("Meeting is End.");
     }
 }

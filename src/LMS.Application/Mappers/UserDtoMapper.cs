@@ -15,9 +15,9 @@ namespace BigBlueApi.Application.Mappers
                 user.Alias,
                 user.Role.RoleName switch
                 {
-                    "Moderator" => UserRoles.Moderator,
-                    "Attendee" => UserRoles.Attendee,
-                    "Guest" => UserRoles.Guest
+                    "Moderator" => UserRoleTypes.Moderator,
+                    "Attendee" => UserRoleTypes.Attendee,
+                    "Guest" => UserRoleTypes.Guest
                 }
             );
     }
