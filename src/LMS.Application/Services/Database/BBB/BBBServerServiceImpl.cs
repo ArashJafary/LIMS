@@ -29,7 +29,7 @@ public class BBBServerServiceImpl
 
     public async ValueTask EditServer(int id, ServerAddEditDto serverAddEditDto)
     {
-        await _servers.EditServer(id, ServerDtoMapper.Map(serverAddEditDto));
+        await _servers.UpdateServer(id, ServerDtoMapper.Map(serverAddEditDto));
         await _unitOfWork.SaveChangesAsync();
     }
 

@@ -1,7 +1,6 @@
 ﻿using BigBlueApi.Application.DTOs;
 using BigBlueApi.Application.Mappers;
 using BigBlueApi.Domain.IRepository;
-using BigBlueApi.Persistence.Repository;
 using LIMS.Domain.Entity;
 
 namespace LIMS.Application.Services.Database.BBB
@@ -17,7 +16,7 @@ namespace LIMS.Application.Services.Database.BBB
             _Repository = repository;
         }
 
-        public async ValueTask<int> CreateUser(UserAddEditDto user)
+        public async ValueTask<long> CreateUser(UserAddEditDto user)
         {
             var newUser = UserDtoMapper.Map(user);
             await _Repository.CreateUser(newUser);
@@ -32,6 +31,6 @@ namespace LIMS.Application.Services.Database.BBB
             await _uow.SaveChangesAsync();
         }
 
-        public async ValueTask<User> Find(int userId) => await _Repository.Find(userId);
+        public async ValueTask<User> Find(int userId) => await _Repository.GetUser(userId);
     }
 }
