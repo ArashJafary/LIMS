@@ -14,7 +14,7 @@ namespace LIMS.Application.Services.Database.BBB
         private readonly IUserRepository _users;
         private readonly IMeetingRepository _meetings;
 
-        public MemberShipServiceImp(IUnitOfWork uow,
+        public BBBMemberShipServiceImpl(IUnitOfWork uow,
             IMemberShipRepository memberShips,
             IUserRepository users,
             IMeetingRepository meetings)
@@ -61,10 +61,10 @@ namespace LIMS.Application.Services.Database.BBB
             {
                 var user = await _users.GetUser(userId);
                 if (user is null)
-                    return OperationResult<long>.OnFailed("User is Not Valid.");
+                    return OperationResult.OnFailed("User is Not Valid.");
                 var meeting = await _meetings.FindByMeetingIdAsync(meetingId);
                 if (meeting is null)
-                    return OperationResult<long>.OnFailed("Meeting is Not Valid.");
+                    return OperationResult.OnFailed("Meeting is Not Valid.");
 
                 await _memberShips.BanUserAsync(user.Id, meeting.Id);
                 await _uow.SaveChangesAsync();
@@ -73,7 +73,7 @@ namespace LIMS.Application.Services.Database.BBB
             }
             catch (Exception exception)
             {
-                return OperationResult<long>.OnException(exception);
+                return OperationResult.OnException(exception);
             }
         }
     }

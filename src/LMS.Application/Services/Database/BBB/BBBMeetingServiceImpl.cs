@@ -17,19 +17,15 @@ namespace LIMS.Application.Services.Database.BBB
         public BBBMeetingServiceImpl(IMeetingRepository repository, IUnitOfWork uow) =>
             (_meetings,_uow) = (repository, uow);
 
-        public async ValueTask<OperationResult<long>> CreateMeetingAsync(SessionAddEditDto meeting)
         public async ValueTask<OperationResult<string>> CreateNewMeetingAsync(MeetingAddEditDto meeting)
         {
-            await _meetings.CreateMeetingAsync(SessionMapper.Map(meeting));
-            OperationResult<long>.OnSuccess(await _uow.SaveChangesAsync());
-            return meeting.MeetingId;
             try
             {
-                var result = await _repository.CreateMeetingAsync(MeetingDtoMapper.Map(meeting));
+                var result = await _meetings.CreateMeetingAsync(MeetingDtoMapper.Map(meeting));
                 await _uow.SaveChangesAsync();
 
                 return OperationResult<string>.OnSuccess(result);
-        }
+            }
             catch (Exception exception)
             {
                 return OperationResult<string>.OnException(exception);
@@ -40,7 +36,7 @@ namespace LIMS.Application.Services.Database.BBB
         {
             try
             {
-                var meeting = await _repository.FindByMeetingIdAsync(meetingId);
+                var meeting = await _meetings.FindByMeetingIdAsync(meetingId);
 
             if (role == UserRoleTypes.Attendee)
                 {
@@ -68,7 +64,7 @@ namespace LIMS.Application.Services.Database.BBB
         {
             try
             {
-                var meeting  = await _repository.FindAsync(id);
+                var meeting  = await _meetings.FindAsync(id);
                 if (meeting is null)
                     return OperationResult<Meeting>.OnFailed("Meeting Information is Null");
 
@@ -84,7 +80,7 @@ namespace LIMS.Application.Services.Database.BBB
         {
             try
             {
-                await _repository.UpdateMeetingAsync(id, MeetingDtoMapper.Map(session));
+                await _meetings.UpdateMeetingAsync(id, MeetingDtoMapper.Map(session));
                 return new OperationResult();
             }
             catch (Exception exception)
@@ -97,7 +93,7 @@ namespace LIMS.Application.Services.Database.BBB
         {
             try
             {
-                await _repository.EndMeetingAsync(id);
+                await _meetings.EndMeetingAsync(id);
                 return new OperationResult();
             }
             catch (Exception exception)

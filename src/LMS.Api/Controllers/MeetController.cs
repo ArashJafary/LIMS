@@ -16,14 +16,14 @@ public class MeetController : ControllerBase
     private readonly BBBMeetingServiceImpl _meetingService;
     private readonly BBBServerServiceImpl _serverService;
     private readonly BBBUserServiceImpl _userService;
-    private readonly MemberShipServiceImp _memberShipService;
+    private readonly BBBMemberShipServiceImpl _memberShipService;
     private readonly BigBlueButtonAPIClient _client;
 
     public MeetController(
         BBBMeetingServiceImpl sessionService,
         BBBServerServiceImpl serverService,
         BBBUserServiceImpl userService,
-        MemberShipServiceImp memberShipService,
+        BBBMemberShipServiceImpl memberShipService,
         BigBlueButtonAPIClient client
     ) =>
         (_meetingService, _serverService, _userService, _memberShipService, _client) = (
