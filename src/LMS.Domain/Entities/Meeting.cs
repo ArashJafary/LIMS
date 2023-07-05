@@ -46,6 +46,20 @@ public sealed class Meeting : BaseEntity
         int limitCapacity
     )
     {
+
+    }
+
+    public Meeting(
+        string meetingId,
+        bool isRecord,
+        string name,
+        string moderatorPassword,
+        string attendeePassword,
+        DateTime startDateTime,
+        DateTime endDateTime,
+        int limitCapacity
+    )
+    {
         IsValid(name, moderatorPassword, attendeePassword);
         if (startDateTime < DateTime.UtcNow)
             throw new ArgumentException($"The {nameof(startDateTime)} is Null Or Invalid.");
