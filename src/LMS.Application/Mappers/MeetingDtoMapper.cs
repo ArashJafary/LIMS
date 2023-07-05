@@ -22,5 +22,6 @@ namespace BigBlueApi.Application.Mappers
                 meeting.ModeratorPassword,
                 meeting.AttendeePassword
                 );
+
     }
 }

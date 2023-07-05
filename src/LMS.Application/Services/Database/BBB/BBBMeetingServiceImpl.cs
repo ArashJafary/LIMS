@@ -11,21 +11,25 @@ namespace LIMS.Application.Services.Database.BBB
 {
     public class BBBMeetingServiceImpl
     {
-        private readonly IMeetingRepository _repository;
+        private readonly IMeetingRepository _meetings;
         private readonly IUnitOfWork _uow;
 
         public BBBMeetingServiceImpl(IMeetingRepository repository, IUnitOfWork uow) =>
-            (_repository, _uow) = (repository, uow);
+            (_meetings,_uow) = (repository, uow);
 
+        public async ValueTask<OperationResult<long>> CreateMeetingAsync(SessionAddEditDto meeting)
         public async ValueTask<OperationResult<string>> CreateNewMeetingAsync(MeetingAddEditDto meeting)
         {
+            await _meetings.CreateMeetingAsync(SessionMapper.Map(meeting));
+            OperationResult<long>.OnSuccess(await _uow.SaveChangesAsync());
+            return meeting.MeetingId;
             try
             {
                 var result = await _repository.CreateMeetingAsync(MeetingDtoMapper.Map(meeting));
                 await _uow.SaveChangesAsync();
 
                 return OperationResult<string>.OnSuccess(result);
-            }
+        }
             catch (Exception exception)
             {
                 return OperationResult<string>.OnException(exception);
@@ -38,12 +42,12 @@ namespace LIMS.Application.Services.Database.BBB
             {
                 var meeting = await _repository.FindByMeetingIdAsync(meetingId);
 
-                if (role == UserRoleTypes.Attendee)
+            if (role == UserRoleTypes.Attendee)
                 {
                     if (meeting.AttendeePassword == password)
                              return OperationResult<bool>.OnSuccess(true);
                 }
-                else if (role == UserRoleTypes.Moderator)
+            else if (role == UserRoleTypes.Moderator)
                 {
                     if (meeting.ModeratorPassword == password)
                              return OperationResult<bool>.OnSuccess(true);

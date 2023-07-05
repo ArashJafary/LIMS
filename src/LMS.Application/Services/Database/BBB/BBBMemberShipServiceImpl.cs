@@ -7,7 +7,7 @@ using LIMS.Domain.Models;
 
 namespace LIMS.Application.Services.Database.BBB
 {
-    public class MemberShipServiceImp
+    public class BBBMemberShipServiceImpl
     {
         private readonly IUnitOfWork _uow;
         private readonly IMemberShipRepository _memberShips;
