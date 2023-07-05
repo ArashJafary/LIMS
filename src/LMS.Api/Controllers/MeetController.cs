@@ -1,11 +1,10 @@
 using System.Xml;
 using BigBlueApi.Application.DTOs;
-using BigBlueApi.Application.Services;
 using BigBlueApi.Domain;
 using BigBlueApi.Models;
 using BigBlueApi.Persistence;
-using BigBlueApi.Persistence.Repository;
 using BigBlueButtonAPI.Core;
+using LIMS.Application.Services.Database.BBB;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -16,15 +15,15 @@ namespace BigBlueApi.Controllers;
 public class MeetController : ControllerBase
 {
     private readonly SessionServiceImp _sessionService;
-    private readonly ServerServiceImp _serverService;
-    private readonly UserServiceImp _userService;
+    private readonly BBBServerServiceImpl _serverService;
+    private readonly BBBUserServiceImpl _userService;
     private readonly MemberShipServiceImp _memberShipService;
     private readonly BigBlueButtonAPIClient _client;
 
     public MeetController(
         SessionServiceImp sessionService,
-        ServerServiceImp serverService,
-        UserServiceImp userService,
+        BBBServerServiceImpl serverService,
+        BBBUserServiceImpl userService,
         MemberShipServiceImp memberShipService,
         BigBlueButtonAPIClient client
     ) =>
