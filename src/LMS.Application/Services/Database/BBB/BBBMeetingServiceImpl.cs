@@ -38,18 +38,18 @@ namespace LIMS.Application.Services.Database.BBB
             {
                 var meeting = await _meetings.FindByMeetingIdAsync(meetingId);
 
-            if (role == UserRoleTypes.Attendee)
+                if (role == UserRoleTypes.Attendee)
                 {
-                    if (meeting.AttendeePassword == password)
-                             return OperationResult<bool>.OnSuccess(true);
+                        if (meeting.AttendeePassword == password)
+                                 return OperationResult<bool>.OnSuccess(true);
                 }
-            else if (role == UserRoleTypes.Moderator)
+                else if (role == UserRoleTypes.Moderator)
                 {
-                    if (meeting.ModeratorPassword == password)
-                             return OperationResult<bool>.OnSuccess(true);
+                        if (meeting.ModeratorPassword == password)
+                                 return OperationResult<bool>.OnSuccess(true);
                 }
                 else if(role == UserRoleTypes.Guest)
-                    return OperationResult<bool>.OnSuccess(true);
+                        return OperationResult<bool>.OnSuccess(true);
 
                 return OperationResult<bool>.OnFailed(
                     "Your Moderator User or Password Intended Not Exists in my Records.");
