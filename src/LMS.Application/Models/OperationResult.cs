@@ -10,7 +10,7 @@ public class OperationResult
 
 
 
-    public bool Success { get; protected set; }
+    public bool Success { get; protected set; }=true;
     public string OnFailedMessage { get; protected set; }
     public Exception Exception { get; protected set; }
 
@@ -26,7 +26,7 @@ public class OperationResult<TResult>:OperationResult
 
 
     public OperationResult(TResult result) : base()
-      => (Success, Result) = (true,result);
+      => (Result) = (result);
     public OperationResult(string message) : base()
   => (Success,OnFailedMessage) = (false,message);
     public OperationResult(Exception ex) : base()
@@ -38,8 +38,10 @@ public class OperationResult<TResult>:OperationResult
 
     public static  OperationResult<TResult> OnSuccess(TResult result) 
         => new OperationResult<TResult>(result);
+
     public static OperationResult<TResult> OnFailed(string message)
     => new OperationResult<TResult>(message);
+
     public static OperationResult<TResult> OnException(Exception exception)
         => new OperationResult<TResult>(exception);
 }
