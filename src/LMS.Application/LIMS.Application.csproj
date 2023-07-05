@@ -10,4 +10,8 @@
     <ProjectReference Include="..\LMS.Domain\LIMS.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\Database\AdobeConnect\" />
+  </ItemGroup>
+
 </Project>
