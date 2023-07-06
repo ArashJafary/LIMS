@@ -1,10 +1,10 @@
 using BigBlueButtonAPI.Core;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BigBlueApi.Controllers;
+namespace LIMS.Api.Controllers.BBB;
 
 [ApiController]
-[Route("[controller]/[action]")]
+[Route("api/BBB/[controller]")]
 public class RecordController : ControllerBase
 {
     private readonly BigBlueButtonAPIClient _client;
@@ -12,9 +12,8 @@ public class RecordController : ControllerBase
     public RecordController(BigBlueButtonAPIClient client) => _client = client;
 
     [NonAction]
-    private async Task<bool> IsBigBlueSettingsOkAsync()
+    private async ValueTask<bool> IsBigBlueSettingsOkAsync()
     {
-    
         try
         {
             var result = await _client.IsMeetingRunningAsync(
@@ -30,8 +29,8 @@ public class RecordController : ControllerBase
         }
     }
 
-    [HttpGet("[action]",Name =nameof(IsRecordings))]
-    public async ValueTask<ActionResult> IsRecordings(string MeetingId)
+    [HttpGet("[action]", Name = nameof(Recordings))]
+    public async ValueTask<ActionResult> Recordings(string MeetingId)
     {
         //var setupOk = await IsBigBlueSettingsOkAsync();
         //var result = await _client.GetRecordingsAsync();
@@ -40,18 +39,19 @@ public class RecordController : ControllerBase
         {
             meetingID = MeetingId
         };
-        var Result= await _client.GetRecordingsAsync(Request);
-        if(Result is null)
+        var Result = await _client.GetRecordingsAsync(Request);
+        if (Result is null)
             return NotFound();
         return Ok(true);
     }
 
-    [HttpPost("[action]",Name =nameof(PublishRecordings))]
+    [HttpPost("[action]", Name = nameof(PublishRecordings))]
     public async ValueTask<ActionResult> PublishRecordings(string recordID, bool publish)
     {
-        var request = new PublishRecordingsRequest { 
+        var request = new PublishRecordingsRequest
+        {
             recordID = recordID,
-            publish = publish 
+            publish = publish
         };
         var result = await _client.PublishRecordingsAsync(request);
 
