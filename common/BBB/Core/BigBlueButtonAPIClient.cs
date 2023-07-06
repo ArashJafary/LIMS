@@ -27,7 +27,7 @@ namespace BigBlueButtonAPI.Core
     {
         #region Common
         private readonly HttpClient httpClient;
-        private readonly UrlBuilder urlBuilder;
+        private UrlBuilder urlBuilder;
 
         /// <summary>
         /// The constructor of the class.
@@ -39,7 +39,10 @@ namespace BigBlueButtonAPI.Core
             this.urlBuilder = new UrlBuilder(settings);
             this.httpClient = httpClient;
         }
-
+        public async Task UseServerSettings(BigBlueButtonAPISettings settings)
+        {
+            this.urlBuilder = new UrlBuilder(settings);
+        }
         private async Task<T> HttpGetAsync<T>(string method, BaseRequest request)
         {
             var url = urlBuilder.Build(method, request);
