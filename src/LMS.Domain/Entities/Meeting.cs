@@ -1,7 +1,7 @@
 using LIMS.Domain.Entities;
+using LIMS.Domain.Entity;
 
-namespace LIMS.Domain.Entity;
-
+namespace LIMS.Domain.Entities;
 public sealed class Meeting : BaseEntity
 {
     public string MeetingId { get; private set; }

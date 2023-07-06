@@ -1,3 +1,5 @@
+using LIMS.Domain.Entities;
+
 namespace LIMS.Domain.Entity;
 
 public sealed class Server
