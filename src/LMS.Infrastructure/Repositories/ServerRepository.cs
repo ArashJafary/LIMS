@@ -11,10 +11,10 @@ public class ServerRepository : IServerRepository
 
     public ServerRepository(LimsContext context) => _servers = context.Set<Server>();
 
-    public async ValueTask<bool> CanJoinServer(int id)
+    public async ValueTask<bool> CanJoinServer(long id)
     {
         var server = await _servers.FirstOrDefaultAsync(server => server.Id == id);
-        int usersCount = server!.Sessions.Sum(session => session.Users.Count);
+        long usersCount = server!.Sessions.Sum(session => session.Users.Count);
         if (server.ServerLimit <= usersCount)
             return false;
         return true;
@@ -26,21 +26,21 @@ public class ServerRepository : IServerRepository
         return newServer.Entity;
     }
 
-    public async ValueTask<int> DeleteServer(int Id)
+    public async ValueTask<long> DeleteServer(long Id)
     {
         var server = await _servers.FirstOrDefaultAsync(ser => ser.Id == Id);
         _servers.Remove(server!);
         return server!.Id;
     }
 
-    public async Task EditServer(int id, Server server)
+    public async Task EditServer(long id, Server server)
     {
         var newServer = await _servers.FirstOrDefaultAsync(server => server.Id == id);
-       // newServer!.UpdateServer(server.ServerUrl, server.SharedSecret, server.ServerLimit);
+        newServer!.UpdateServer(server.ServerUrl, server.SharedSecret, server.ServerLimit);
         _servers.Update(newServer!);
     }
 
-    public async ValueTask<Server> GetServer(int Id)
+    public async ValueTask<Server> GetServer(long Id)
     {
         var Server = await _servers.FirstOrDefaultAsync(ser => ser.Id == Id);
         return Server!;

@@ -2,10 +2,11 @@
 using BigBlueApi.Application.Mappers;
 using BigBlueApi.Domain;
 using BigBlueApi.Domain.IRepository;
-using BigBlueApi.Models;
-using LIMS.Domain.Entity;
 using LIMS.Domain.IRepositories;
+using LIMS.Domain.Entities;
 using LIMS.Domain.Models;
+using LIMS.Domain.Entity;
+using LIMS.Domain;
 
 namespace LIMS.Application.Services.Database.BBB
 {
@@ -60,19 +61,34 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
-        public async ValueTask<OperationResult<Meeting>> FindMeeting(long id)
+        public async ValueTask<OperationResult<Domain.Entities.Meeting>> FindMeeting(long id)
         {
             try
             {
                 var meeting  = await _meetings.FindAsync(id);
                 if (meeting is null)
-                    return OperationResult<Meeting>.OnFailed("Meeting Information is Null");
+                    return OperationResult<Domain.Entities.Meeting>.OnFailed("Meeting Information is Null");
 
-                return OperationResult<Meeting>.OnSuccess(meeting);
+                return OperationResult<Domain.Entities.Meeting>.OnSuccess(meeting);
             }
             catch (Exception exception)
             {
-                return OperationResult<Meeting>.OnException(exception);
+                return OperationResult<Domain.Entities.Meeting>.OnException(exception);
+            }
+        }
+
+        public async ValueTask<OperationResult<Domain.Entities.Meeting>> FindMeetingWithMeetingId(string meetingId)
+        {
+            try
+            {
+                var meeting = await _meetings.FindByMeetingIdAsync(meetingId);
+                if (meeting is null)
+                    return OperationResult<Domain.Entities.Meeting>.OnFailed("Meeting Information is Null");
+                return OperationResult<Domain.Entities.Meeting>.OnSuccess(meeting);
+            }
+            catch (Exception exception)
+            {
+                return OperationResult<Domain.Entities.Meeting>.OnException(exception);
             }
         }
 
@@ -89,11 +105,11 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
-        public async ValueTask<OperationResult> StopRunning(long id)
+        public async ValueTask<OperationResult> StopRunning(string meetingId)
         {
             try
             {
-                await _meetings.EndMeetingAsync(id);
+                await _meetings.EndMeetingAsync(meetingId);
                 return new OperationResult();
             }
             catch (Exception exception)

@@ -41,9 +41,9 @@ namespace BigBlueApi.Persistence.Repositories
         public async ValueTask<Meeting> FindByMeetingIdAsync(string meetingId)
            => await _meetings.FirstOrDefaultAsync(meeting => meeting.MeetingId == meetingId);
 
-        public async Task EndMeetingAsync(long id)
+        public async Task EndMeetingAsync(string meetingId)
         {
-            var meeting = await _meetings.FirstOrDefaultAsync(se => se.Id == id);
+            var meeting = await _meetings.FirstOrDefaultAsync(meeting => meeting.MeetingId == meetingId);
             meeting!.EndSession(DateTime.Now);
         }
     }

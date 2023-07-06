@@ -9,5 +9,5 @@ public interface IMeetingRepository
     Task DeleteMeetingAsync(long id);
     ValueTask<Meeting> FindAsync(long id);
     ValueTask<Meeting> FindByMeetingIdAsync(string meetingId);
-    Task EndMeetingAsync(long id);
+    Task EndMeetingAsync(string meetingId);
 }
