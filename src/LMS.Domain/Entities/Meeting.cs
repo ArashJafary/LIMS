@@ -1,7 +1,7 @@
 using LIMS.Domain.Entities;
+using LIMS.Domain.Entity;
 
-namespace LIMS.Domain.Entity;
-
+namespace LIMS.Domain.Entities;
 public sealed class Meeting : BaseEntity
 {
     public string MeetingId { get; private set; }
@@ -33,6 +33,24 @@ public sealed class Meeting : BaseEntity
             throw new ArgumentNullException($"The {nameof(moderatorPassword)} is Null Or Invalid.");
         if (string.IsNullOrWhiteSpace(attendeePassword))
             throw new ArgumentNullException($"The {nameof(attendeePassword)} is Null Or Invalid.");
+    }
+
+
+
+    public Meeting(
+        string meetingId,
+        bool isRecord,
+        string name,
+        string moderatorPassword,
+        string attendeePassword
+    )
+    {
+        IsValid(name, moderatorPassword, attendeePassword);
+        MeetingId = meetingId;
+        IsRecord = isRecord;
+        Name = name;
+        ModeratorPassword = moderatorPassword;
+        AttendeePassword = attendeePassword;
     }
 
     public Meeting(

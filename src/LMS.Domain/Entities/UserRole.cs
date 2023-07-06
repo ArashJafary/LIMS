@@ -1,7 +1,7 @@
 using BigBlueApi.Domain;
 using LIMS.Domain.Entities;
 
-namespace LIMS.Domain.Entity;
+namespace LIMS.Domain.Entities;
 
 public sealed class UserRole : BaseEntity
 {

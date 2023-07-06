@@ -16,4 +16,8 @@
     <ProjectReference Include="..\LMS.Application\LIMS.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\AdobeConnect\" />
+  </ItemGroup>
+
 </Project>
