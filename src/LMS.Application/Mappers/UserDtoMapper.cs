@@ -1,5 +1,6 @@
 using BigBlueApi.Application.DTOs;
 using BigBlueApi.Domain;
+using LIMS.Domain.Entities;
 using LIMS.Domain.Entity;
 
 namespace BigBlueApi.Application.Mappers

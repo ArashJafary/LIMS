@@ -58,22 +58,6 @@ public class BBBServerServiceImpl
         }
     }
 
-    public async ValueTask<OperationResult> EditServer(long id, ServerAddEditDto serverAddEditDto)
-    {
-        try
-        {
-
-            await _servers.EditServer(id, ServerDtoMapper.Map(serverAddEditDto));
-            await _unitOfWork.SaveChangesAsync();
-            return new OperationResult();
-        }
-        catch (Exception ex) 
-        {
-            return OperationResult.OnException(ex);
-        }
-
-    }
-
     public async ValueTask<OperationResult<ServerAddEditDto>> MostCapableServer()
     {
         try

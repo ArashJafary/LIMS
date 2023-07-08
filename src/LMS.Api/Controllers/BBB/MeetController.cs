@@ -88,7 +88,9 @@ public class MeetController : ControllerBase
             result.attendeePW
         ));
         if (createMeeting.Data is null)
-            return createMeeting.Errors.Count() > 1 ? BadRequest(createMeeting.Errors) : BadRequest(createMeeting.Error);
+            return createMeeting.Errors.Count() > 1 
+                ? BadRequest(createMeeting.Errors) 
+                : BadRequest(createMeeting.Error);
 
         var meetingInfoRequest = new GetMeetingInfoRequest { meetingID = request.MeetingId };
         var resultInformation = await _client.GetMeetingInfoAsync(meetingInfoRequest);
@@ -99,40 +101,12 @@ public class MeetController : ControllerBase
     [HttpPost("[action]/{id}", Name = nameof(JoinOnMeeting))]
     public async ValueTask<IActionResult> JoinOnMeeting([FromQuery] long id, [FromBody] JoinMeetingRequestModel request)
     {
-        var server = await _meetingService
-                .FindMeetingWithMeetingId(request.MeetingId);
-        if (!server.Success)
-            if (server.Exception is not null)
-                return StatusCode(500);
-            else
-                return BadRequest(server.OnFailedMessage);
 
-        var canJoinOnMeeting = await _memberShipService.CanJoinUserOnMeetingAsync(id);
-        if (!canJoinOnMeeting.Success)
-            if (server.Exception is not null)
-                return StatusCode(500);
-            else
-                return BadRequest(server.OnFailedMessage);
-        if (!canJoinOnMeeting.Result)
-            return BadRequest("Joining into This Class Not Accessed.");
-
-        var canJoinOnServer = await _serverService.CanJoinServer(server.Result.Id);
-        if (!canJoinOnServer.Success)
-            if (canJoinOnServer.Exception is not null)
-                return StatusCode(500);
-            else
-                return BadRequest(canJoinOnServer.OnFailedMessage);
-        if (!canJoinOnServer.Result)
-            return BadRequest("Server is Full.");
-
-        var cnaLoginOnMeeting = _meetingService.CanLoginOnExistMeeting(request.MeetingId, request.UserInformations.Role, request.MeetingPassword).Result;
-        if (!cnaLoginOnMeeting.Success)
-            if (cnaLoginOnMeeting.Exception is not null)
-                return StatusCode(500);
-            else
-                return BadRequest(cnaLoginOnMeeting.OnFailedMessage);
-        if (!cnaLoginOnMeeting.Result)
-            return BadRequest("Cannot Join Into Meeting.");
+        var canJoinOnMeeting =await _handleMeetingService.CanJoinOnMeetingHandler(id, request);
+        if (!canJoinOnMeeting.Data)
+            return canJoinOnMeeting.Errors.Count() > 1
+                ? BadRequest(canJoinOnMeeting.Errors)
+                : BadRequest(canJoinOnMeeting.Error);
 
         var userId = await _userService.CreateUser(
             new UserAddEditDto(request.UserInformations.FullName, request.UserInformations.Alias, request.UserInformations.Role)
@@ -165,12 +139,7 @@ public class MeetController : ControllerBase
         }
         var url = _client.GetJoinMeetingUrl(requestJoin);
 
-        var joinUserOnMeeting =await _memberShipService.JoinUserAsync( userId.Result, request.MeetingId);
-        if (!joinUserOnMeeting.Success)
-            if (joinUserOnMeeting.Exception is not null)
-                return StatusCode(500);
-            else
-                return BadRequest(joinUserOnMeeting.OnFailedMessage);
+      
 
         return Redirect(url);
     }

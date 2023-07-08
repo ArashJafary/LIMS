@@ -1,3 +1,4 @@
+using LIMS.Domain.Entities;
 using LIMS.Domain.Entity;
 
 namespace LIMS.Domain.IRepositories;

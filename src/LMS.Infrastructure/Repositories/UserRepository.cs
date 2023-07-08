@@ -1,4 +1,5 @@
 ﻿using BigBlueApi.Domain.IRepository;
+using LIMS.Domain.Entities;
 using LIMS.Domain.Entity;
 using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;

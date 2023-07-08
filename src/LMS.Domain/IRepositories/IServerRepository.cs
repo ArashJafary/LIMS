@@ -10,6 +10,4 @@ public interface IServerRepository
     ValueTask<List<Server>> GetAllServer();
     ValueTask<Server> CreateServer(Server server);
     ValueTask<Server> MostCapableServer();
-    Task EditServer(long id, Server server);
-    Task SetDownServer();
 }
