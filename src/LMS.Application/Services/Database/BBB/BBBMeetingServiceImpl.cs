@@ -18,7 +18,7 @@ namespace LIMS.Application.Services.Database.BBB
         public BBBMeetingServiceImpl(IMeetingRepository repository, IUnitOfWork uow) =>
             (_meetings,_uow) = (repository, uow);
 
-        public async ValueTask<OperationResult<string>> CreateNewMeetingAsync(MeetingAddDto meeting)
+        public async ValueTask<OperationResult<string>> CreateNewMeetingAsync(MeetingAddEditDto meeting)
         {
             try
             {
