@@ -6,7 +6,7 @@ namespace BigBlueApi.Application.Mappers
 {
     public static class MeetingDtoMapper
     {
-        public static Meeting Map(MeetingAddEditDto meetingDto) =>
+        public static Meeting Map(MeetingAddDto meetingDto) =>
             new Meeting(
                  meetingDto.MeetingId,
                  meetingDto.IsRecord,
@@ -15,8 +15,8 @@ namespace BigBlueApi.Application.Mappers
                  meetingDto.AttendeePassword
                 );
 
-        public static MeetingAddEditDto Map(Meeting meeting) =>
-            new MeetingAddEditDto(
+        public static MeetingAddDto Map(Meeting meeting) =>
+            new MeetingAddDto(
                 meeting.MeetingId,
                 meeting.IsRecord,
                 meeting.Name,

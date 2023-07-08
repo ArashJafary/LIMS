@@ -26,7 +26,7 @@ namespace BigBlueApi.Persistence.Repositories
             var result = await _memberShips.AddAsync(memberShip);
             return result.Entity.Id;
         }
-        async ValueTask<MemberShip> GetMemberShip(long userId, long meetingId)
+       public async ValueTask<MemberShip> GetMemberShip(long userId, long meetingId)
             => await _memberShips.FirstOrDefaultAsync(
                 member => member.User.Id == userId &&
                 member.Meeting.Id == meetingId);
