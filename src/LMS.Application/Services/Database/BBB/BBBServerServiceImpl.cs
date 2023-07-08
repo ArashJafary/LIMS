@@ -1,8 +1,6 @@
 using BigBlueApi.Application.DTOs;
-using BigBlueApi.Domain;
 using BigBlueApi.Domain.IRepository;
 using LIMS.Domain.Entity;
-using System.Net;
 using LIMS.Domain.Models;
 
 namespace LIMS.Application.Services.Database.BBB;
@@ -35,6 +33,12 @@ public class BBBServerServiceImpl
         }
     }
 
+    public async Task UpdateServer(long id, ServerAddEditDto server)
+    {
+        var newServer =await _servers.GetServer(id);
+        newServer.UpdateServer(server.ServerUrl,server.ServerSecret,server.ServerLimit);
+        await _unitOfWork.SaveChangesAsync();
+    }
     public async ValueTask<OperationResult<Server>> CreateServer(ServerAddEditDto serverAddEditDto)
     {
         try 
@@ -58,6 +62,7 @@ public class BBBServerServiceImpl
     {
         try
         {
+
             await _servers.EditServer(id, ServerDtoMapper.Map(serverAddEditDto));
             await _unitOfWork.SaveChangesAsync();
             return new OperationResult();

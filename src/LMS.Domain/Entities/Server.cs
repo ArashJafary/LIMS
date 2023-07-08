@@ -8,6 +8,7 @@ public sealed class Server
     public string ServerUrl { get; private set; }
     public string SharedSecret { get; private set; }
     public int ServerLimit { get; private set; }
+    public bool IsActive { get; private set; }
     public List<Meeting> Sessions { get; set; }
 
     public Server(string serverUrl, string sharedSecret, int serverLimit)
@@ -19,12 +20,14 @@ public sealed class Server
         SharedSecret = sharedSecret;
         ServerLimit = serverLimit;
     }
+
     public Server(string serverUrl, int serverLimit)
     {
         IsValid(serverUrl, serverLimit);
         ServerUrl = serverUrl;
         ServerLimit = serverLimit;
     }
+
     public void UpdateServer(string serverUrl, string sharedSecret, int serverLimit)
     {
         IsValid(serverUrl, serverLimit);
@@ -33,6 +36,14 @@ public sealed class Server
         ServerUrl = serverUrl;
         SharedSecret = sharedSecret;
         ServerLimit = serverLimit;
+    }
+
+    public async Task SetDownServer()
+    {
+        await Task.Run(() =>
+        {
+            IsActive = false;
+        });
     }
     private void IsValid(string serverUrl, int serverLimit)
     {

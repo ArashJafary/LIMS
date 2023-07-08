@@ -40,23 +40,10 @@ public class MeetController : ControllerBase
         );
 
     [NonAction]
-    private async ValueTask<bool> IsBigBlueSettingsOkAsync()
+    private async ValueTask<bool> IsBigBlueSettingsOkAsync(string meetingId)
     {
-        try
-        {
-            var result = await _client.IsMeetingRunningAsync(
-                new IsMeetingRunningRequest
-                { meetingID = Guid.NewGuid().ToString() }
-            );
-
-            if (result.returncode == Returncode.FAILED)
-                return false;
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+        var meeting = await _handleMeetingService.IsBigBlueButtonOk(meetingId);
+        return meeting.Data;
     }
 
     [HttpGet("[action]", Name = nameof(GetMeetingInformation))]
@@ -90,25 +77,18 @@ public class MeetController : ControllerBase
             record = request.Record,
         };
         var result = await _client.CreateMeetingAsync(meetingCreateRequest);
-
         if (result.returncode == Returncode.FAILED)
             return BadRequest("A Problem Has Been Occurred in Creating Meet.");
 
-        var createMeeting = await _meetingService.CreateNewMeetingAsync(
-            new MeetingAddEditDto(
-                result.meetingID,
-                request.Record,
-                meetingCreateRequest.name,
-                result.moderatorPW,
-                result.attendeePW
-            )
-        );
-
-        if (createMeeting.Success)
-            if (createMeeting.Exception is not null)
-                return StatusCode(500);
-            else
-                return BadRequest(createMeeting.OnFailedMessage);
+        var createMeeting =await _handleMeetingService.HandleCreateMeeting(new MeetingAddEditDto(
+            result.meetingID,
+            request.Record,
+            meetingCreateRequest.name,
+            result.moderatorPW,
+            result.attendeePW
+        ));
+        if (createMeeting.Data is null)
+            return createMeeting.Errors.Count() > 1 ? BadRequest(createMeeting.Errors) : BadRequest(createMeeting.Error);
 
         var meetingInfoRequest = new GetMeetingInfoRequest { meetingID = request.MeetingId };
         var resultInformation = await _client.GetMeetingInfoAsync(meetingInfoRequest);
