@@ -66,7 +66,8 @@ namespace LIMS.Application.Services.Database.BBB
                 if (meeting is null)
                     return OperationResult.OnFailed("Meeting is Not Valid.");
 
-                await _memberShips.BanUserAsync(user.Id, meeting.Id);
+              var member =  await _memberShips.GetMemberShip(user.Id, meeting.Id);
+               await member.BanUser();
                 await _uow.SaveChangesAsync();
 
                 return new OperationResult();

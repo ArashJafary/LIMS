@@ -1,4 +1,5 @@
 using BigBlueApi.Domain;
+using LIMS.Domain;
 
 namespace BigBlueApi.Application.DTOs;
 

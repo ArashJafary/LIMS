@@ -26,7 +26,7 @@ namespace BigBlueButtonAPI.Core
         /// Required.
         /// A meeting ID that can be used to identify this meeting by the 3rd-party application. 
         /// This must be unique to the server that you are calling: different active meetings can not have the same meeting ID.
-        /// If you supply a non-unique meeting ID (a meeting is already in progress with the same meeting ID), then if the other parameters in the create call are identical, the create call will succeed (but will receive a warning message in the response). The create call is idempotent: calling multiple times does not have any side effect. This enables a 3rd-party applications to avoid checking if the meeting is running and always call create before joining each user.
+        /// If you supply a non-unique meeting ID (a meeting is already in progress with the same meeting ID), then if the other parameters in the create call are identical, the create call will succeed (but will receive a warning Message in the response). The create call is idempotent: calling multiple times does not have any side effect. This enables a 3rd-party applications to avoid checking if the meeting is running and always call create before joining each user.
         /// Meeting IDs should only contain upper/lower ASCII letters, numbers, dashes, or underscores. A good choice for the meeting ID is to generate a GUID value as this all but guarantees that different meetings will not have the same meetingID.
         /// </summary>
         public string meetingID { get; set; }
@@ -46,9 +46,9 @@ namespace BigBlueButtonAPI.Core
 
         /// <summary>
         /// Optional.
-        /// A welcome message that gets displayed on the chat window when the participant joins. You can include keywords (%%CONFNAME%%, %%DIALNUM%%, %%CONFNUM%%) which will be substituted automatically.
+        /// A welcome Message that gets displayed on the chat window when the participant joins. You can include keywords (%%CONFNAME%%, %%DIALNUM%%, %%CONFNUM%%) which will be substituted automatically.
         /// This parameter overrides the default defaultWelcomeMessage in bigbluebutton.properties.
-        /// The welcome message has limited support for HTML formatting. Be careful about copy/pasted HTML from e.g. MS Word, as it can easily exceed the maximum supported URL length when used on a GET request.
+        /// The welcome Message has limited support for HTML formatting. Be careful about copy/pasted HTML from e.g. MS Word, as it can easily exceed the maximum supported URL length when used on a GET request.
         /// </summary>
         public string welcome { get; set; }
 
@@ -75,7 +75,7 @@ namespace BigBlueButtonAPI.Core
 
         /// <summary>
         /// Optional.
-        /// The URL that the BigBlueButton client will go to after users click the OK button on the ‘You have been logged out message’. This overrides the value for bigbluebutton.web.logoutURL in bigbluebutton.properties.
+        /// The URL that the BigBlueButton client will go to after users click the OK button on the ‘You have been logged out Message’. This overrides the value for bigbluebutton.web.logoutURL in bigbluebutton.properties.
         /// </summary>
         public string logoutURL { get; set; }
 

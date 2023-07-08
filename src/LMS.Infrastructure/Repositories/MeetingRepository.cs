@@ -1,4 +1,5 @@
 ﻿using BigBlueApi.Domain.IRepository;
+using LIMS.Domain.Entities;
 using LIMS.Domain.Entity;
 using LIMS.Domain.IRepositories;
 using LIMS.Infrastructure.Persistence;
@@ -19,19 +20,6 @@ namespace BigBlueApi.Persistence.Repositories
 
         public async ValueTask<IEnumerable<Meeting>> GetMeetingsAsync() => await _meetings.ToListAsync();
 
-        public async Task UpdateMeetingAsync(long id, Meeting meeting)
-        {
-            var newMeeting = await _meetings.FirstOrDefaultAsync(meet => meet.Id == id);
-            newMeeting.Update(
-                meeting.Name,
-                meeting.ModeratorPassword,
-                meeting.AttendeePassword,
-                meeting.EndDateTime,
-                meeting.LimitCapacity
-            );
-            _meetings.Update(newMeeting);
-        }
-
         public async Task DeleteMeetingAsync(long id)
             => _meetings.Remove(await _meetings.FirstOrDefaultAsync(meeting => meeting.Id == id)!);
 
@@ -41,10 +29,5 @@ namespace BigBlueApi.Persistence.Repositories
         public async ValueTask<Meeting> FindByMeetingIdAsync(string meetingId)
            => await _meetings.FirstOrDefaultAsync(meeting => meeting.MeetingId == meetingId);
 
-        public async Task EndMeetingAsync(string meetingId)
-        {
-            var meeting = await _meetings.FirstOrDefaultAsync(meeting => meeting.MeetingId == meetingId);
-            meeting!.EndSession(DateTime.Now);
-        }
     }
 }

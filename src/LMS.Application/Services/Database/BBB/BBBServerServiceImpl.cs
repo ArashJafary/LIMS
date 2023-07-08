@@ -1,8 +1,7 @@
 using BigBlueApi.Application.DTOs;
-using BigBlueApi.Domain;
 using BigBlueApi.Domain.IRepository;
+using LIMS.Application.DTOs;
 using LIMS.Domain.Entity;
-using System.Net;
 using LIMS.Domain.Models;
 
 namespace LIMS.Application.Services.Database.BBB;
@@ -35,6 +34,12 @@ public class BBBServerServiceImpl
         }
     }
 
+    public async Task UpdateServer(long id, ServerAddEditDto server)
+    {
+        var newServer =await _servers.GetServer(id);
+        newServer.UpdateServer(server.ServerUrl,server.ServerSecret,server.ServerLimit);
+        await _unitOfWork.SaveChangesAsync();
+    }
     public async ValueTask<OperationResult<Server>> CreateServer(ServerAddEditDto serverAddEditDto)
     {
         try 
@@ -54,28 +59,13 @@ public class BBBServerServiceImpl
         }
     }
 
-    public async ValueTask<OperationResult> EditServer(long id, ServerAddEditDto serverAddEditDto)
-    {
-        try
-        {
-            await _servers.EditServer(id, ServerDtoMapper.Map(serverAddEditDto));
-            await _unitOfWork.SaveChangesAsync();
-            return new OperationResult();
-        }
-        catch (Exception ex) 
-        {
-            return OperationResult.OnException(ex);
-        }
-
-    }
-
     public async ValueTask<OperationResult<ServerAddEditDto>> MostCapableServer()
     {
         try
         {
             var server = await _servers.MostCapableServer();
-            var ServerDto = ServerDtoMapper.Map(server);
-            return OperationResult<ServerAddEditDto>.OnSuccess(ServerDto);
+            var serverDto = ServerDtoMapper.Map(server);
+            return OperationResult<ServerAddEditDto>.OnSuccess(serverDto);
         }
         catch (Exception ex)
         {
@@ -98,8 +88,8 @@ public class BBBServerServiceImpl
     {
         try
         {
-            var Server=  ServerDtoMapper.Map(await _servers.GetServer(Id));
-            return OperationResult<ServerAddEditDto>.OnSuccess(Server);
+            var server=  ServerDtoMapper.Map(await _servers.GetServer(Id));
+            return OperationResult<ServerAddEditDto>.OnSuccess(server);
         }
         catch (Exception ex) 
         {
@@ -111,13 +101,13 @@ public class BBBServerServiceImpl
     {
         try
         {
-            var Servers= await _servers.GetAllServer();
-            var ServersDto= new List<ServerAddEditDto>();
-            for (long i = 0; i < Servers.Count; i++)
+            var servers= await _servers.GetAllServer();
+            var serversDto= new List<ServerAddEditDto>();
+            for (long i = 0; i < servers.Count; i++)
             {
-                ServersDto.Add(ServerDtoMapper.Map(Servers[(int)i]));
+                serversDto.Add(ServerDtoMapper.Map(servers[(int)i]));
             }
-            return OperationResult<List<ServerAddEditDto>>.OnSuccess(ServersDto);
+            return OperationResult<List<ServerAddEditDto>>.OnSuccess(serversDto);
         }
         catch(Exception ex)
         {

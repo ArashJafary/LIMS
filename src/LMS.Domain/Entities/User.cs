@@ -12,5 +12,8 @@ public sealed class User : BaseEntity
     public User(string fullName, string alias, UserRole role) =>
         (FullName, Alias, Role) = (fullName, alias, role);
 
+    public void UserUpdate(string fullName, string alias, UserRole role) =>
+      (FullName, Alias, Role) = (fullName, alias, role);
+
     private User() { }
 }

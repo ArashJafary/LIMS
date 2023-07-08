@@ -26,18 +26,11 @@ public class ServerRepository : IServerRepository
         return newServer.Entity;
     }
 
-    public async ValueTask<long> DeleteServer(long Id)
+    public async Task<long> DeleteServer(long Id)
     {
         var server = await _servers.FirstOrDefaultAsync(ser => ser.Id == Id);
         _servers.Remove(server!);
         return server!.Id;
-    }
-
-    public async Task EditServer(long id, Server server)
-    {
-        var newServer = await _servers.FirstOrDefaultAsync(server => server.Id == id);
-        newServer!.UpdateServer(server.ServerUrl, server.SharedSecret, server.ServerLimit);
-        _servers.Update(newServer!);
     }
 
     public async ValueTask<Server> GetServer(long Id)
@@ -47,9 +40,7 @@ public class ServerRepository : IServerRepository
     }
 
     public async ValueTask<List<Server>> GetAllServer()
-    {
-        return await _servers.ToListAsync();
-    }
+        => await _servers.ToListAsync();
 
     public async ValueTask<Server> MostCapableServer()
     {

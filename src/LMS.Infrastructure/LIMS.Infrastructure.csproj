@@ -17,4 +17,8 @@
     <ProjectReference Include="..\LMS.Domain\LIMS.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Rest\BBB\" />
+  </ItemGroup>
+
 </Project>
