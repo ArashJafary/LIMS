@@ -21,20 +21,20 @@ namespace BigBlueButtonAPI.Core
         /// <summary>
         /// Indicates whether the intended function was successful or not.
         /// </summary>
-        public Returncode returncode { get; set; }
+        public Returncode Returncode { get; set; }
 
         /// <summary>
-        /// Provides similar functionality to the message and follows the same rules. 
-        /// However, a message key will be much shorter and will generally remain the same for the life of the API whereas a message may change over time. 
-        /// If your third party application would like to internationalize or otherwise change the standard messages returned, you can look up your own custom messages based on this messageKey.
+        /// Provides similar functionality to the Message and follows the same rules. 
+        /// However, a Message key will be much shorter and will generally remain the same for the life of the API whereas a Message may change over time. 
+        /// If your third party application would like to internationalize or otherwise change the standard messages returned, you can look up your own custom messages based on this MessageKey.
         /// </summary>
-        public string messageKey { get; set; }
+        public string MessageKey { get; set; }
 
         /// <summary>
-        /// A message that gives additional information about the status of the call. 
-        /// A message parameter will always be returned if the returncode was FAILED. 
-        /// A message may also be returned in some cases where returncode was SUCCESS if additional information would be helpful.
+        /// A Message that gives additional information about the status of the call. 
+        /// A Message parameter will always be returned if the Returncode was Failed. 
+        /// A Message may also be returned in some cases where Returncode was Success if additional information would be helpful.
         /// </summary>
-        public string message { get; set; }
+        public string Message { get; set; }
     }
 }
