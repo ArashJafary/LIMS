@@ -1,4 +1,4 @@
-namespace BigBlueApi.Domain;
+namespace LIMS.Domain;
 public enum UserRoleTypes
 {
     Moderator = 1,
