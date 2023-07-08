@@ -50,7 +50,7 @@ namespace LIMS.Application.Services.Meeting.BBB
                return SingleResponse<ServerAddEditDto>.OnSuccess(server.Result);
         }
 
-        public async ValueTask<SingleResponse<string>> HandleCreateMeeting(MeetingAddEditDto meeting)
+        public async ValueTask<SingleResponse<string>> HandleCreateMeeting(MeetingAddDto meeting)
         {
             var createMeeting = await _meetingService.CreateNewMeetingAsync(meeting);
 

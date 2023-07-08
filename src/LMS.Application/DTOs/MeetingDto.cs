@@ -16,7 +16,7 @@ namespace BigBlueApi.Application.DTOs
     string Name,
     string ModeratorPassword,
     string AttendeePassword,
-    DateTime endDateTime,
+    DateTime EndDateTime,
     int limitCapacity
     );
 }

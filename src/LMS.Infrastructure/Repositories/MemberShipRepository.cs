@@ -30,5 +30,10 @@ namespace BigBlueApi.Persistence.Repositories
             => await _memberShips.FirstOrDefaultAsync(
                 member => member.User.Id == userId &&
                 member.Meeting.Id == meetingId);
+
+        ValueTask<MemberShip> IMemberShipRepository.GetMemberShip(long userId, long meetingId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

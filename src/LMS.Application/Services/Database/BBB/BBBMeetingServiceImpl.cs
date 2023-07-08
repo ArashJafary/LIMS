@@ -18,7 +18,7 @@ namespace LIMS.Application.Services.Database.BBB
         public BBBMeetingServiceImpl(IMeetingRepository repository, IUnitOfWork uow) =>
             (_meetings,_uow) = (repository, uow);
 
-        public async ValueTask<OperationResult<string>> CreateNewMeetingAsync(MeetingAddEditDto meeting)
+        public async ValueTask<OperationResult<string>> CreateNewMeetingAsync(MeetingAddDto meeting)
         {
             try
             {
@@ -100,7 +100,7 @@ namespace LIMS.Application.Services.Database.BBB
                 meeting.Update(session.Name,
                     session.ModeratorPassword,
                     session.AttendeePassword,
-                    session.endDateTime,
+                    session.EndDateTime,
                     session.limitCapacity);
                 await _uow.SaveChangesAsync();
                 return new OperationResult();

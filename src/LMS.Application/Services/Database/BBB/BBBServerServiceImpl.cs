@@ -1,5 +1,6 @@
 using BigBlueApi.Application.DTOs;
 using BigBlueApi.Domain.IRepository;
+using LIMS.Application.DTOs;
 using LIMS.Domain.Entity;
 using LIMS.Domain.Models;
 
