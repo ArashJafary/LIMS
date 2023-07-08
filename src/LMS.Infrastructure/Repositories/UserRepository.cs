@@ -27,13 +27,5 @@ namespace BigBlueApi.Persistence.Repositories
             _User.Remove(user);
             return user.Id;
         }
-
-        public async Task EditUser(long Id, User user)
-        {
-         var User = await _User.FirstOrDefaultAsync(us => us.Id == user.Id);
-          User = user;
-            _User.Update(User);
-        }
-
     }
 }

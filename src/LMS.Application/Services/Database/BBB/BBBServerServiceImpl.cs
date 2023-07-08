@@ -63,8 +63,8 @@ public class BBBServerServiceImpl
         try
         {
             var server = await _servers.MostCapableServer();
-            var ServerDto = ServerDtoMapper.Map(server);
-            return OperationResult<ServerAddEditDto>.OnSuccess(ServerDto);
+            var serverDto = ServerDtoMapper.Map(server);
+            return OperationResult<ServerAddEditDto>.OnSuccess(serverDto);
         }
         catch (Exception ex)
         {
@@ -87,8 +87,8 @@ public class BBBServerServiceImpl
     {
         try
         {
-            var Server=  ServerDtoMapper.Map(await _servers.GetServer(Id));
-            return OperationResult<ServerAddEditDto>.OnSuccess(Server);
+            var server=  ServerDtoMapper.Map(await _servers.GetServer(Id));
+            return OperationResult<ServerAddEditDto>.OnSuccess(server);
         }
         catch (Exception ex) 
         {
@@ -100,13 +100,13 @@ public class BBBServerServiceImpl
     {
         try
         {
-            var Servers= await _servers.GetAllServer();
-            var ServersDto= new List<ServerAddEditDto>();
-            for (long i = 0; i < Servers.Count; i++)
+            var servers= await _servers.GetAllServer();
+            var serversDto= new List<ServerAddEditDto>();
+            for (long i = 0; i < servers.Count; i++)
             {
-                ServersDto.Add(ServerDtoMapper.Map(Servers[(int)i]));
+                serversDto.Add(ServerDtoMapper.Map(servers[(int)i]));
             }
-            return OperationResult<List<ServerAddEditDto>>.OnSuccess(ServersDto);
+            return OperationResult<List<ServerAddEditDto>>.OnSuccess(serversDto);
         }
         catch(Exception ex)
         {
