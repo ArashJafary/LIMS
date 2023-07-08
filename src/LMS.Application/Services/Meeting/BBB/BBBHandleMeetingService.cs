@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BigBlueApi.Application.DTOs;
 using BigBlueButtonAPI.Core;
+using LIMS.Application.DTOs;
 using LIMS.Application.Models;
 using LIMS.Domain.Entity;
 using LIMS.Application.Models.Http.BBB;
@@ -71,8 +72,8 @@ namespace LIMS.Application.Services.Meeting.BBB
                         { meetingID = meetingId }
                 );
 
-                if (result.returncode == Returncode.FAILED)
-                    return SingleResponse<bool>.OnFailed(result.message);
+                if (result.Returncode == Returncode.Failed)
+                    return SingleResponse<bool>.OnFailed(result.Message);
                 else
                     return SingleResponse<bool>.OnSuccess(true);
             }
@@ -132,7 +133,17 @@ namespace LIMS.Application.Services.Meeting.BBB
                     return SingleResponse<long>.OnFailed(joinUserOnMeeting.OnFailedMessage);
             return SingleResponse<long>.OnSuccess(joinUserOnMeeting.Result);
         }
+
+        public async Task<SingleResponse<string>> EndMeetingHandler(string meetingId)
+        {
+            var endMeeting = await _meetingService.StopRunning(meetingId);
+            if (!endMeeting.Success)
+                if (endMeeting.Exception is not null)
+                    return SingleResponse<string>.OnFailed(endMeeting.Exception.Data.ToString());
+                else
+                    return SingleResponse<string>.OnFailed(endMeeting.OnFailedMessage);
+            else
+                return SingleResponse<string>.OnSuccess("Meeting is End.");
+        }
     }
-
-
 }
