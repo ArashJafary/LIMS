@@ -1,4 +1,7 @@
 using BigBlueButtonAPI.Core;
+using LIMS.Application.Services.Database.BBB;
+using LIMS.Application.Services.Meeting.BBB;
+using LIMS.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LIMS.Api.Controllers.BBB;
@@ -8,55 +11,46 @@ namespace LIMS.Api.Controllers.BBB;
 public class RecordController : ControllerBase
 {
     private readonly BigBlueButtonAPIClient _client;
-
-    public RecordController(BigBlueButtonAPIClient client) => _client = client;
+    private readonly BBBHandleMeetingService _handleMeetingService;
+    private readonly BBBRecordServiceImpl _recordService;
+    public RecordController(BigBlueButtonAPIClient client, BBBHandleMeetingService handleMeetingService,BBBRecordServiceImpl recordService) 
+        => (_client, _handleMeetingService, _recordService) = (client,handleMeetingService,recordService);
 
     [NonAction]
-    private async ValueTask<bool> IsBigBlueSettingsOkAsync()
+    private async ValueTask<bool> IsBigBlueSettingsOkAsync(string meetingId)
     {
-        try
-        {
-            var result = await _client.IsMeetingRunningAsync(
-                new IsMeetingRunningRequest { meetingID = Guid.NewGuid().ToString() }
-            );
-            if (result.returncode == Returncode.FAILED)
-                return false;
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+        var meeting = await _handleMeetingService.IsBigBlueButtonOk(meetingId);
+        return meeting.Data;
     }
 
     [HttpGet("[action]", Name = nameof(Recordings))]
-    public async ValueTask<ActionResult> Recordings(string MeetingId)
+    public async ValueTask<ActionResult> Recordings(string meetingId)
     {
-        //var setupOk = await IsBigBlueSettingsOkAsync();
-        //var result = await _client.GetRecordingsAsync();
-        //return Ok(result);
-        var Request = new GetRecordingsRequest
+        var setupOk = await IsBigBlueSettingsOkAsync(meetingId);
+
+        var result = new GetRecordingsRequest
         {
-            meetingID = MeetingId
+            meetingID = meetingId
         };
-        var Result = await _client.GetRecordingsAsync(Request);
-        if (Result is null)
+        var recordings = await _client.GetRecordingsAsync(result);
+        if (recordings is null)
             return NotFound();
-        return Ok(true);
+
+        return Ok(recordings);
     }
 
     [HttpPost("[action]", Name = nameof(PublishRecordings))]
-    public async ValueTask<ActionResult> PublishRecordings(string recordID, bool publish)
+    public async ValueTask<ActionResult> PublishRecordings(string recordId, bool publish)
     {
         var request = new PublishRecordingsRequest
         {
-            recordID = recordID,
+            recordID = recordId,
             publish = publish
         };
         var result = await _client.PublishRecordingsAsync(request);
 
-        if (result.returncode == Returncode.FAILED)
-            return BadRequest(result.message);
+        if (result.Returncode == Returncode.Failed)
+            return BadRequest(result.Message);
         return Ok(result);
     }
 }

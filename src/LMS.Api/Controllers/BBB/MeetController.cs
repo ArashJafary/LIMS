@@ -77,7 +77,7 @@ public class MeetController : ControllerBase
             record = request.Record,
         };
         var result = await _client.CreateMeetingAsync(meetingCreateRequest);
-        if (result.returncode == Returncode.FAILED)
+        if (result.Returncode == Returncode.Failed)
             return BadRequest("A Problem Has Been Occurred in Creating Meet.");
 
         var createMeeting =await _handleMeetingService.HandleCreateMeeting(new MeetingAddEditDto(
@@ -139,7 +139,7 @@ public class MeetController : ControllerBase
         }
         var url = _client.GetJoinMeetingUrl(requestJoin);
 
-      
+        await _handleMeetingService.JoiningOnMeeting(userId.Result, request.MeetingId);
 
         return Redirect(url);
     }
@@ -150,16 +150,13 @@ public class MeetController : ControllerBase
         var result = await _client.EndMeetingAsync(
             new EndMeetingRequest { meetingID = meetingId, password = password }
         );
-        if (result.returncode == Returncode.FAILED)
-            return BadRequest(result.message);
+        if (result.Returncode == Returncode.Failed)
+            return BadRequest(result.Message);
 
-        var endMeeting = await _meetingService.StopRunning(meetingId);
-        if (!endMeeting.Success)
-            if (endMeeting.Exception is not null)
-                return StatusCode(500);
-            else
-                return BadRequest(endMeeting.OnFailedMessage);
-        else
-            return Ok("Meeting is End.");
+        var handleEnd =await _handleMeetingService.EndMeetingHandler(meetingId);
+        if (handleEnd is null)
+            return handleEnd.Errors.Count() > 1 ? BadRequest(handleEnd.Errors) : BadRequest(handleEnd.Error);
+
+        return Ok(handleEnd.Data);
     }
 }
