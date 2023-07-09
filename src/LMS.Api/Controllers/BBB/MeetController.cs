@@ -6,6 +6,7 @@ using Hangfire;
 using LIMS.Application.Models.Http.BBB;
 using LIMS.Application.Services.Database.BBB;
 using LIMS.Application.Services.Meeting.BBB;
+using LIMS.Application.Services.Schadulers.HangFire;
 using LIMS.Domain;
 using LIMS.Domain.Entity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,19 +22,23 @@ public class MeetController : ControllerBase
     private readonly BBBUserServiceImpl _userService;
     private readonly BigBlueButtonAPIClient _client;
     private readonly BBBServerServiceImpl _server;
+    private readonly ServerSchadulerService _schadulerService;
 
     public MeetController(
+        ServerSchadulerService schadulerService,
         BBBHandleMeetingService handleMeetingService,
         BBBUserServiceImpl userService,
         BigBlueButtonAPIClient client,
         BBBServerServiceImpl server
     ) =>
         (
+            _schadulerService,
             _handleMeetingService,
             _userService,
             _client,
-        _server
+            _server
         ) = (
+            schadulerService,
             handleMeetingService,
             userService,
             client,
@@ -65,6 +70,7 @@ public class MeetController : ControllerBase
             return server.Error == null || server.Error == string.Empty
                 ? BadRequest(server.Errors)
                 : BadRequest(server.Error);
+
 
         _client.UseServerSettings(
             new BigBlueButtonAPISettings
@@ -130,7 +136,6 @@ public class MeetController : ControllerBase
                 return BadRequest(userId.OnFailedMessage);
 
         var requestJoin = new JoinMeetingRequest { meetingID = request.MeetingId };
-
         if (request.UserInformations.Role == UserRoleTypes.Moderator)
         {
             requestJoin.password = request.MeetingPassword;
@@ -161,7 +166,7 @@ public class MeetController : ControllerBase
         var result = await _client.EndMeetingAsync(
             new EndMeetingRequest { meetingID = meetingId, password = password }
         );
-        if (result.returncode == Returncode.Failed)
+        if (result.Returncode == Returncode.Failed)
             return BadRequest(result.Message);
 
         var handleEnd=await _handleMeetingService.EndMeetingHandler(meetingId);
@@ -169,13 +174,5 @@ public class MeetController : ControllerBase
             return handleEnd.Errors.Count() > 1 ? BadRequest(handleEnd.Errors) : BadRequest(handleEnd.Error);
 
         return Ok(handleEnd.Data);
-    }
-
-    [HttpGet("[action]", Name = nameof(GetMeetingInformation))]
-    public async ValueTask<IActionResult> SetSErverCheckInHang()
-    {
-        RecurringJob.AddOrUpdate(() => _server.SetDownServer(), Cron.DayInterval(1));
-
-        return Ok();
     }
 }

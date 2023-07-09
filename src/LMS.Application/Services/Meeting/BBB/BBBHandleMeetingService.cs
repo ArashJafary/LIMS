@@ -19,7 +19,6 @@ namespace LIMS.Application.Services.Meeting.BBB
         private readonly BigBlueButtonAPIClient _client;
         private readonly BBBMeetingServiceImpl _meetingService;
         private readonly BBBServerServiceImpl _serverService;
-        private readonly BBBUserServiceImpl _userService;
         private readonly BBBMemberShipServiceImpl _memberShipService;
 
         public BBBHandleMeetingService(
@@ -29,11 +28,10 @@ namespace LIMS.Application.Services.Meeting.BBB
             BBBUserServiceImpl userService,
             BBBMemberShipServiceImpl memberShipService
         ) =>
-            (_client, _meetingService, _serverService, _userService, _memberShipService) = (
+            (_client, _meetingService, _serverService, _memberShipService) = (
                 client,
                 sessionService,
                 serverService,
-                userService,
                 memberShipService
             );
 
@@ -145,5 +143,7 @@ namespace LIMS.Application.Services.Meeting.BBB
             else
                 return SingleResponse<string>.OnSuccess("Meeting is End.");
         }
+
+
     }
 }

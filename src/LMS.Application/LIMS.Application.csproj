@@ -15,4 +15,8 @@
     <Folder Include="Services\Database\AdobeConnect\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Hangfire.Core" Version="1.8.3" />
+  </ItemGroup>
+
 </Project>
