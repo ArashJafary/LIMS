@@ -1,4 +1,5 @@
 using System.Xml;
+using Azure.Core;
 using BigBlueApi.Application.DTOs;
 using BigBlueApi.Domain;
 using BigBlueButtonAPI.Core;
@@ -8,6 +9,7 @@ using LIMS.Application.Services.Database.BBB;
 using LIMS.Application.Services.Meeting.BBB;
 using LIMS.Application.Services.Schadulers.HangFire;
 using LIMS.Domain;
+using LIMS.Domain.Entities;
 using LIMS.Domain.Entity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -55,6 +57,10 @@ public class MeetController : ControllerBase
     [HttpGet("[action]", Name = nameof(GetMeetingInformation))]
     public async ValueTask<IActionResult> GetMeetingInformation([FromBody] string meetingId)
     {
+        var meeting = await _handleMeetingService.IsBigBlueButtonOk(meetingId);
+        if (meeting.Data)
+            return BadRequest("BigBlueButton Settings Have Problem.");
+
         var result = await _client.GetMeetingInfoAsync(
             new GetMeetingInfoRequest { meetingID = meetingId }
         );
@@ -65,6 +71,11 @@ public class MeetController : ControllerBase
     [HttpPost("[action]", Name = nameof(CreateMeeting))]
     public async Task<IActionResult> CreateMeeting([FromBody] CreateMeetingRequestModel request)
     {
+
+        var meeting = await _handleMeetingService.IsBigBlueButtonOk(request.MeetingId);
+        if (meeting.Data)
+            return BadRequest("BigBlueButton Settings Have Problem.");
+
         var server = await _handleMeetingService.UseCapableServerCreateMeeting();
         if (server.Errors.Count() != 0)
             return server.Error == null || server.Error == string.Empty
@@ -116,6 +127,10 @@ public class MeetController : ControllerBase
         [FromBody] JoinMeetingRequestModel request
     )
     {
+        var meeting = await _handleMeetingService.IsBigBlueButtonOk(request.MeetingId);
+        if (meeting.Data)
+            return BadRequest("BigBlueButton Settings Have Problem.");
+
         var canJoinOnMeeting = await _handleMeetingService.CanJoinOnMeetingHandler(id, request);
         if (!canJoinOnMeeting.Data)
             return canJoinOnMeeting.Errors.Count() > 1
@@ -163,6 +178,10 @@ public class MeetController : ControllerBase
     [HttpGet("[action]", Name = nameof(EndMeeting))]
     public async ValueTask<IActionResult> EndMeeting(string meetingId, string password)
     {
+        var meeting = await _handleMeetingService.IsBigBlueButtonOk(meetingId);
+        if (meeting.Data)
+            return BadRequest("BigBlueButton Settings Have Problem.");
+
         var result = await _client.EndMeetingAsync(
             new EndMeetingRequest { meetingID = meetingId, password = password }
         );

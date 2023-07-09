@@ -8,10 +8,14 @@ public class LimsContextFactory : IDesignTimeDbContextFactory<LimsContext>
 {
     public LimsContext CreateDbContext(string[] args)
     {
-        var _configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+        var configuration = new ConfigurationBuilder()
+            .AddUserSecrets<LimsContextFactory>();
+
+        var builder = configuration.Build();
+
         var optionsBuilder = new DbContextOptionsBuilder<LimsContext>();
 
-        optionsBuilder.UseSqlServer(_configuration.GetConnectionString("MSSQL"));
+        optionsBuilder.UseSqlServer(builder.GetConnectionString("MSSQL"));
         return new LimsContext(optionsBuilder.Options);
     }
 }

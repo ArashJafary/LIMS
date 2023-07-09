@@ -12,5 +12,9 @@ public class MemberShip : BaseEntity
     public async Task BanUser()
         => await Task.FromResult(UserRejected = true);
 
+    private MemberShip()
+    {
+        
+    }
     public MemberShip(Meeting meeting, User user) => (Meeting, User) = (meeting, user);
 }

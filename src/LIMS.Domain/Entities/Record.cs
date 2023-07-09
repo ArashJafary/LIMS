@@ -24,6 +24,10 @@ namespace LIMS.Domain.Entities
         public Meeting Meeting { get; }
         public IReadOnlyList<Playback> Playbacks { get; }
 
+        private Record()
+        {
+            
+        }
         public Record(Meeting meeting, string url)
         {
             if (meeting is null)
