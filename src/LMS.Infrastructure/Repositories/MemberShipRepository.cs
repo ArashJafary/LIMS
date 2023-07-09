@@ -26,7 +26,14 @@ namespace BigBlueApi.Persistence.Repositories
             var result = await _memberShips.AddAsync(memberShip);
             return result.Entity.Id;
         }
-        public async Task BanUserAsync(long userId, long meetingId)
-         => await _memberShips.FirstOrDefaultAsync(member => member.User.Id == userId && member.Meeting.Id == meetingId).Result!.BanUser();
+        async ValueTask<MemberShip> GetMemberShip(long userId, long meetingId)
+            => await _memberShips.FirstOrDefaultAsync(
+                member => member.User.Id == userId &&
+                member.Meeting.Id == meetingId);
+
+        ValueTask<MemberShip> IMemberShipRepository.GetMemberShip(long userId, long meetingId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

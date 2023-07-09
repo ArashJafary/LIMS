@@ -15,10 +15,21 @@ namespace LIMS.Infrastructure.Repositories
         private readonly DbSet<Record> _records;
 
         public RecordRepository(LimsContext context) => _records = context.Set<Record>();
+
+        public ValueTask<long> CreateRecordForMeeting(Record record)
+        {
+            throw new NotImplementedException();
+        }
+
         public async ValueTask<IEnumerable<Record>> GetAllRecordsAsync()
             => await _records.ToListAsync();
 
         public async Task<Record> GetRecordAsync(long id)
             => await _records.FirstOrDefaultAsync(record => record.Id == id);
+
+        public Task<Record> PublishRecord(long id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -5,6 +5,7 @@ using BigBlueButtonAPI.Core;
 using LIMS.Application.Models.Http.BBB;
 using LIMS.Application.Services.Database.BBB;
 using LIMS.Application.Services.Meeting.BBB;
+using LIMS.Domain;
 using LIMS.Domain.Entity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -30,7 +31,14 @@ public class MeetController : ControllerBase
         BBBMemberShipServiceImpl memberShipService,
         BigBlueButtonAPIClient client
     ) =>
-        (_handleMeetingService,_meetingService, _serverService, _userService, _memberShipService, _client) = (
+        (
+            _handleMeetingService,
+            _meetingService,
+            _serverService,
+            _userService,
+            _memberShipService,
+            _client
+        ) = (
             handleMeetingService,
             meetingService,
             serverService,
@@ -50,8 +58,7 @@ public class MeetController : ControllerBase
     public async ValueTask<IActionResult> GetMeetingInformation([FromBody] string meetingId)
     {
         var result = await _client.GetMeetingInfoAsync(
-            new GetMeetingInfoRequest
-            { meetingID = meetingId }
+            new GetMeetingInfoRequest { meetingID = meetingId }
         );
 
         return Ok(result);
@@ -62,13 +69,17 @@ public class MeetController : ControllerBase
     {
         var server = await _handleMeetingService.UseCapableServerCreateMeeting();
         if (server.Errors.Count() != 0)
-            return server.Error == null || server.Error == string.Empty ? BadRequest(server.Errors) : BadRequest(server.Error);
+            return server.Error == null || server.Error == string.Empty
+                ? BadRequest(server.Errors)
+                : BadRequest(server.Error);
 
-        _client.UseServerSettings(new BigBlueButtonAPISettings
-        {
-            SharedSecret = server.Data.ServerSecret,
-            ServerAPIUrl = server.Data.ServerUrl
-        });
+        _client.UseServerSettings(
+            new BigBlueButtonAPISettings
+            {
+                SharedSecret = server.Data.ServerSecret,
+                ServerAPIUrl = server.Data.ServerUrl
+            }
+        );
 
         var meetingCreateRequest = new CreateMeetingRequest
         {
@@ -80,16 +91,18 @@ public class MeetController : ControllerBase
         if (result.Returncode == Returncode.Failed)
             return BadRequest("A Problem Has Been Occurred in Creating Meet.");
 
-        var createMeeting =await _handleMeetingService.HandleCreateMeeting(new MeetingAddEditDto(
-            result.meetingID,
-            request.Record,
-            meetingCreateRequest.name,
-            result.moderatorPW,
-            result.attendeePW
-        ));
+        var createMeeting = await _handleMeetingService.HandleCreateMeeting(
+            new MeetingAddDto(
+                result.meetingID,
+                request.Record,
+                meetingCreateRequest.name,
+                result.moderatorPW,
+                result.attendeePW
+            )
+        );
         if (createMeeting.Data is null)
-            return createMeeting.Errors.Count() > 1 
-                ? BadRequest(createMeeting.Errors) 
+            return createMeeting.Errors.Count() > 1
+                ? BadRequest(createMeeting.Errors)
                 : BadRequest(createMeeting.Error);
 
         var meetingInfoRequest = new GetMeetingInfoRequest { meetingID = request.MeetingId };
@@ -99,17 +112,23 @@ public class MeetController : ControllerBase
     }
 
     [HttpPost("[action]/{id}", Name = nameof(JoinOnMeeting))]
-    public async ValueTask<IActionResult> JoinOnMeeting([FromQuery] long id, [FromBody] JoinMeetingRequestModel request)
+    public async ValueTask<IActionResult> JoinOnMeeting(
+        [FromQuery] long id,
+        [FromBody] JoinMeetingRequestModel request
+    )
     {
-
-        var canJoinOnMeeting =await _handleMeetingService.CanJoinOnMeetingHandler(id, request);
+        var canJoinOnMeeting = await _handleMeetingService.CanJoinOnMeetingHandler(id, request);
         if (!canJoinOnMeeting.Data)
             return canJoinOnMeeting.Errors.Count() > 1
                 ? BadRequest(canJoinOnMeeting.Errors)
                 : BadRequest(canJoinOnMeeting.Error);
 
         var userId = await _userService.CreateUser(
-            new UserAddEditDto(request.UserInformations.FullName, request.UserInformations.Alias, request.UserInformations.Role)
+            new UserAddEditDto(
+                request.UserInformations.FullName,
+                request.UserInformations.Alias,
+                request.UserInformations.Role
+            )
         );
         if (!userId.Success)
             if (userId.Exception is not null)
@@ -117,8 +136,7 @@ public class MeetController : ControllerBase
             else
                 return BadRequest(userId.OnFailedMessage);
 
-        var requestJoin = new JoinMeetingRequest 
-            { meetingID = request.MeetingId };
+        var requestJoin = new JoinMeetingRequest { meetingID = request.MeetingId };
 
         if (request.UserInformations.Role == UserRoleTypes.Moderator)
         {
@@ -144,18 +162,14 @@ public class MeetController : ControllerBase
         return Redirect(url);
     }
 
-    [HttpGet("[action]",Name = nameof(EndMeeting))]
+    [HttpGet("[action]", Name = nameof(EndMeeting))]
     public async ValueTask<IActionResult> EndMeeting(string meetingId, string password)
     {
         var result = await _client.EndMeetingAsync(
             new EndMeetingRequest { meetingID = meetingId, password = password }
         );
-        if (result.Returncode == Returncode.Failed)
-            return BadRequest(result.Message);
-
-        var handleEnd =await _handleMeetingService.EndMeetingHandler(meetingId);
-        if (handleEnd is null)
-            return handleEnd.Errors.Count() > 1 ? BadRequest(handleEnd.Errors) : BadRequest(handleEnd.Error);
+        if (result.returncode == Returncode.FAILED)
+            return BadRequest(result.message);
 
         return Ok(handleEnd.Data);
     }

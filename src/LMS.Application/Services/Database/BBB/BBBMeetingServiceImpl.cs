@@ -18,7 +18,7 @@ namespace LIMS.Application.Services.Database.BBB
         public BBBMeetingServiceImpl(IMeetingRepository repository, IUnitOfWork uow) =>
             (_meetings,_uow) = (repository, uow);
 
-        public async ValueTask<OperationResult<string>> CreateNewMeetingAsync(MeetingAddEditDto meeting)
+        public async ValueTask<OperationResult<string>> CreateNewMeetingAsync(MeetingAddDto meeting)
         {
             try
             {
@@ -92,11 +92,17 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
-        public async ValueTask<OperationResult> EditSession(long id, MeetingAddEditDto session)
+        public async ValueTask<OperationResult> EditSession(long id, MeetingEditDto session)
         {
             try
             {
-                await _meetings.UpdateMeetingAsync(id, MeetingDtoMapper.Map(session));
+                var meeting =await _meetings.FindAsync(id);
+                meeting.Update(session.Name,
+                    session.ModeratorPassword,
+                    session.AttendeePassword,
+                    session.EndDateTime,
+                    session.limitCapacity);
+                await _uow.SaveChangesAsync();
                 return new OperationResult();
             }
             catch (Exception exception)
@@ -109,7 +115,9 @@ namespace LIMS.Application.Services.Database.BBB
         {
             try
             {
-                await _meetings.EndMeetingAsync(meetingId);
+                var meeting = await _meetings.FindByMeetingIdAsync(meetingId);
+                meeting.EndSession(DateTime.Now);
+                await _uow.SaveChangesAsync();
                 return new OperationResult();
             }
             catch (Exception exception)

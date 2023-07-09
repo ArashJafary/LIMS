@@ -8,5 +8,4 @@ public interface IUserRepository
     ValueTask<User> GetUser(long UserId);
     ValueTask<IEnumerable<User>> GetUsers();
     Task<long> DeleteUser(long UserId);
-    Task EditUser(long Id, User User);
 }

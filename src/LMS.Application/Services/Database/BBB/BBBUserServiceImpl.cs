@@ -1,6 +1,7 @@
 ﻿using BigBlueApi.Application.DTOs;
-using BigBlueApi.Application.Mappers;
+using LIMS.Application.Mappers;
 using BigBlueApi.Domain.IRepository;
+using LIMS.Domain.Entities;
 using LIMS.Domain.Entity;
 using LIMS.Domain.Models;
 
@@ -17,16 +18,16 @@ namespace LIMS.Application.Services.Database.BBB
             _Repository = repository;
         }
 
-        public async ValueTask<OperationResult<long>> CreateUser(UserAddEditDto User)
+        public async ValueTask<OperationResult<long>> CreateUser(UserAddEditDto user)
         {
             try
             {
-                var NewUser = UserDtoMapper.Map(User);
-                await _Repository.CreateUser(NewUser);
+                var newUser = UserDtoMapper.Map(user);
+                await _Repository.CreateUser(newUser);
                 await _unitOfWork.SaveChangesAsync();
-                if (NewUser.Id == 0)
+                if (newUser.Id == 0)
                     return OperationResult<long>.OnFailed("We have proplem to creat user in creat");
-                return OperationResult<long>.OnSuccess(NewUser.Id);
+                return OperationResult<long>.OnSuccess(newUser.Id);
             }
             catch (Exception ex)
             {
@@ -35,11 +36,12 @@ namespace LIMS.Application.Services.Database.BBB
         }
 
 
-        public async ValueTask<OperationResult> EditUser(int Id, UserAddEditDto User)
+        public async ValueTask<OperationResult> EditUser(int Id, UserAddEditDto userDto)
         {
             try
             {
-                await _Repository.EditUser(Id,UserDtoMapper.Map(User));
+                var user = await _Repository.GetUser(Id);
+                user.UserUpdate(userDto.FullName, userDto.Alias,new UserRole(userDto.Role));
                 await _unitOfWork.SaveChangesAsync();
                 return new OperationResult(); 
             }
@@ -49,14 +51,14 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
-        public async ValueTask<OperationResult<UserAddEditDto>> GetUser(int UserId)
+        public async ValueTask<OperationResult<UserAddEditDto>> GetUser(int userId)
         {
             try
             {
-                var User = UserDtoMapper.Map(await _Repository.GetUser(UserId));
-                if (User is null)
+                var user = UserDtoMapper.Map(await _Repository.GetUser(userId));
+                if (user is null)
                     return OperationResult<UserAddEditDto>.OnFailed("user not find");
-                return OperationResult<UserAddEditDto>.OnSuccess(User);
+                return OperationResult<UserAddEditDto>.OnSuccess(user);
             }
             catch (Exception ex)
             {
@@ -68,13 +70,13 @@ namespace LIMS.Application.Services.Database.BBB
         {
             try
             {
-                var Users= await _Repository.GetUsers();
-                var UserDto = new List<UserAddEditDto>();
-                foreach (var User in Users)
+                var users= await _Repository.GetUsers();
+                var userDto = new List<UserAddEditDto>();
+                foreach (var User in users)
                 {
-                    UserDto.Add(UserDtoMapper.Map(User));
+                    userDto.Add(UserDtoMapper.Map(User));
                 }
-                return OperationResult<List<UserAddEditDto>>.OnSuccess(UserDto);
+                return OperationResult<List<UserAddEditDto>>.OnSuccess(userDto);
             }
             catch(Exception ex)
             { 
@@ -82,12 +84,12 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
-        public async ValueTask<OperationResult<long>> DeleteUser(long Id)
+        public async ValueTask<OperationResult<long>> DeleteUser(long id)
         {
             try
             {
-                var UserId = await _Repository.DeleteUser(Id);
-                return OperationResult<long>.OnSuccess(UserId);
+                var userId = await _Repository.DeleteUser(id);
+                return OperationResult<long>.OnSuccess(userId);
             }
             catch (Exception ex)
             {
