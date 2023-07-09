@@ -100,17 +100,31 @@ public class BBBServerServiceImpl
     {
         try
         {
-            var Servers= await _servers.GetAllServer();
+            var servers= await _servers.GetAllServer();
             var ServersDto= new List<ServerAddEditDto>();
-            for (long i = 0; i < Servers.Count; i++)
+            for (long i = 0; i < servers.Count; i++)
             {
-                ServersDto.Add(ServerDtoMapper.Map(Servers[(int)i]));
+                ServersDto.Add(ServerDtoMapper.Map(servers[(int)i]));
             }
             return OperationResult<List<ServerAddEditDto>>.OnSuccess(ServersDto);
         }
         catch(Exception ex)
         {
             return OperationResult<List<ServerAddEditDto>>.OnException(ex);
+        }
+    }
+
+    public async Task<OperationResult> SetDownServer(long serverId)
+    {
+        try
+        {
+            var server = await _servers.GetServer(serverId);
+            await server.SetDownServer();
+            return new OperationResult();
+        }
+        catch (Exception exception)
+        {
+            return OperationResult.OnFailed(exception.Message);
         }
     }
 }
