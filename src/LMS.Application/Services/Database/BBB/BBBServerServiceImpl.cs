@@ -114,4 +114,18 @@ public class BBBServerServiceImpl
             return OperationResult<List<ServerAddEditDto>>.OnException(ex);
         }
     }
+
+    public async Task<OperationResult> SetDownServer(long serverId)
+    {
+        try
+        {
+            var server = await _servers.GetServer(serverId);
+            await server.SetDownServer();
+            return new OperationResult();
+        }
+        catch (Exception exception)
+        {
+            return OperationResult.OnFailed(exception.Message);
+        }
+    }
 }
