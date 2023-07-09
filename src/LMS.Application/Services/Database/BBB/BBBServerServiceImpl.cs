@@ -3,6 +3,7 @@ using BigBlueApi.Domain.IRepository;
 using LIMS.Application.DTOs;
 using LIMS.Domain.Entity;
 using LIMS.Domain.Models;
+using System.Net.NetworkInformation;
 
 namespace LIMS.Application.Services.Database.BBB;
 
@@ -115,12 +116,21 @@ public class BBBServerServiceImpl
         }
     }
 
-    public async Task<OperationResult> SetDownServer(long serverId)
+    public async Task<OperationResult> SetDownServer()
     {
         try
         {
-            var server = await _servers.GetServer(serverId);
-            await server.SetDownServer();
+            var servers = await _servers.GetAllServer();
+            for (int i = 0; i < servers.Count; i++)
+            {
+                Ping ping = new Ping();
+                PingReply pingreply = ping.Send(servers[i].ServerUrl);
+                if (pingreply.Status != IPStatus.Success)
+                {
+                    await servers[i].SetDownServer();
+                }
+            }
+            await _unitOfWork.SaveChangesAsync();
             return new OperationResult();
         }
         catch (Exception exception)

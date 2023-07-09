@@ -2,6 +2,7 @@ using System.Xml;
 using BigBlueApi.Application.DTOs;
 using BigBlueApi.Domain;
 using BigBlueButtonAPI.Core;
+using Hangfire;
 using LIMS.Application.Models.Http.BBB;
 using LIMS.Application.Services.Database.BBB;
 using LIMS.Application.Services.Meeting.BBB;
@@ -19,20 +20,24 @@ public class MeetController : ControllerBase
     private readonly BBBHandleMeetingService _handleMeetingService;
     private readonly BBBUserServiceImpl _userService;
     private readonly BigBlueButtonAPIClient _client;
+    private readonly BBBServerServiceImpl _server;
 
     public MeetController(
         BBBHandleMeetingService handleMeetingService,
         BBBUserServiceImpl userService,
-        BigBlueButtonAPIClient client
+        BigBlueButtonAPIClient client,
+        BBBServerServiceImpl server
     ) =>
         (
             _handleMeetingService,
             _userService,
-            _client
+            _client,
+        _server
         ) = (
             handleMeetingService,
             userService,
-            client
+            client,
+        server
         );
 
     [NonAction]
@@ -156,7 +161,7 @@ public class MeetController : ControllerBase
         var result = await _client.EndMeetingAsync(
             new EndMeetingRequest { meetingID = meetingId, password = password }
         );
-        if (result.Returncode == Returncode.Failed)
+        if (result.returncode == Returncode.Failed)
             return BadRequest(result.Message);
 
         var handleEnd=await _handleMeetingService.EndMeetingHandler(meetingId);
@@ -164,5 +169,13 @@ public class MeetController : ControllerBase
             return handleEnd.Errors.Count() > 1 ? BadRequest(handleEnd.Errors) : BadRequest(handleEnd.Error);
 
         return Ok(handleEnd.Data);
+    }
+
+    [HttpGet("[action]", Name = nameof(GetMeetingInformation))]
+    public async ValueTask<IActionResult> SetSErverCheckInHang()
+    {
+        RecurringJob.AddOrUpdate(() => _server.SetDownServer(), Cron.DayInterval(1));
+
+        return Ok();
     }
 }
