@@ -17,33 +17,21 @@ namespace LIMS.Api.Controllers.BBB;
 public class MeetController : ControllerBase
 {
     private readonly BBBHandleMeetingService _handleMeetingService;
-    private readonly BBBMeetingServiceImpl _meetingService;
-    private readonly BBBServerServiceImpl _serverService;
     private readonly BBBUserServiceImpl _userService;
-    private readonly BBBMemberShipServiceImpl _memberShipService;
     private readonly BigBlueButtonAPIClient _client;
 
     public MeetController(
         BBBHandleMeetingService handleMeetingService,
-        BBBMeetingServiceImpl meetingService,
-        BBBServerServiceImpl serverService,
         BBBUserServiceImpl userService,
-        BBBMemberShipServiceImpl memberShipService,
         BigBlueButtonAPIClient client
     ) =>
         (
             _handleMeetingService,
-            _meetingService,
-            _serverService,
             _userService,
-            _memberShipService,
             _client
         ) = (
             handleMeetingService,
-            meetingService,
-            serverService,
             userService,
-            memberShipService,
             client
         );
 
@@ -168,8 +156,12 @@ public class MeetController : ControllerBase
         var result = await _client.EndMeetingAsync(
             new EndMeetingRequest { meetingID = meetingId, password = password }
         );
-        if (result.returncode == Returncode.FAILED)
-            return BadRequest(result.message);
+        if (result.Returncode == Returncode.Failed)
+            return BadRequest(result.Message);
+
+        var handleEnd=await _handleMeetingService.EndMeetingHandler(meetingId);
+        if (handleEnd.Data is null)
+            return handleEnd.Errors.Count() > 1 ? BadRequest(handleEnd.Errors) : BadRequest(handleEnd.Error);
 
         return Ok(handleEnd.Data);
     }
