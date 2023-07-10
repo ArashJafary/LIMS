@@ -1,4 +1,4 @@
-using BigBlueApi.Domain;
+using LIMS.Domain;
 using LIMS.Domain.Entities;
 using LIMS.Domain.Entity;
 

@@ -1,39 +1,30 @@
-﻿using BigBlueApi.Domain.IRepositories;
-using BigBlueApi.Domain.IRepository;
+﻿using LIMS.Domain.IRepositories;
+using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entities;
 using LIMS.Domain.Entity;
 using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace BigBlueApi.Persistence.Repositories
+namespace LIMS.Persistence.Repositories
 {
     public class MemberShipRepository : IMemberShipRepository
     {
         private readonly DbSet<MemberShip> _memberShips;
         public MemberShipRepository(LimsContext context)
-        {
-            _memberShips = context.Set<MemberShip>();
-        }
-        public async ValueTask<bool> CanJoinUserOnMeetingAsync(long id)
-        {
-            var session = await _memberShips.FirstOrDefaultAsync(session => session.Meeting.Id == id)!;
-            var members = _memberShips.Where(member => member.Meeting.Id == id && member.Meeting.IsRunning).ToList();
-            return members.Count <= session!.Meeting.LimitCapacity;
-        }
-        public async ValueTask<long> JoinUserAsync(Meeting meeting, User user)
-        {
-            var memberShip = new MemberShip(meeting, user);
-            var result = await _memberShips.AddAsync(memberShip);
-            return result.Entity.Id;
-        }
-        async ValueTask<MemberShip> GetMemberShip(long userId, long meetingId)
+            => _memberShips = context.Set<MemberShip>();
+
+        public async ValueTask<MemberShip> GetMemberShip(long userId, long meetingId)
             => await _memberShips.FirstOrDefaultAsync(
                 member => member.User.Id == userId &&
                 member.Meeting.Id == meetingId);
 
-        ValueTask<MemberShip> IMemberShipRepository.GetMemberShip(long userId, long meetingId)
+        public async ValueTask<List<MemberShip>> GetMemberShips()
+            => await _memberShips.ToListAsync();
+
+        public async ValueTask<long> CreateMemeberShipForSession(Meeting meeting, User user)
         {
-            throw new NotImplementedException();
+            var memeberShip = await _memberShips.AddAsync(new MemberShip(meeting, user));
+            return memeberShip.Entity.Id;
         }
     }
 }

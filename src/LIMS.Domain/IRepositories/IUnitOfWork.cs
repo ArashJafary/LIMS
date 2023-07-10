@@ -1,4 +1,4 @@
-namespace BigBlueApi.Domain.IRepository;
+namespace LIMS.Domain.IRepositories;
 public interface IUnitOfWork
 {
     ValueTask<int> SaveChangesAsync(CancellationToken cancellationToken);

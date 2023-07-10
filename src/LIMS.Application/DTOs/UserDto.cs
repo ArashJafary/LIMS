@@ -1,6 +1,5 @@
-using BigBlueApi.Domain;
+using LIMS.Domain;
 using LIMS.Domain;
 
-namespace BigBlueApi.Application.DTOs;
-
+namespace LIMS.Application.DTOs;
 public record UserAddEditDto(string FullName,string Alias,UserRoleTypes Role);

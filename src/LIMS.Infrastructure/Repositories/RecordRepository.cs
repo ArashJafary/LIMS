@@ -16,9 +16,12 @@ namespace LIMS.Infrastructure.Repositories
 
         public RecordRepository(LimsContext context) => _records = context.Set<Record>();
 
-        public ValueTask<long> CreateRecordForMeeting(Record record)
+        public async ValueTask<long> CreateRecordForMeeting(Record record)
         {
-            throw new NotImplementedException();
+            var newRecord = new Record { };
+            await newRecord.CreateRecord(record.Name, record.Description, record.Meeting);
+            await _records.AddAsync(newRecord);
+            return newRecord.Id;
         }
 
         public async ValueTask<IEnumerable<Record>> GetAllRecordsAsync()
@@ -26,10 +29,5 @@ namespace LIMS.Infrastructure.Repositories
 
         public async Task<Record> GetRecordAsync(long id)
             => await _records.FirstOrDefaultAsync(record => record.Id == id);
-
-        public Task<Record> PublishRecord(long id)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

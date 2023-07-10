@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LIMS.Domain.Entities;
 using LIMS.Domain.IRepositories;
-using LIMS.Domain.Models;
+using LIMS.Application.Models;
 
 namespace LIMS.Application.Services.Database.BBB
 {

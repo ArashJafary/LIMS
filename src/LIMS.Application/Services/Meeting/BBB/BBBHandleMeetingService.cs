@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net.Security;
 using System.Text;
 using System.Threading.Tasks;
-using BigBlueApi.Application.DTOs;
+using LIMS.Application.DTOs;
 using BigBlueButtonAPI.Core;
 using LIMS.Application.DTOs;
 using LIMS.Application.Models;

@@ -12,6 +12,5 @@ namespace LIMS.Domain.IRepositories
         ValueTask<IEnumerable<Record>> GetAllRecordsAsync();
         Task<Record> GetRecordAsync(long id);
         ValueTask<long> CreateRecordForMeeting(Record record);
-        Task<Record> PublishRecord(long id);
     }
 }

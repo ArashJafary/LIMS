@@ -1,8 +1,8 @@
-﻿using BigBlueApi.Application.DTOs;
+﻿using LIMS.Application.DTOs;
 using LIMS.Domain.Entities;
 using LIMS.Domain.Entity;
 
-namespace BigBlueApi.Application.Mappers
+namespace LIMS.Application.Mappers
 {
     public static class MeetingDtoMapper
     {

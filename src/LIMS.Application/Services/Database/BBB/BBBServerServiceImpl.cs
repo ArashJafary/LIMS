@@ -1,9 +1,10 @@
-using BigBlueApi.Application.DTOs;
-using BigBlueApi.Domain.IRepository;
+using LIMS.Application.DTOs;
+using LIMS.Domain.IRepository;
 using LIMS.Application.DTOs;
 using LIMS.Domain.Entity;
-using LIMS.Domain.Models;
+using LIMS.Application.Models;
 using System.Net.NetworkInformation;
+using LIMS.Application.Mappers;
 
 namespace LIMS.Application.Services.Database.BBB;
 

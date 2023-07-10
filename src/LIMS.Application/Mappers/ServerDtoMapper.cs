@@ -1,7 +1,7 @@
-using BigBlueApi.Application.DTOs;
+using LIMS.Application.DTOs;
 using LIMS.Application.DTOs;
 using LIMS.Domain.Entity;
-
+namespace LIMS.Application.Mappers;
 public static class ServerDtoMapper
 {
     public static ServerAddEditDto Map(Server server) =>

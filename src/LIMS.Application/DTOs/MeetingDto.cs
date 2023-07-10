@@ -1,6 +1,5 @@
-﻿using BigBlueApi.Domain;
-
-namespace BigBlueApi.Application.DTOs
+﻿
+namespace LIMS.Application.DTOs
 {
     public record MeetingAddDto(
         string MeetingId,

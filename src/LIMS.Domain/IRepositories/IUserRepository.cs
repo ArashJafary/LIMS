@@ -1,7 +1,7 @@
 using LIMS.Domain.Entities;
 using LIMS.Domain.Entity;
 
-namespace BigBlueApi.Domain.IRepository;
+namespace LIMS.Domain.IRepositories;
 public interface IUserRepository
 {
     ValueTask<long> CreateUser(User User);

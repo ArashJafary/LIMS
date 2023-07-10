@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Hangfire;
 using LIMS.Application.Models;
 using LIMS.Application.Services.Database.BBB;
-using LIMS.Domain.Models;
+using LIMS.Application.Models;
 
 namespace LIMS.Application.Services.Schadulers.HangFire
 {

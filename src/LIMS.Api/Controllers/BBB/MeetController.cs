@@ -1,7 +1,7 @@
 using System.Xml;
 using Azure.Core;
-using BigBlueApi.Application.DTOs;
-using BigBlueApi.Domain;
+using LIMS.Application.DTOs;
+using LIMS.Domain;
 using BigBlueButtonAPI.Core;
 using Hangfire;
 using LIMS.Application.Models.Http.BBB;

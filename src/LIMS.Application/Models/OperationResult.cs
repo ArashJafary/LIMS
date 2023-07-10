@@ -1,4 +1,4 @@
-namespace LIMS.Domain.Models;
+namespace LIMS.Application.Models;
 public class OperationResult
 {
     public OperationResult() { }

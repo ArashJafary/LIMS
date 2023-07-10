@@ -1,10 +1,10 @@
-﻿using BigBlueApi.Application.DTOs;
-using BigBlueApi.Application.Mappers;
-using BigBlueApi.Domain;
-using BigBlueApi.Domain.IRepository;
+﻿using LIMS.Application.DTOs;
+using LIMS.Application.Mappers;
+using LIMS.Domain;
+using LIMS.Domain.IRepositories;
 using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entities;
-using LIMS.Domain.Models;
+using LIMS.Application.Models;
 using LIMS.Domain.Entity;
 using LIMS.Domain;
 
@@ -92,16 +92,16 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
-        public async ValueTask<OperationResult> EditSession(long id, MeetingEditDto session)
+        public async ValueTask<OperationResult> EditSession(long id, MeetingEditDto meetingInput)
         {
             try
             {
                 var meeting =await _meetings.FindAsync(id);
-                meeting.Update(session.Name,
-                    session.ModeratorPassword,
-                    session.AttendeePassword,
-                    session.EndDateTime,
-                    session.limitCapacity);
+                meeting.Update(meetingInput.Name,
+                    meetingInput.ModeratorPassword,
+                    meetingInput.AttendeePassword,
+                    meetingInput.EndDateTime,+
+                    meetingInput.limitCapacity);
                 await _uow.SaveChangesAsync();
                 return new OperationResult();
             }

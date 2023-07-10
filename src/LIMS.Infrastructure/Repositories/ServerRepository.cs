@@ -1,4 +1,4 @@
-using BigBlueApi.Domain.IRepository;
+using LIMS.Domain.IRepository;
 using LIMS.Domain.Entity;
 using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -10,15 +10,6 @@ public class ServerRepository : IServerRepository
     private readonly DbSet<Server> _servers;
 
     public ServerRepository(LimsContext context) => _servers = context.Set<Server>();
-
-    public async ValueTask<bool> CanJoinServer(long id)
-    {
-        var server = await _servers.FirstOrDefaultAsync(server => server.Id == id);
-        long usersCount = server!.Sessions.Sum(session => session.Users.Count);
-        if (server.ServerLimit <= usersCount)
-            return false;
-        return true;
-    }
 
     public async ValueTask<Server> CreateServer(Server server)
     {
@@ -41,17 +32,4 @@ public class ServerRepository : IServerRepository
 
     public async ValueTask<List<Server>> GetAllServer()
         => await _servers.ToListAsync();
-
-    public async ValueTask<Server> MostCapableServer()
-    {
-        return await Task.Run(
-            () =>
-                _servers
-                    .OrderBy(
-                        server =>
-                            server.ServerLimit - server.Sessions.Sum(session => session.Users.Count)
-                    )
-                    .FirstOrDefault()!
-        );
-    }
 }
