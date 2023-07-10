@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\AdobeConnect\**" />
+    <Content Remove="Controllers\AdobeConnect\**" />
+    <EmbeddedResource Remove="Controllers\AdobeConnect\**" />
+    <None Remove="Controllers\AdobeConnect\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Hangfire.AspNetCore" Version="1.8.3" />
     <PackageReference Include="Hangfire.Core" Version="1.8.3" />
     <PackageReference Include="Hangfire.SqlServer" Version="1.8.3" />
@@ -18,10 +25,7 @@
     <ProjectReference Include="..\..\common\BBB\BBB.Common.csproj" />
     <ProjectReference Include="..\LIMS.Application\LIMS.Application.csproj" />
     <ProjectReference Include="..\LIMS.Domain\LIMS.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\AdobeConnect\" />
+    <ProjectReference Include="..\LIMS.Infrastructure\LIMS.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

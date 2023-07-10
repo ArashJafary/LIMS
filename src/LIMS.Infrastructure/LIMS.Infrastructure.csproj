@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Rest\**" />
+    <EmbeddedResource Remove="Rest\**" />
+    <None Remove="Rest\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.8">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -20,12 +26,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\common\BBB\BBB.Common.csproj" />
     <ProjectReference Include="..\LIMS.Domain\LIMS.Domain.csproj" />
-    <ProjectReference Include="..\LIMS.Domain\LIMS.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Rest\BBB\" />
+    <ProjectReference Include="..\LIMS.Application\LIMS.Application.csproj" />
   </ItemGroup>
 
 </Project>
