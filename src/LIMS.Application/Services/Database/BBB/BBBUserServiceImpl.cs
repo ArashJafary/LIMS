@@ -1,6 +1,6 @@
 ﻿using LIMS.Application.DTOs;
 using LIMS.Application.Mappers;
-using LIMS.Domain.IRepository;
+using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entities;
 using LIMS.Domain.Entity;
 using LIMS.Application.Models;
