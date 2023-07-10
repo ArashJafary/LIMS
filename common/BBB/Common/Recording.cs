@@ -31,6 +31,7 @@ namespace BigBlueButtonAPI.Common
         [XmlArrayItem("format")]
         public List<Playback> playbacks { get; set; }
 
+
         public RecordingData data { get; set; }
     }
 }

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="AdminPanel\**" />
+    <Compile Remove="AdobeConnect\**" />
+    <Compile Remove="BBB\**" />
+    <EmbeddedResource Remove="AdminPanel\**" />
+    <EmbeddedResource Remove="AdobeConnect\**" />
+    <EmbeddedResource Remove="BBB\**" />
+    <None Remove="AdminPanel\**" />
+    <None Remove="AdobeConnect\**" />
+    <None Remove="BBB\**" />
+  </ItemGroup>
+
+</Project>

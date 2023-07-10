@@ -20,11 +20,11 @@ namespace BigBlueButtonAPI.Core
         /// <summary>
         /// The call succeeded – the other parameters that are normally associated with this call will be returned.
         /// </summary>
-        SUCCESS=0,
+        Success=0,
 
         /// <summary>
-        /// There was an error of some sort – look for the message and messageKey for more information. 
+        /// There was an error of some sort – look for the Message and MessageKey for more information. 
         /// </summary>
-        FAILED=1
+        Failed=1
     }
 }
