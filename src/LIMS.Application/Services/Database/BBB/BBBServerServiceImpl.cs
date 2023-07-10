@@ -1,33 +1,34 @@
 using LIMS.Application.DTOs;
-using LIMS.Domain.IRepository;
+using LIMS.Domain.IRepositories;
 using LIMS.Application.DTOs;
 using LIMS.Domain.Entity;
 using LIMS.Application.Models;
 using System.Net.NetworkInformation;
 using LIMS.Application.Mappers;
+using LIMS.Application.Services.Http.BBB;
 
 namespace LIMS.Application.Services.Database.BBB;
 
 public class BBBServerServiceImpl
 {
     private readonly IServerRepository _servers;
+    private readonly ServerActiveService _activeService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public BBBServerServiceImpl(IServerRepository serverRepository, IUnitOfWork unitOfWork)
-    {
-        _servers = serverRepository;
-        _unitOfWork = unitOfWork;
-    }
+    public BBBServerServiceImpl(ServerActiveService activeService, IServerRepository serverRepository,
+        IUnitOfWork unitOfWork) => (_servers, _activeService, _unitOfWork) = (_servers, activeService, unitOfWork);
 
     public async ValueTask<OperationResult<bool>> CanJoinServer(long id)
     {
         try
         {
-            var canJoinOnServer = await _servers.CanJoinServer(id);
-            if (!canJoinOnServer)
-            {
+            var server = await _servers.GetServerAsync(id);
+            if (server is null)
                 return OperationResult<bool>.OnFailed("Server Not Found.");
-            }
+
+            if (server.ServerLimit <= server.Meetings.Sum(meeting => meeting.Users.Count))
+                return OperationResult<bool>.OnFailed("Cant Join On This Server. It is Full!");
+
             return OperationResult<bool>.OnSuccess(true);
         }
         catch (Exception ex)
@@ -38,7 +39,7 @@ public class BBBServerServiceImpl
 
     public async Task UpdateServer(long id, ServerAddEditDto server)
     {
-        var newServer = await _servers.GetServer(id);
+        var newServer = await _servers.GetServerAsync(id);
         newServer.UpdateServer(server.ServerUrl, server.ServerSecret, server.ServerLimit);
         await _unitOfWork.SaveChangesAsync();
     }
@@ -47,7 +48,7 @@ public class BBBServerServiceImpl
         try
         {
             var server = await _servers.
-                   CreateServer(ServerDtoMapper.Map(serverAddEditDto));
+                   CreateServerAsync(ServerDtoMapper.Map(serverAddEditDto));
             await _unitOfWork.SaveChangesAsync();
             if (server is null)
             {
@@ -65,8 +66,15 @@ public class BBBServerServiceImpl
     {
         try
         {
-            var server = await _servers.MostCapableServer();
-            var serverDto = ServerDtoMapper.Map(server);
+            var servers = await _servers.GetAllServersAsync();
+
+            var capableServer = servers.OrderBy(server
+                => server.ServerLimit - 
+                   server.Meetings.Sum(meeting 
+                    => meeting.Users.Count))!
+                        .FirstOrDefault();
+
+            var serverDto = ServerDtoMapper.Map(capableServer);
             return OperationResult<ServerAddEditDto>.OnSuccess(serverDto);
         }
         catch (Exception ex)
@@ -78,8 +86,8 @@ public class BBBServerServiceImpl
     {
         try
         {
-            var ServerId = await _servers.DeleteServer(Id);
-            return OperationResult<long>.OnSuccess(ServerId);
+            var serverId = await _servers.DeleteServerAsync(Id);
+            return OperationResult<long>.OnSuccess(serverId);
         }
         catch (Exception ex)
         {
@@ -90,7 +98,7 @@ public class BBBServerServiceImpl
     {
         try
         {
-            var server = ServerDtoMapper.Map(await _servers.GetServer(Id));
+            var server = ServerDtoMapper.Map(await _servers.GetServerAsync(Id));
             return OperationResult<ServerAddEditDto>.OnSuccess(server);
         }
         catch (Exception ex)
@@ -103,7 +111,7 @@ public class BBBServerServiceImpl
     {
         try
         {
-            var servers = await _servers.GetAllServer();
+            var servers = await _servers.GetAllServersAsync();
             var serversDto = new List<ServerAddEditDto>();
             for (long i = 0; i < servers.Count; i++)
             {
@@ -121,17 +129,12 @@ public class BBBServerServiceImpl
     {
         try
         {
-            var servers = await _servers.GetAllServer();
-            for (int i = 0; i < servers.Count; i++)
-            {
-                var ping = new Ping();
-                var pingreply = ping.Send(servers[i].ServerUrl);
-                if (pingreply.Status != IPStatus.Success)
-                {
-                    await servers[i].SetDownServer();
-                }
-            }
+            var servers = await _servers.GetAllServersAsync();
+
+            await _activeService.CheckIsActive(servers);
+
             await _unitOfWork.SaveChangesAsync();
+
             return new OperationResult();
         }
         catch (Exception exception)
