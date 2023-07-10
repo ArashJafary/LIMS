@@ -13,7 +13,7 @@ public class MeetingEntityConfiguration : IEntityTypeConfiguration<Meeting>
         builder.HasMany(session => session.Users).WithMany(user => user.Meeting);
         builder
             .HasOne(session => session.Server)
-            .WithMany(server => server.Sessions)
+            .WithMany(server => server.Meetings)
             .HasForeignKey("ServerId");
         builder.HasMany(session => session.MemberShips).WithOne(member => member.Meeting);
     }

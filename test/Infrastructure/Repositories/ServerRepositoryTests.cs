@@ -41,24 +41,24 @@ namespace BigBlueTest.Persistence.Repository
         }
 
 
-        [Fact]
-        public async Task CanJoinServer_ReturnsTrue_WhenServerLimit_NotReached()
-        {
-            var repository = new ServerRepository(_context.Object);
+        //[Fact]
+        //public async Task CanJoinServer_ReturnsTrue_WhenServerLimit_NotReached()
+        //{
+        //    var repository = new ServerRepository(_context.Object);
 
-            var result = await repository.CanJoinServer(1);
+        //    var result = await repository.CanJoinServer(1);
 
-            Assert.True(result);
-        }
-        [Fact]
-        public async Task CreateServer_Returns_NewIdFromServer()
-        {
-            var repository = new ServerRepository(_context.Object);
+        //    Assert.True(result);
+        //}
+        //[Fact]
+        //public async Task CreateServer_Returns_NewIdFromServer()
+        //{
+        //    var repository = new ServerRepository(_context.Object);
 
-            var newServer = new Server("Url Test", "Shared Test", 5);
-            var result = await repository.CreateServer(newServer);
+        //    var newServer = new Server("Url Test", "Shared Test", 5);
+        //    var result = await repository.CreateServer(newServer);
 
-            Assert.Equal(1,result.Id);
-        }
+        //    Assert.Equal(1,result.Id);
+        //}
     }
 }

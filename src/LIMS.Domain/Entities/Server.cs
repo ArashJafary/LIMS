@@ -9,7 +9,7 @@ public sealed class Server
     public string SharedSecret { get; private set; }
     public int ServerLimit { get; private set; }
     public bool IsActive { get; private set; }
-    public List<Meeting> Sessions { get; set; }
+    public List<Meeting> Meetings { get; set; }
 
     public Server(string serverUrl, string sharedSecret, int serverLimit)
     {

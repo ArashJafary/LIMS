@@ -9,7 +9,7 @@ public class ServerEntityConfiguration : IEntityTypeConfiguration<Server>
     {
         builder.HasKey(entity => entity.Id);
         builder
-            .HasMany(entity => entity.Sessions)
+            .HasMany(entity => entity.Meetings)
             .WithOne(entity => entity.Server)
             .HasForeignKey("ServerId");
     }

@@ -3,8 +3,8 @@ using LIMS.Domain.Entity;
 namespace LIMS.Domain.IRepositories;
 public interface IServerRepository
 {
-    Task<long> DeleteServer(long Id);
-    ValueTask<Server> GetServer(long Id);
-    ValueTask<List<Server>> GetAllServer();
-    ValueTask<Server> CreateServer(Server server);
+    Task<long> DeleteServerAsync(long Id);
+    ValueTask<Server> GetServerAsync(long Id);
+    ValueTask<List<Server>> GetAllServersAsync();
+    ValueTask<Server> CreateServerAsync(Server server);
 }

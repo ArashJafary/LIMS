@@ -13,15 +13,15 @@ namespace LIMS.Persistence.Repositories
         public MemberShipRepository(LimsContext context)
             => _memberShips = context.Set<MemberShip>();
 
-        public async ValueTask<MemberShip> GetMemberShip(long userId, long meetingId)
+        public async ValueTask<MemberShip> GetMemberShipAsync(long userId, long meetingId)
             => await _memberShips.FirstOrDefaultAsync(
                 member => member.User.Id == userId &&
                 member.Meeting.Id == meetingId);
 
-        public async ValueTask<List<MemberShip>> GetMemberShips()
+        public async ValueTask<List<MemberShip>> GetMemberShipsAsync()  
             => await _memberShips.ToListAsync();
 
-        public async ValueTask<long> CreateMemeberShipForSession(Meeting meeting, User user)
+        public async ValueTask<long> CreateMemeberShipForMeetingAsync(Meeting meeting, User user)
         {
             var memeberShip = await _memberShips.AddAsync(new MemberShip(meeting, user));
             return memeberShip.Entity.Id;

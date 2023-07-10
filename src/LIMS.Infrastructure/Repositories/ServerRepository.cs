@@ -1,5 +1,6 @@
-using LIMS.Domain.IRepository;
+using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entity;
+using LIMS.Domain.IRepositories;
 using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,25 +12,25 @@ public class ServerRepository : IServerRepository
 
     public ServerRepository(LimsContext context) => _servers = context.Set<Server>();
 
-    public async ValueTask<Server> CreateServer(Server server)
+    public async ValueTask<Server> CreateServerAsync(Server server)
     {
         var newServer = await _servers.AddAsync(server);
         return newServer.Entity;
     }
 
-    public async Task<long> DeleteServer(long Id)
+    public async Task<long> DeleteServerAsync(long Id)
     {
         var server = await _servers.FirstOrDefaultAsync(ser => ser.Id == Id);
         _servers.Remove(server!);
         return server!.Id;
     }
 
-    public async ValueTask<Server> GetServer(long Id)
+    public async ValueTask<Server> GetServerAsync(long Id)
     {
         var Server = await _servers.FirstOrDefaultAsync(ser => ser.Id == Id);
         return Server!;
     }
 
-    public async ValueTask<List<Server>> GetAllServer()
+    public async ValueTask<List<Server>> GetAllServersAsync()
         => await _servers.ToListAsync();
 }
