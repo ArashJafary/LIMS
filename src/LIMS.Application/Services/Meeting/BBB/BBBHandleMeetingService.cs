@@ -9,7 +9,7 @@ using LIMS.Application.DTOs;
 using BigBlueButtonAPI.Core;
 using LIMS.Application.DTOs;
 using LIMS.Application.Models;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 using LIMS.Application.Models.Http.BBB;
 
 namespace LIMS.Application.Services.Meeting.BBB

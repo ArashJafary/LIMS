@@ -1,6 +1,6 @@
 ﻿using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entities;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 using LIMS.Domain.IRepositories;
 using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +28,5 @@ namespace BigBlueApi.Persistence.Repositories
 
         public async ValueTask<Meeting> FindByMeetingIdAsync(string meetingId)
            => await _meetings.FirstOrDefaultAsync(meeting => meeting.MeetingId == meetingId);
-
     }
 }

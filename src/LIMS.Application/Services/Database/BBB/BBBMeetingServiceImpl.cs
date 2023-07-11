@@ -5,7 +5,7 @@ using LIMS.Domain.IRepositories;
 using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entities;
 using LIMS.Application.Models;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 using LIMS.Domain;
 
 namespace LIMS.Application.Services.Database.BBB

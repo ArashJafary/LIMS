@@ -1,7 +1,7 @@
 ﻿using LIMS.Application.Mappers;
 using LIMS.Domain.IRepositories;
 using LIMS.Domain.IRepositories;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 using LIMS.Domain.IRepositories;
 using LIMS.Application.Models;
 

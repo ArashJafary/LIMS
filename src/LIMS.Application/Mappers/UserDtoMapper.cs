@@ -2,7 +2,7 @@ using LIMS.Application.DTOs;
 using LIMS.Domain;
 using LIMS.Domain;
 using LIMS.Domain.Entities;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 
 namespace LIMS.Application.Mappers
 {

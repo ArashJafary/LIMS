@@ -1,4 +1,4 @@
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

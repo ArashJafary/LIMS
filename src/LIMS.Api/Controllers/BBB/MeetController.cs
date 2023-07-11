@@ -10,7 +10,7 @@ using LIMS.Application.Services.Meeting.BBB;
 using LIMS.Application.Services.Schadulers.HangFire;
 using LIMS.Domain;
 using LIMS.Domain.Entities;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 using LIMS.Infrastructure.Services.Api.BBB;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;

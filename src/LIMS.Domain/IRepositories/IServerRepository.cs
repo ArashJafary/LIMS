@@ -1,4 +1,4 @@
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 
 namespace LIMS.Domain.IRepositories;
 public interface IServerRepository

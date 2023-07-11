@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BigBlueApi.Persistence.Repositories;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -19,8 +19,8 @@ namespace BigBlueTest.Persistence.Repository
         {
             var servers = new List<Server>()
             {
-                new Server("Url Test 1","Shared Test 1",1){ Id = 1 },
-                new Server("Url Test 2","Shared Test 2",2) { Id = 2},
+                new Server("Url Test 1","Shared Test 1",1),
+                new Server("Url Test 2","Shared Test 2",2),
                 new Server("Url Test 2","Shared Test 2",3)
             };
 
