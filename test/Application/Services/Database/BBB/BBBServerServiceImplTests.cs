@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using LIMS.Application.Services.Database.BBB;
 using LIMS.Application.Services.Http.BBB;
 using LIMS.Domain.Entities;
-using LIMS.Domain.Entities;
 using LIMS.Domain.IRepositories;
 using Moq;
 
