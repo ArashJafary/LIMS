@@ -8,6 +8,7 @@ using BigBlueButtonAPI.Core;
 using LIMS.Application.DTOs;
 using LIMS.Application.Models;
 using LIMS.Application.Models.Http.BBB;
+using LIMS.Domain;
 using LIMS.Domain.Entities;
 
 
@@ -74,21 +75,75 @@ namespace LIMS.Infrastructure.Services.Api.BBB
             }
         }
 
-        public async ValueTask<OperationResult> GetMeetingInformations(string meetingId)
+        public async Task<OperationResult<string>> JoiningOnMeeting(JoinMeetingRequestModel joinOnMeetingRequest)
         {
             try
             {
-                var meetingInfoRequest = new GetMeetingInfoRequest { meetingID = meetingId };
-                var resultInformation = await _client.GetMeetingInfoAsync(meetingInfoRequest);
-                if (resultInformation.Returncode == Returncode.Failed)
-                    return OperationResult.OnFailed(resultInformation.Message);
+                var joinOnMeetingRequestJoin = new JoinMeetingRequest { meetingID = joinOnMeetingRequest.MeetingId };
+
+                if (joinOnMeetingRequest.UserInformations.Role == UserRoleTypes.Moderator)
+                {
+                    joinOnMeetingRequestJoin.password = joinOnMeetingRequest.MeetingPassword;
+                    joinOnMeetingRequestJoin.userID = "1";
+                    joinOnMeetingRequestJoin.fullName = joinOnMeetingRequest.UserInformations.FullName;
+                }
+                else if (joinOnMeetingRequest.UserInformations.Role == UserRoleTypes.Attendee)
+                {
+                    joinOnMeetingRequestJoin.password = joinOnMeetingRequest.MeetingPassword;
+                    joinOnMeetingRequestJoin.userID = "2";
+                    joinOnMeetingRequestJoin.fullName = joinOnMeetingRequest.UserInformations.FullName;
+                }
+                else
+                {
+                    joinOnMeetingRequestJoin.guest = true;
+                    joinOnMeetingRequestJoin.fullName = joinOnMeetingRequest.UserInformations.FullName;
+                }
+
+                var url = _client.GetJoinMeetingUrl(joinOnMeetingRequestJoin);
+                if (url is null || string.IsNullOrEmpty(url))
+                    return OperationResult<string>.OnFailed("A Problem in Joining On Meet.");
+
+                return OperationResult<string>.OnSuccess(url);
+            }
+            catch (Exception exception)
+            {
+                return OperationResult<string>.OnException(exception);
+            }
+        }
+
+        public async Task<OperationResult> EndExistMeeting(string meetingId,string moderatorPassword)
+        {
+            try
+            {
+                var result = await _client.EndMeetingAsync(
+                    new EndMeetingRequest { meetingID = meetingId, password = moderatorPassword }
+                );
+                if (result.Returncode == Returncode.Failed)
+                    return OperationResult.OnFailed(result.Message);
                 return new OperationResult();
             }
             catch (Exception exception)
             {
-                return OperationResult.OnException(exception);
+                return OperationResult<string>.OnException(exception);
             }
-        
+        }
+
+        public async ValueTask<OperationResult<GetMeetingInfoResponse>> GetMeetingInformations(string meetingId)
+        {
+            try
+            {
+                var result = await _client.GetMeetingInfoAsync(
+                    new GetMeetingInfoRequest { meetingID = meetingId }
+                );
+                if (result.Returncode == Returncode.Failed)
+                    return OperationResult<GetMeetingInfoResponse>.OnFailed(result.Message);
+
+                return OperationResult<GetMeetingInfoResponse>.OnSuccess(result);
+            }
+            catch (Exception exception)
+            {
+                return OperationResult<GetMeetingInfoResponse>.OnException(exception);
+            }
         }
     }
 }
