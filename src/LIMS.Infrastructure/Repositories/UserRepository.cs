@@ -4,7 +4,7 @@ using LIMS.Domain.Entities;
 using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace BigBlueApi.Persistence.Repositories
+namespace LIMS.Persistence.Repositories
 {
     public class UserRepository : IUserRepository
     {

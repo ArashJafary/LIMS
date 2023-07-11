@@ -9,16 +9,16 @@ namespace LIMS.Application.Services.Database.BBB
 {
     public class BBBMemberShipServiceImpl
     {
-        private readonly IUnitOfWork _uow;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMemberShipRepository _memberShips;
         private readonly IUserRepository _users;
         private readonly IMeetingRepository _meetings;
 
-        public BBBMemberShipServiceImpl(IUnitOfWork uow,
+        public BBBMemberShipServiceImpl(IUnitOfWork unitOfWork,
             IMemberShipRepository memberShips,
             IUserRepository users,
             IMeetingRepository meetings)
-                => (_uow, _memberShips, _users, _meetings) = (uow, memberShips, users, meetings);
+                => (_unitOfWork, _memberShips, _users, _meetings) = (unitOfWork, memberShips, users, meetings);
 
         public async ValueTask<OperationResult<bool>> CanJoinUserOnMeetingAsync(long meetingId)
         {
@@ -56,7 +56,7 @@ namespace LIMS.Application.Services.Database.BBB
                     return OperationResult<long>.OnFailed("Meeting is Not Valid.");
 
                 var result = await _memberShips.CreateMemeberShipForMeetingAsync(meeting, user);
-                await _uow.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
 
                 return OperationResult<long>.OnSuccess(result);
             }
@@ -82,7 +82,7 @@ namespace LIMS.Application.Services.Database.BBB
                     return OperationResult.OnFailed("Your Considered Joining Was Not Found.");
 
                 await member.BanUser();
-                await _uow.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
 
                 return new OperationResult();
             }

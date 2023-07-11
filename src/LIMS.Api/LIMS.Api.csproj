@@ -4,6 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>d9c98217-0ce4-4be2-9732-fc9e274c1e41</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,6 +27,11 @@
     <ProjectReference Include="..\LIMS.Application\LIMS.Application.csproj" />
     <ProjectReference Include="..\LIMS.Domain\LIMS.Domain.csproj" />
     <ProjectReference Include="..\LIMS.Infrastructure\LIMS.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Extensions\Repositories\" />
+    <Folder Include="Extensions\Services\" />
   </ItemGroup>
 
 </Project>

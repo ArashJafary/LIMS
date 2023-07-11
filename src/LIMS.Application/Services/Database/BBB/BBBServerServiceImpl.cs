@@ -14,11 +14,11 @@ namespace LIMS.Application.Services.Database.BBB;
 public class BBBServerServiceImpl
 {
     private readonly IServerRepository _servers;
-    private readonly ServerActiveService _activeService;
+    private readonly BBBServerActiveService _activeService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public BBBServerServiceImpl(ServerActiveService activeService, IServerRepository serverRepository,
-        IUnitOfWork unitOfWork) => (_servers, _activeService, _unitOfWork) = (_servers, activeService, unitOfWork);
+    public BBBServerServiceImpl(BBBServerActiveService activeService, IServerRepository servers,
+        IUnitOfWork unitOfWork) => (_servers, _activeService, _unitOfWork) = (servers, activeService, unitOfWork);
 
     public async ValueTask<OperationResult<bool>> CanJoinServer(long id)
     {

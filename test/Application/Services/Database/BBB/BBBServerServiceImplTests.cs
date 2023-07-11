@@ -14,7 +14,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
     public class BBBServerServiceImplTests
     {
         private readonly Mock<IServerRepository> _serverRepositoryMock = new Mock<IServerRepository>();
-        private readonly Mock<ServerActiveService> _activeServiceMock = new Mock<ServerActiveService>();
+        private readonly Mock<BBBServerActiveService> _activeServiceMock = new Mock<BBBServerActiveService>();
         private readonly Mock<IUnitOfWork> _unitOfWorkMock = new Mock<IUnitOfWork>();
 
         [Fact]

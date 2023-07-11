@@ -11,7 +11,7 @@ using LIMS.Domain.Entities;
 
 namespace LIMS.Application.Services.Http.BBB
 {
-    public class ServerActiveService
+    public class BBBServerActiveService
     {
         public async Task<OperationResult<bool>> CheckIsActive(List<Server> servers)
         {

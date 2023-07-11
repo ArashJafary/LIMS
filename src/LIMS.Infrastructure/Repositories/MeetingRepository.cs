@@ -5,12 +5,13 @@ using LIMS.Domain.IRepositories;
 using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace BigBlueApi.Persistence.Repositories
+namespace LIMS.Persistence.Repositories
 {
     public class MeetingRepository : IMeetingRepository
     {
         private readonly DbSet<Meeting> _meetings;
-        public MeetingRepository(LimsContext context) => _meetings = context.Set<Meeting>();
+        public MeetingRepository(LimsContext context) 
+            => _meetings = context.Set<Meeting>();
 
         public async ValueTask<string> CreateMeetingAsync(Meeting meeting)
         {

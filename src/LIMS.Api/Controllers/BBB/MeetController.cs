@@ -7,7 +7,7 @@ using Hangfire;
 using LIMS.Application.Models.Http.BBB;
 using LIMS.Application.Services.Database.BBB;
 using LIMS.Application.Services.Meeting.BBB;
-using LIMS.Application.Services.Schadulers.HangFire;
+using LIMS.Application.Services.Schedulers.HangFire;
 using LIMS.Domain;
 using LIMS.Domain.Entities;
 using LIMS.Domain.Entities;

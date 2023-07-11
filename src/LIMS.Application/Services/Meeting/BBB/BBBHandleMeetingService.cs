@@ -25,7 +25,6 @@ namespace LIMS.Application.Services.Meeting.BBB
             BigBlueButtonAPIClient client,
             BBBMeetingServiceImpl sessionService,
             BBBServerServiceImpl serverService,
-            BBBUserServiceImpl userService,
             BBBMemberShipServiceImpl memberShipService
         ) =>
             (_client, _meetingService, _serverService, _memberShipService) = (
@@ -143,7 +142,5 @@ namespace LIMS.Application.Services.Meeting.BBB
             else
                 return SingleResponse<string>.OnSuccess("Meeting is End.");
         }
-
-
     }
 }

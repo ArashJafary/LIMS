@@ -10,11 +10,11 @@ public class LimsContext : DbContext, IUnitOfWork
     public LimsContext(DbContextOptions<LimsContext> options)
         : base(options) { }
 
-    public DbSet<User> Users { get; set; }
-    public DbSet<UserRole> UserRoles { get; set; }
-    public DbSet<Meeting> Meetings { get; set; }
-    public DbSet<MemberShip> MemberShips { get; set; }
-    public DbSet<Server> Servers { get; set; }
+    public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<UserRole> UserRoles { get; set; }
+    public virtual DbSet<Meeting> Meetings { get; set; }
+    public virtual DbSet<MemberShip> MemberShips { get; set; }
+    public virtual DbSet<Server> Servers { get; set; }
 
     public async ValueTask<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
@@ -30,5 +30,10 @@ public class LimsContext : DbContext, IUnitOfWork
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(LimsContext).Assembly);
         base.OnModelCreating(modelBuilder);
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder options)
+    {
+
     }
 }
