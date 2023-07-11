@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace LIMS.Infrastructure.Migrations
+namespace LIMS.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialEntitiesCreate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,7 +15,7 @@ namespace LIMS.Infrastructure.Migrations
                 name: "Servers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ServerUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SharedSecret = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -55,7 +55,7 @@ namespace LIMS.Infrastructure.Migrations
                     EndDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsRunning = table.Column<bool>(type: "bit", nullable: false),
                     LimitCapacity = table.Column<int>(type: "int", nullable: false),
-                    ServerId = table.Column<int>(type: "int", nullable: false)
+                    ServerId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -97,11 +97,10 @@ namespace LIMS.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StartDataTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Published = table.Column<bool>(type: "bit", nullable: false),
-                    State = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    State = table.Column<int>(type: "int", nullable: false),
                     MeetingId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>

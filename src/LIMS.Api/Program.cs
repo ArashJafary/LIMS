@@ -1,6 +1,12 @@
+using BigBlueButtonAPI.Core;
 using LIMS.Persistence.Repositories;
 using Hangfire;
 using Hangfire.SqlServer;
+using LIMS.Api.Extensions.Repositories;
+using LIMS.Api.Extensions.Services.BBB;
+using LIMS.Api.Extensions.Services.BBB.Database;
+using LIMS.Api.Extensions.Services.Handlers;
+using LIMS.Api.Extensions.Services.Schedulers;
 using LIMS.Application.Services.Database.BBB;
 using LIMS.Application.Services.Http.BBB;
 using LIMS.Application.Services.Meeting.BBB;
@@ -10,66 +16,45 @@ using LIMS.Infrastructure.Persistence;
 using LIMS.Infrastructure.Repositories;
 using LIMS.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddSingleton<IUnitOfWork, LimsContext>();
-
-builder.Services.AddDbContext<LimsContext>(options =>
-{
-    options.UseSqlServer();
-});
+builder.Services
+    .AddControllers();
+builder.Services
+    .AddEndpointsApiExplorer();
+builder.Services
+    .AddSwaggerGen();
 
 builder.Services
-    .AddScoped<IMeetingRepository, MeetingRepository>();
-builder.Services
-    .AddScoped<IServerRepository, ServerRepository>();
-builder.Services
-    .AddScoped<IUserRepository, UserRepository>();
-builder.Services
-    .AddScoped<IRecordRepository, RecordRepository>();
-builder.Services
-    .AddScoped<IMemberShipRepository, MemberShipRepository>();
+    .AddCustomHangfire(builder.Configuration);
 
 builder.Services
-    .AddScoped<BBBMeetingServiceImpl>();
-builder.Services
-    .AddScoped<BBBMemberShipServiceImpl>();
-builder.Services
-    .AddScoped<BBBRecordServiceImpl>();
-builder.Services
-    .AddScoped<BBBServerServiceImpl>();
-builder.Services
-    .AddScoped<BBBUserServiceImpl>();
-
-builder.Services.AddScoped<BBBServerActiveService>();
+    .AddBBBConfigurations(
+        builder.Configuration);
 
 builder.Services
-    .AddScoped<BBBHandleMeetingService>();
-
-builder.Services
-    .AddScoped<BBBMeetingServiceImpl>();
+    .AddBBBServices();
 
 builder.Services
     .AddSingleton<ServerSchedulerService>();
 
-builder.Services.AddHangfire(configuration 
-    => configuration
-    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-    .UseSimpleAssemblyNameTypeSerializer()
-    .UseRecommendedSerializerSettings()
-    .UseSqlServerStorage(
-        builder.Configuration
-            .GetConnectionString("Hangfire"), 
-                new SqlServerStorageOptions
-                {
-                    CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
-                    QueuePollInterval = TimeSpan.Zero,
-                }));
+builder.Services
+    .AddDbContext<LimsContext>(options =>
+        options.UseSqlServer());
+
+builder.Services
+    .AddSingleton<IUnitOfWork, LimsContext>();
+
+builder.Services
+    .AddRepositories();
+
+builder.Services
+    .AddScoped<BBBServerActiveService>();
+
+builder.Services
+    .AddServiceHandler();
 
 var app = builder.Build();
 

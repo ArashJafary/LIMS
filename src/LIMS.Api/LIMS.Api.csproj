@@ -29,9 +29,4 @@
     <ProjectReference Include="..\LIMS.Infrastructure\LIMS.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Extensions\Repositories\" />
-    <Folder Include="Extensions\Services\" />
-  </ItemGroup>
-
 </Project>

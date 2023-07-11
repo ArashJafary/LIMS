@@ -4,17 +4,16 @@ using LIMS.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LIMS.Infrastructure.Persistence;
-
 public class LimsContext : DbContext, IUnitOfWork
 {
     public LimsContext(DbContextOptions<LimsContext> options)
         : base(options) { }
 
-    public virtual DbSet<User> Users { get; set; }
-    public virtual DbSet<UserRole> UserRoles { get; set; }
-    public virtual DbSet<Meeting> Meetings { get; set; }
-    public virtual DbSet<MemberShip> MemberShips { get; set; }
-    public virtual DbSet<Server> Servers { get; set; }
+    public virtual DbSet<User> Users { get; set; } = default!;
+    public virtual DbSet<UserRole> UserRoles { get; set; } = default!;
+    public virtual DbSet<Meeting> Meetings { get; set; } = default!;
+    public virtual DbSet<MemberShip> MemberShips { get; set; } = default!;
+    public virtual DbSet<Server> Servers { get; set; } = default!;
 
     public async ValueTask<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
@@ -34,6 +33,6 @@ public class LimsContext : DbContext, IUnitOfWork
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-
+        base.OnConfiguring(options);
     }
 }
