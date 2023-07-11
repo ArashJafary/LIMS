@@ -22,8 +22,6 @@ namespace LIMS.Api.Controllers.BBB;
 public class MeetController : ControllerBase
 {
     private readonly BBBUserServiceImpl _userService;
-    private readonly BigBlueButtonAPIClient _client;
-    private readonly BBBServerServiceImpl _server;
     private readonly BBBConnectionService _connectionService;
     private readonly BBBHandleMeetingService _handleMeetingService;
 
@@ -31,20 +29,15 @@ public class MeetController : ControllerBase
         BBBHandleMeetingService handleMeetingService,
         BBBUserServiceImpl userService,
         BigBlueButtonAPIClient client,
-        BBBServerServiceImpl server,
         BBBConnectionService connectionService
     ) =>
         (
             _handleMeetingService,
             _userService,
-            _client,
-            _server,
             _connectionService
         ) = (
             handleMeetingService,
             userService,
-            client,
-            server,
             connectionService
         );
 
@@ -62,11 +55,13 @@ public class MeetController : ControllerBase
         if (meeting.Data)
             return BadRequest("BigBlueButton Settings Have Problem.");
 
-        var result = await _client.GetMeetingInfoAsync(
-            new GetMeetingInfoRequest { meetingID = meetingId }
-        );
+        var getMeetingInformations = await _connectionService.GetMeetingInformations(meetingId);
+        if (!getMeetingInformations.Success)
+            return getMeetingInformations.Exception is null
+                ? BadRequest(getMeetingInformations.OnFailedMessage)
+                : BadRequest(getMeetingInformations.Exception.Data.ToString());
 
-        return Ok(result);
+        return Ok(getMeetingInformations.Result);
     }
 
     [HttpPost("[action]", Name = nameof(CreateMeeting))]
@@ -103,13 +98,13 @@ public class MeetController : ControllerBase
                 ? BadRequest(createMeeting.Errors)
                 : BadRequest(createMeeting.Error);
 
-        var getInformations = await  _connectionService.GetMeetingInformations(request.MeetingId);
-        if (!getInformations.Success)
-            return getInformations.Exception is null
-                ? BadRequest(getInformations.OnFailedMessage)
-                : BadRequest(getInformations.Exception.Data.ToString());
+        var getMeetingInformations = await  _connectionService.GetMeetingInformations(request.MeetingId);
+        if (!getMeetingInformations.Success)
+            return getMeetingInformations.Exception is null
+                ? BadRequest(getMeetingInformations.OnFailedMessage)
+                : BadRequest(getMeetingInformations.Exception.Data.ToString());
 
-        return Ok(getInformations);
+        return Ok(getMeetingInformations);
     }
 
     [HttpPost("[action]/{id}", Name = nameof(JoinOnMeeting))]
@@ -141,29 +136,13 @@ public class MeetController : ControllerBase
             else
                 return BadRequest(userId.OnFailedMessage);
 
-        var requestJoin = new JoinMeetingRequest { meetingID = request.MeetingId };
-        if (request.UserInformations.Role == UserRoleTypes.Moderator)
-        {
-            requestJoin.password = request.MeetingPassword;
-            requestJoin.userID = "1";
-            requestJoin.fullName = request.UserInformations.FullName;
-        }
-        else if (request.UserInformations.Role == UserRoleTypes.Attendee)
-        {
-            requestJoin.password = request.MeetingPassword;
-            requestJoin.userID = "2";
-            requestJoin.fullName = request.UserInformations.FullName;
-        }
-        else
-        {
-            requestJoin.guest = true;
-            requestJoin.fullName = request.UserInformations.FullName;
-        }
-        var url = _client.GetJoinMeetingUrl(requestJoin);
+        var url = await _connectionService.JoiningOnMeeting(request);
+        if (!url.Success)
+            return url.Exception is null ? BadRequest(url.OnFailedMessage) : BadRequest(url.Exception.Data.ToString());
 
         await _handleMeetingService.JoiningOnMeeting(userId.Result, request.MeetingId);
 
-        return Redirect(url);
+        return Redirect(url.Result);
     }
 
     [HttpGet("[action]", Name = nameof(EndMeeting))]
@@ -173,11 +152,11 @@ public class MeetController : ControllerBase
         if (meeting.Data)
             return BadRequest("BigBlueButton Settings Have Problem.");
 
-        var result = await _client.EndMeetingAsync(
-            new EndMeetingRequest { meetingID = meetingId, password = password }
-        );
-        if (result.Returncode == Returncode.Failed)
-            return BadRequest(result.Message);
+        var endExistMeeting = await _connectionService.EndExistMeeting(meetingId, password);
+        if (!endExistMeeting.Success)
+            return endExistMeeting.Exception is null
+                ? BadRequest(endExistMeeting.OnFailedMessage)
+                : BadRequest(endExistMeeting.Exception.Data.ToString());
 
         var handleEnd=await _handleMeetingService.EndMeetingHandler(meetingId);
         if (handleEnd.Data is null)
