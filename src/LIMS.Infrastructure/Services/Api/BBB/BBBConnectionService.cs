@@ -7,6 +7,7 @@ using Azure.Core;
 using BigBlueButtonAPI.Core;
 using LIMS.Application.DTOs;
 using LIMS.Application.Models;
+using LIMS.Application.Models;
 using LIMS.Application.Models.Http.BBB;
 using LIMS.Domain;
 using LIMS.Domain.Entities;

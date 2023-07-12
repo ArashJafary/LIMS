@@ -256,11 +256,7 @@ namespace LIMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("LIMS.Domain.Entities.Meeting", b =>
                 {
-<<<<<<< HEAD:src/LIMS.Infrastructure/Persistence/Migrations/LimsContextModelSnapshot.cs
                     b.HasOne("LIMS.Domain.Entities.Server", "Server")
-=======
-                    b.HasOne("LIMS.Domain.Entity.Server", "Server")
->>>>>>> 60644ea523d8779dc20886cf9b5b1986b634496d:src/LIMS.Infrastructure/Migrations/LimsContextModelSnapshot.cs
                         .WithMany("Meetings")
                         .HasForeignKey("ServerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -357,15 +353,6 @@ namespace LIMS.Infrastructure.Persistence.Migrations
                 {
                     b.Navigation("Users");
                 });
-<<<<<<< HEAD:src/LIMS.Infrastructure/Persistence/Migrations/LimsContextModelSnapshot.cs
-=======
-
-            modelBuilder.Entity("LIMS.Domain.Entity.Server", b =>
-                {
-                    b.Navigation("Meetings");
-                });
->>>>>>> 60644ea523d8779dc20886cf9b5b1986b634496d:src/LIMS.Infrastructure/Migrations/LimsContextModelSnapshot.cs
-#pragma warning restore 612, 618
         }
     }
 }
