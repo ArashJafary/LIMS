@@ -14,6 +14,8 @@ using LIMS.Application.Models.Http.BBB;
 
 namespace LIMS.Application.Services.Meeting.BBB
 {
+    #region Main Services
+
     public class BBBHandleMeetingService
     {
         private readonly BigBlueButtonAPIClient _client;
@@ -23,8 +25,8 @@ namespace LIMS.Application.Services.Meeting.BBB
 
         public BBBHandleMeetingService(
             BigBlueButtonAPIClient client,
-            BBBMeetingServiceImpl sessionService,
             BBBServerServiceImpl serverService,
+            BBBMeetingServiceImpl sessionService,
             BBBMemberShipServiceImpl memberShipService
         ) =>
             (_client, _meetingService, _serverService, _memberShipService) = (
@@ -34,9 +36,16 @@ namespace LIMS.Application.Services.Meeting.BBB
                 memberShipService
             );
 
+        #endregion
+        /// <summary>
+        /// Find Capable Server For Creating Meeting
+        /// </summary>
+        /// <returns>await of Single Response With Server DTO</returns>
         public async Task<SingleResponse<ServerAddEditDto>> UseCapableServerCreateMeeting()
         {
-            var server = await _serverService.MostCapableServer();
+            /* Use CapableServer Service of Database Service */
+            var server = await _serverService
+                .MostCapableServer();
 
             if (!server.Success)
                 if (server.Exception is not null)
@@ -46,9 +55,14 @@ namespace LIMS.Application.Services.Meeting.BBB
             else
                return SingleResponse<ServerAddEditDto>.OnSuccess(server.Result);
         }
-
-        public async ValueTask<SingleResponse<string>> HandleCreateMeeting(MeetingAddDto meeting)
+        /// <summary>
+        /// Create A Meeting On Database
+        /// </summary>
+        /// <param name="meeting"></param>
+        /// <returns>Meeting ID of Meeting</returns>
+        public async ValueTask<SingleResponse<string>> CreateMeetingOnDatabase(MeetingAddDto meeting)
         {
+            /* Use CreateNewMeeting Service of Database Service */
             var createMeeting = await _meetingService.CreateNewMeetingAsync(meeting);
 
             if (!createMeeting.Success)
@@ -59,11 +73,16 @@ namespace LIMS.Application.Services.Meeting.BBB
             else
                 return SingleResponse<string>.OnSuccess(createMeeting.Result);
         }
-
+        /// <summary>
+        /// Check BBB Settings are Ok or not
+        /// </summary>
+        /// <param name="meetingId"></param>
+        /// <returns>Bool</returns>
         public async ValueTask<SingleResponse<bool>> IsBigBlueButtonOk(string meetingId)
         {
             try
             {
+                /* Use IsRunning Service of BBB Api Service */
                 var result = await _client.IsMeetingRunningAsync(
                     new IsMeetingRunningRequest
                         { meetingID = meetingId }
@@ -79,9 +98,15 @@ namespace LIMS.Application.Services.Meeting.BBB
                 return SingleResponse<bool>.OnFailed(exception.Data.ToString());
             }
         }
-
+        /// <summary>
+        /// Check and Handle Joining of an User
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="joinRequest"></param>
+        /// <returns>Bool</returns>
         public async ValueTask<SingleResponse<bool>> CanJoinOnMeetingHandler(long id,JoinMeetingRequestModel joinRequest)
         {
+            /* All Flows of App For Joining Check */
             var server = await _meetingService
                 .FindMeetingWithMeetingId(joinRequest.MeetingId);
             if (!server.Success)
@@ -119,8 +144,13 @@ namespace LIMS.Application.Services.Meeting.BBB
 
             return SingleResponse<bool>.OnSuccess(true);
         }
-
-        public async ValueTask<SingleResponse<long>> JoiningOnMeeting(long userId, string meetingId)
+        /// <summary>
+        /// Absolute Join On Meeting
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="meetingId"></param>
+        /// <returns>Id of MemberShip</returns>
+        public async ValueTask<SingleResponse<long>> JoiningOnMeetingOnDatabase(long userId, string meetingId)
         {
             var joinUserOnMeeting = await _memberShipService.JoinUserAsync(userId, meetingId);
             if (!joinUserOnMeeting.Success)
@@ -130,8 +160,12 @@ namespace LIMS.Application.Services.Meeting.BBB
                     return SingleResponse<long>.OnFailed(joinUserOnMeeting.OnFailedMessage);
             return SingleResponse<long>.OnSuccess(joinUserOnMeeting.Result);
         }
-
-        public async Task<SingleResponse<string>> EndMeetingHandler(string meetingId)
+        /// <summary>
+        /// Handle Ending A Meeting On Database
+        /// </summary>
+        /// <param name="meetingId"></param>
+        /// <returns></returns>
+        public async Task<SingleResponse<string>> EndMeetingHandlerOnDatabase(string meetingId)
         {
             var endMeeting = await _meetingService.StopRunning(meetingId);
             if (!endMeeting.Success)

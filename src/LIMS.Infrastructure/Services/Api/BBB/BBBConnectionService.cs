@@ -17,37 +17,45 @@ namespace LIMS.Infrastructure.Services.Api.BBB
 {
     public class BBBConnectionService
     {
-        private readonly BigBlueButtonAPIClient _client;
+        private readonly BigBlueButtonAPIClient _bbbClient;
 
-        public BBBConnectionService(BigBlueButtonAPIClient client)
-            => _client = client;
+        public BBBConnectionService(BigBlueButtonAPIClient bbbClient)
+            => _bbbClient = bbbClient;
 
-        public async ValueTask<OperationResult<MeetingAddDto>> CreateMeetingOnBigBlueButton(CreateMeetingRequestModel createMeetingRequest)
+        public async ValueTask<OperationResult<MeetingAddDto>> CreateMeetingOnBigBlueButton(MeetingAddDto meetingRequestModel)
         {
             try
             {
                 var meetingCreateRequest = new CreateMeetingRequest
                 {
-                    name = createMeetingRequest.Name,
-                    meetingID = createMeetingRequest.MeetingId,
-                    record = createMeetingRequest.MustRecord,
-                    moderatorPW = createMeetingRequest.ModeratorPassword,
-                    attendeePW = createMeetingRequest.AttendeePassword,
-                    welcome = $"Welcome to {createMeetingRequest.Name}"
+                    name = meetingRequestModel.Name,
+                    meetingID = meetingRequestModel.MeetingId,
+                    record = meetingRequestModel.IsRecord,
+                    moderatorPW = meetingRequestModel.ModeratorPassword,
+                    attendeePW = meetingRequestModel.AttendeePassword,
+                    welcome = $"Welcome to {meetingRequestModel.Name}",
+                    isBreakout = meetingRequestModel.IsBreakout,
+                    freeJoin = meetingRequestModel.CanFreeJoinOnBreakout,
                 };
 
-                var createMeetingResponse = await _client.CreateMeetingAsync(meetingCreateRequest);
+                var createMeetingResponse = await _bbbClient.CreateMeetingAsync(meetingCreateRequest);
 
                 if (createMeetingResponse.Returncode == Returncode.Failed)
                     return OperationResult<MeetingAddDto>.OnFailed("A Problem Has Been Occurred in Creating Meet.");
                 else
                     return OperationResult<MeetingAddDto>.OnSuccess(
                         new MeetingAddDto(
-                        createMeetingResponse.meetingID,
-                        meetingCreateRequest.record is true ? true : false,
-                        meetingCreateRequest.name,
-                        createMeetingResponse.moderatorPW,
-                        createMeetingResponse.attendeePW
+                        meetingRequestModel.MeetingId,
+                        meetingRequestModel.IsRecord,
+                        meetingRequestModel.IsBreakout,
+                        meetingRequestModel.CanFreeJoinOnBreakout,
+                        meetingRequestModel.ParentId,
+                        meetingRequestModel.Name,
+                        meetingRequestModel.ModeratorPassword,
+                        meetingRequestModel.AttendeePassword,
+                        meetingRequestModel.StartDateTime,
+                        meetingRequestModel.LimitCapacity,
+                        meetingRequestModel.Server
                     ));
             }
             catch (Exception exception)
@@ -60,7 +68,7 @@ namespace LIMS.Infrastructure.Services.Api.BBB
         {
             try
             {
-                _client.UseServerSettings(
+                await _bbbClient.UseServerSettings(
                     new BigBlueButtonAPISettings
                     {
                         SharedSecret = server.ServerSecret,
@@ -100,7 +108,7 @@ namespace LIMS.Infrastructure.Services.Api.BBB
                     joinOnMeetingRequestJoin.fullName = joinOnMeetingRequest.UserInformations.FullName;
                 }
 
-                var url = _client.GetJoinMeetingUrl(joinOnMeetingRequestJoin);
+                var url = _bbbClient.GetJoinMeetingUrl(joinOnMeetingRequestJoin);
                 if (url is null || string.IsNullOrEmpty(url))
                     return OperationResult<string>.OnFailed("A Problem in Joining On Meet.");
 
@@ -116,7 +124,7 @@ namespace LIMS.Infrastructure.Services.Api.BBB
         {
             try
             {
-                var result = await _client.EndMeetingAsync(
+                var result = await _bbbClient.EndMeetingAsync(
                     new EndMeetingRequest { meetingID = meetingId, password = moderatorPassword }
                 );
                 if (result.Returncode == Returncode.Failed)
@@ -133,7 +141,7 @@ namespace LIMS.Infrastructure.Services.Api.BBB
         {
             try
             {
-                var result = await _client.GetMeetingInfoAsync(
+                var result = await _bbbClient.GetMeetingInfoAsync(
                     new GetMeetingInfoRequest { meetingID = meetingId }
                 );
                 if (result.Returncode == Returncode.Failed)

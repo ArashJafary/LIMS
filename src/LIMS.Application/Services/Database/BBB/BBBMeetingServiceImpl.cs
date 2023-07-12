@@ -94,15 +94,14 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
-        public async ValueTask<OperationResult> EditSession(long id, MeetingEditDto meetingInput)
+        public async ValueTask<OperationResult> UpdateMeeting(long id, MeetingEditDto meetingInput)
         {
             try
             {
                 var meeting =await _meetings.FindAsync(id);
-                meeting.Update(meetingInput.Name,
+                await meeting.Update(meetingInput.Name,
                     meetingInput.ModeratorPassword,
                     meetingInput.AttendeePassword,
-                    meetingInput.EndDateTime,+
                     meetingInput.limitCapacity);
                 await _unitOfWork
                     .SaveChangesAsync();
