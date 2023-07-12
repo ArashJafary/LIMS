@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 using LIMS.Domain.Enumerables;
 using Microsoft.VisualBasic;
 

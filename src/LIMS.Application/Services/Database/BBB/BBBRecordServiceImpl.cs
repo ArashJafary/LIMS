@@ -14,9 +14,7 @@ namespace LIMS.Application.Services.Database.BBB
         private readonly IRecordRepository _records;
 
         public BBBRecordServiceImpl(IRecordRepository records)
-        {
-            _records = records;
-        }
+            => _records = records;
 
         public async ValueTask<OperationResult<IEnumerable<Record>>> GetAllRecordedVideos()
         {

@@ -9,7 +9,7 @@ using LIMS.Application.DTOs;
 using BigBlueButtonAPI.Core;
 using LIMS.Application.DTOs;
 using LIMS.Application.Models;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 using LIMS.Application.Models.Http.BBB;
 
 namespace LIMS.Application.Services.Meeting.BBB
@@ -25,7 +25,6 @@ namespace LIMS.Application.Services.Meeting.BBB
             BigBlueButtonAPIClient client,
             BBBMeetingServiceImpl sessionService,
             BBBServerServiceImpl serverService,
-            BBBUserServiceImpl userService,
             BBBMemberShipServiceImpl memberShipService
         ) =>
             (_client, _meetingService, _serverService, _memberShipService) = (
@@ -143,7 +142,5 @@ namespace LIMS.Application.Services.Meeting.BBB
             else
                 return SingleResponse<string>.OnSuccess("Meeting is End.");
         }
-
-
     }
 }

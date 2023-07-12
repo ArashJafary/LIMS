@@ -1,5 +1,5 @@
 using LIMS.Domain.Entities;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 
 namespace LIMS.Domain.Entities;
 public sealed class Meeting : BaseEntity
@@ -11,7 +11,7 @@ public sealed class Meeting : BaseEntity
     public string AttendeePassword { get; private set; }
     public DateTime StartDateTime { get; private set; }
     public DateTime EndDateTime { get; private set; }
-    public bool IsRunning { get; private set; }
+    public bool IsRunning { get; private set; } = true;
     public int LimitCapacity { get; private set; }
 
     public List<Record> Records { get; private set; }

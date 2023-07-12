@@ -7,12 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\common\BBB\BBB.Common.csproj" />
-    <ProjectReference Include="..\LIMS.Domain\LIMS.Domain.csproj" />
+    <Compile Remove="Services\Database\AdobeConnect\**" />
+    <EmbeddedResource Remove="Services\Database\AdobeConnect\**" />
+    <None Remove="Services\Database\AdobeConnect\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\Database\AdobeConnect\" />
+    <ProjectReference Include="..\..\common\BBB\BBB.Common.csproj" />
+    <ProjectReference Include="..\LIMS.Domain\LIMS.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

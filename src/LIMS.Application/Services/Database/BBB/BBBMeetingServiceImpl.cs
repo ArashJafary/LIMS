@@ -5,7 +5,7 @@ using LIMS.Domain.IRepositories;
 using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entities;
 using LIMS.Application.Models;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 using LIMS.Domain;
 
 namespace LIMS.Application.Services.Database.BBB
@@ -13,17 +13,19 @@ namespace LIMS.Application.Services.Database.BBB
     public class BBBMeetingServiceImpl
     {
         private readonly IMeetingRepository _meetings;
-        private readonly IUnitOfWork _uow;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public BBBMeetingServiceImpl(IMeetingRepository repository, IUnitOfWork uow) =>
-            (_meetings,_uow) = (repository, uow);
+        public BBBMeetingServiceImpl(IMeetingRepository meetings, IUnitOfWork unitOfWork) =>
+            (_meetings,_unitOfWork
+            ) = (meetings, unitOfWork);
 
         public async ValueTask<OperationResult<string>> CreateNewMeetingAsync(MeetingAddDto meeting)
         {
             try
             {
                 var result = await _meetings.CreateMeetingAsync(MeetingDtoMapper.Map(meeting));
-                await _uow.SaveChangesAsync();
+                await _unitOfWork
+                    .SaveChangesAsync();
 
                 return OperationResult<string>.OnSuccess(result);
             }
@@ -102,7 +104,8 @@ namespace LIMS.Application.Services.Database.BBB
                     meetingInput.AttendeePassword,
                     meetingInput.EndDateTime,+
                     meetingInput.limitCapacity);
-                await _uow.SaveChangesAsync();
+                await _unitOfWork
+                    .SaveChangesAsync();
                 return new OperationResult();
             }
             catch (Exception exception)
@@ -117,7 +120,8 @@ namespace LIMS.Application.Services.Database.BBB
             {
                 var meeting = await _meetings.FindByMeetingIdAsync(meetingId);
                 meeting.EndSession(DateTime.Now);
-                await _uow.SaveChangesAsync();
+                await _unitOfWork
+                    .SaveChangesAsync();
                 return new OperationResult();
             }
             catch (Exception exception)
