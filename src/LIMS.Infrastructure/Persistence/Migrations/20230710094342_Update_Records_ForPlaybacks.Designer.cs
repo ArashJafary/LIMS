@@ -4,16 +4,19 @@ using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace LIMS.Infrastructure.Persistence.Migrations
+namespace LIMS.Infrastructure.Migrations
 {
     [DbContext(typeof(LimsContext))]
-    partial class LimsContextModelSnapshot : ModelSnapshot
+    [Migration("20230710094342_Update_Records_ForPlaybacks")]
+    partial class Update_Records_ForPlaybacks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,8 +61,8 @@ namespace LIMS.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("ServerId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("ServerId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("StartDateTime")
                         .HasColumnType("datetime2");
@@ -169,33 +172,6 @@ namespace LIMS.Infrastructure.Persistence.Migrations
                     b.ToTable("Record");
                 });
 
-            modelBuilder.Entity("LIMS.Domain.Entities.Server", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ServerLimit")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ServerUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SharedSecret")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Servers");
-                });
-
             modelBuilder.Entity("LIMS.Domain.Entities.User", b =>
                 {
                     b.Property<long>("Id")
@@ -239,6 +215,33 @@ namespace LIMS.Infrastructure.Persistence.Migrations
                     b.ToTable("UserRoles");
                 });
 
+            modelBuilder.Entity("LIMS.Domain.Entity.Server", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ServerLimit")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ServerUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SharedSecret")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Servers");
+                });
+
             modelBuilder.Entity("MeetingUser", b =>
                 {
                     b.Property<long>("MeetingId")
@@ -256,11 +259,7 @@ namespace LIMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("LIMS.Domain.Entities.Meeting", b =>
                 {
-<<<<<<< HEAD:src/LIMS.Infrastructure/Persistence/Migrations/LimsContextModelSnapshot.cs
-                    b.HasOne("LIMS.Domain.Entities.Server", "Server")
-=======
                     b.HasOne("LIMS.Domain.Entity.Server", "Server")
->>>>>>> 60644ea523d8779dc20886cf9b5b1986b634496d:src/LIMS.Infrastructure/Migrations/LimsContextModelSnapshot.cs
                         .WithMany("Meetings")
                         .HasForeignKey("ServerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -348,23 +347,15 @@ namespace LIMS.Infrastructure.Persistence.Migrations
                     b.Navigation("Playbacks");
                 });
 
-            modelBuilder.Entity("LIMS.Domain.Entities.Server", b =>
-                {
-                    b.Navigation("Meetings");
-                });
-
             modelBuilder.Entity("LIMS.Domain.Entities.UserRole", b =>
                 {
                     b.Navigation("Users");
                 });
-<<<<<<< HEAD:src/LIMS.Infrastructure/Persistence/Migrations/LimsContextModelSnapshot.cs
-=======
 
             modelBuilder.Entity("LIMS.Domain.Entity.Server", b =>
                 {
                     b.Navigation("Meetings");
                 });
->>>>>>> 60644ea523d8779dc20886cf9b5b1986b634496d:src/LIMS.Infrastructure/Migrations/LimsContextModelSnapshot.cs
 #pragma warning restore 612, 618
         }
     }
