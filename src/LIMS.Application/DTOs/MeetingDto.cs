@@ -4,9 +4,15 @@ namespace LIMS.Application.DTOs
     public record MeetingAddDto(
         string MeetingId,
         bool IsRecord,
+        bool IsBreakout,
+        bool CanFreeJoinOnBreakout,
+        string ParentId,
         string Name,
         string ModeratorPassword,
-        string AttendeePassword
+        string AttendeePassword,
+        DateTime StartDateTime,
+        int LimitCapacity,
+        ServerAddEditDto Server
         );
 
     public record MeetingEditDto(
@@ -16,6 +22,7 @@ namespace LIMS.Application.DTOs
     string ModeratorPassword,
     string AttendeePassword,
     DateTime EndDateTime,
-    int limitCapacity
+    int limitCapacity,
+    bool CanFreeJoinOnBreakout
     );
 }

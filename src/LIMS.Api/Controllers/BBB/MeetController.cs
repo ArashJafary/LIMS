@@ -22,89 +22,131 @@ namespace LIMS.Api.Controllers.BBB;
 [Route("api/BBB/[controller]")]
 public class MeetController : ControllerBase
 {
+    #region Main Services
     private readonly BBBUserServiceImpl _userService;
     private readonly BBBConnectionService _connectionService;
     private readonly BBBHandleMeetingService _handleMeetingService;
 
     public MeetController(
-        BBBHandleMeetingService handleMeetingService,
         BBBUserServiceImpl userService,
-        BigBlueButtonAPIClient client,
-        BBBConnectionService connectionService
+        BBBConnectionService connectionService,
+        BBBHandleMeetingService handleMeetingService
     ) =>
-        (
-            _handleMeetingService,
-            _userService,
-            _connectionService
-        ) = (
-            handleMeetingService,
-            userService,
-            connectionService
-        );
+    (
+        _handleMeetingService,
+        _userService,
+        _connectionService
+    ) = (
+        handleMeetingService,
+        userService,
+        connectionService
+    );
+    #endregion
 
+    #region Non and Simple Methods
     [NonAction]
     private async ValueTask<bool> IsBigBlueSettingsOkAsync(string meetingId)
     {
+        /* Check Settings Will Be Ok */
         var meeting = await _handleMeetingService.IsBigBlueButtonOk(meetingId);
         return meeting.Data;
     }
+    #endregion
+
+    #region Endpoints
 
     [HttpGet("[action]", Name = nameof(GetMeetingInformation))]
     public async ValueTask<IActionResult> GetMeetingInformation([FromBody] string meetingId)
     {
+        /* Test BBB Is Ok */
         var meeting = await _handleMeetingService.IsBigBlueButtonOk(meetingId);
         if (meeting.Data)
             return BadRequest("BigBlueButton Settings Have Problem.");
 
+
+        /* Get Informations of Meeting For Indicate To Client */
         var getMeetingInformations = await _connectionService.GetMeetingInformations(meetingId);
         if (!getMeetingInformations.Success)
             return getMeetingInformations.Exception is null
                 ? BadRequest(getMeetingInformations.OnFailedMessage)
                 : BadRequest(getMeetingInformations.Exception.Data.ToString());
 
+
+        /* Return Information To Client */
         return Ok(getMeetingInformations.Result);
     }
 
     [HttpPost("[action]", Name = nameof(CreateMeeting))]
     public async Task<IActionResult> CreateMeeting([FromBody] CreateMeetingRequestModel request)
     {
+        /* Test BBB Is Ok */
         var meeting = await _handleMeetingService.IsBigBlueButtonOk(request.MeetingId);
         if (meeting.Data)
             return BadRequest("BigBlueButton Settings Have Problem.");
 
+
+        /* Use Capable Server For Creating Meeting On That */
         var server = await _handleMeetingService.UseCapableServerCreateMeeting();
         if (server.Errors.Count() != 0)
             return server.Error == null || server.Error == string.Empty
                 ? BadRequest(server.Errors)
                 : BadRequest(server.Error);
 
-        var changeSettings =await _connectionService.ChangeServerSettings(new BigBlueButtonAPISettings
-        {
-            ServerAPIUrl = server.Data.ServerUrl , SharedSecret = server.Data.ServerSecret
-        }, server.Data);
+
+        /* Change BBB Configuration Settings For New Server */
+        var changeSettings =await _connectionService.ChangeServerSettings(
+            new BigBlueButtonAPISettings
+            {
+                ServerAPIUrl = server.Data.ServerUrl ,
+                SharedSecret = server.Data.ServerSecret
+            },
+            server.Data);
         if (!changeSettings.Success)
             return changeSettings.Exception is null
                 ? BadRequest(changeSettings.OnFailedMessage)
                 : BadRequest(changeSettings.Exception.Data.ToString());
 
-        var createMeetingConnection = await _connectionService.CreateMeetingOnBigBlueButton(request);
+        /* Create Meeting On BBB With its Apis */
+        var createMeetingConnection = await _connectionService
+            .CreateMeetingOnBigBlueButton(
+                new MeetingAddDto(
+                    request.MeetingId,
+                    request.MustRecord,
+                    request.IsBreakout,
+                    request.CanFreeJoinOnBreakout,
+                    request.ParentId,
+                    request.Name,
+                    request.ModeratorPassword,
+                    request.AttendeePassword,
+                    request.StartDateTime,
+                    request.LimitCapacity,
+                    server.Data
+                )
+                    );
+
         if (!createMeetingConnection.Success)
             return createMeetingConnection.Exception is null
                 ? BadRequest(createMeetingConnection.OnFailedMessage)
                 : BadRequest(createMeetingConnection.Exception.Data.ToString());
 
-        var createMeeting = await _handleMeetingService.HandleCreateMeeting(createMeetingConnection.Result);
+
+        /* Create Meeting Informations On Database */
+        var createMeeting = await _handleMeetingService.CreateMeetingOnDatabase(createMeetingConnection.Result);
         if (createMeeting.Data is null)
             return createMeeting.Errors.Count() > 1
                 ? BadRequest(createMeeting.Errors)
                 : BadRequest(createMeeting.Error);
 
+
+        /* Get Informations of Meeting For Indicate To Client */
         var getMeetingInformations = await  _connectionService.GetMeetingInformations(request.MeetingId);
         if (!getMeetingInformations.Success)
             return getMeetingInformations.Exception is null
                 ? BadRequest(getMeetingInformations.OnFailedMessage)
                 : BadRequest(getMeetingInformations.Exception.Data.ToString());
 
+
+        /* Return Information To Client */
         return Ok(getMeetingInformations);
     }
 
@@ -114,16 +156,21 @@ public class MeetController : ControllerBase
         [FromBody] JoinMeetingRequestModel request
     )
     {
+        /* Test BBB Is Ok */
         var meeting = await _handleMeetingService.IsBigBlueButtonOk(request.MeetingId);
         if (meeting.Data)
             return BadRequest("BigBlueButton Settings Have Problem.");
 
+
+        /* Checking User Can Join On Meeting */ 
         var canJoinOnMeeting = await _handleMeetingService.CanJoinOnMeetingHandler(id, request);
         if (!canJoinOnMeeting.Data)
             return canJoinOnMeeting.Errors.Count() > 1
                 ? BadRequest(canJoinOnMeeting.Errors)
                 : BadRequest(canJoinOnMeeting.Error);
 
+
+        /* Creating User On Meeting */
         var userId = await _userService.CreateUser(
             new UserAddEditDto(
                 request.UserInformations.FullName,
@@ -137,32 +184,43 @@ public class MeetController : ControllerBase
             else
                 return BadRequest(userId.OnFailedMessage);
 
+
+        /* Join On Meeting With BBB Api */
         var url = await _connectionService.JoiningOnMeeting(request);
         if (!url.Success)
             return url.Exception is null ? BadRequest(url.OnFailedMessage) : BadRequest(url.Exception.Data.ToString());
 
-        await _handleMeetingService.JoiningOnMeeting(userId.Result, request.MeetingId);
+        /* Join Creating For Database */
+        await _handleMeetingService.JoiningOnMeetingOnDatabase(userId.Result, request.MeetingId);
 
+        /* Redirect Into URL of Meeting */ 
         return Redirect(url.Result);
     }
 
     [HttpGet("[action]", Name = nameof(EndMeeting))]
     public async ValueTask<IActionResult> EndMeeting(string meetingId, string password)
     {
+        /* Test BBB Is Ok */
         var meeting = await _handleMeetingService.IsBigBlueButtonOk(meetingId);
         if (meeting.Data)
             return BadRequest("BigBlueButton Settings Have Problem.");
 
+
+        /* End Existed Meeting With BBB Api */
         var endExistMeeting = await _connectionService.EndExistMeeting(meetingId, password);
         if (!endExistMeeting.Success)
             return endExistMeeting.Exception is null
                 ? BadRequest(endExistMeeting.OnFailedMessage)
                 : BadRequest(endExistMeeting.Exception.Data.ToString());
 
-        var handleEnd=await _handleMeetingService.EndMeetingHandler(meetingId);
+        /* End Meeting On Database */
+        var handleEnd=await _handleMeetingService.EndMeetingHandlerOnDatabase(meetingId);
         if (handleEnd.Data is null)
             return handleEnd.Errors.Count() > 1 ? BadRequest(handleEnd.Errors) : BadRequest(handleEnd.Error);
 
+        /* Return Datas Into Client */
         return Ok(handleEnd.Data);
     }
+
+    #endregion
 }
