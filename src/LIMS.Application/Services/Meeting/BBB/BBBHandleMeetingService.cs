@@ -11,6 +11,7 @@ using LIMS.Application.DTOs;
 using LIMS.Application.Models;
 using LIMS.Domain.Entities;
 using LIMS.Application.Models.Http.BBB;
+using LIMS.Application.Mappers;
 
 namespace LIMS.Application.Services.Meeting.BBB
 {
@@ -22,14 +23,17 @@ namespace LIMS.Application.Services.Meeting.BBB
         private readonly BBBMeetingServiceImpl _meetingService;
         private readonly BBBServerServiceImpl _serverService;
         private readonly BBBMemberShipServiceImpl _memberShipService;
+        private readonly BBBUserServiceImpl _userService;
 
         public BBBHandleMeetingService(
+            BBBUserServiceImpl userService,
             BigBlueButtonAPIClient client,
             BBBServerServiceImpl serverService,
             BBBMeetingServiceImpl sessionService,
             BBBMemberShipServiceImpl memberShipService
         ) =>
-            (_client, _meetingService, _serverService, _memberShipService) = (
+            (_userService,_client, _meetingService, _serverService, _memberShipService) = (
+                userService,
                 client,
                 sessionService,
                 serverService,
@@ -133,7 +137,9 @@ namespace LIMS.Application.Services.Meeting.BBB
             if (!canJoinOnServer.Result)
                 return SingleResponse<bool>.OnFailed("Server Capacity is Fulled.");
 
-            var cnaLoginOnMeeting = _meetingService.CanLoginOnExistMeeting(joinRequest.MeetingId, joinRequest.UserInformations.Role, joinRequest.MeetingPassword).Result;
+
+            var user = await _userService.GetUser(joinRequest.UserId);
+            var cnaLoginOnMeeting = _meetingService.CanLoginOnExistMeeting(joinRequest.MeetingId, UserDtoMapper.Map(user.Result), joinRequest.MeetingPassword).Result;
             if (!cnaLoginOnMeeting.Success)
                 if (cnaLoginOnMeeting.Exception is not null)
                     return SingleResponse<bool>.OnFailed(server.Exception.Data.ToString());
