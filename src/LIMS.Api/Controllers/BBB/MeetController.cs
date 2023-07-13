@@ -94,10 +94,10 @@ public class MeetController : ControllerBase
 
 
         /* Change BBB Configuration Settings For New Server */
-        var changeSettings =await _connectionService.ChangeServerSettings(
+        var changeSettings = await _connectionService.ChangeServerSettings(
             new BigBlueButtonAPISettings
             {
-                ServerAPIUrl = server.Data.ServerUrl ,
+                ServerAPIUrl = server.Data.ServerUrl,
                 SharedSecret = server.Data.ServerSecret
             },
             server.Data);
@@ -105,6 +105,7 @@ public class MeetController : ControllerBase
             return changeSettings.Exception is null
                 ? BadRequest(changeSettings.OnFailedMessage)
                 : BadRequest(changeSettings.Exception.Data.ToString());
+
 
         /* Create Meeting On BBB With its Apis */
         var createMeetingConnection = await _connectionService
@@ -139,7 +140,7 @@ public class MeetController : ControllerBase
 
 
         /* Get Informations of Meeting For Indicate To Client */
-        var getMeetingInformations = await  _connectionService.GetMeetingInformations(request.MeetingId);
+        var getMeetingInformations = await _connectionService.GetMeetingInformations(request.MeetingId);
         if (!getMeetingInformations.Success)
             return getMeetingInformations.Exception is null
                 ? BadRequest(getMeetingInformations.OnFailedMessage)
@@ -162,7 +163,7 @@ public class MeetController : ControllerBase
             return BadRequest("BigBlueButton Settings Have Problem.");
 
 
-        /* Checking User Can Join On Meeting */ 
+        /* Checking User Can Join On Meeting */
         var canJoinOnMeeting = await _handleMeetingService.CanJoinOnMeetingHandler(id, request);
         if (!canJoinOnMeeting.Data)
             return canJoinOnMeeting.Errors.Count() > 1
@@ -193,7 +194,7 @@ public class MeetController : ControllerBase
         /* Join Creating For Database */
         await _handleMeetingService.JoiningOnMeetingOnDatabase(userId.Result, request.MeetingId);
 
-        /* Redirect Into URL of Meeting */ 
+        /* Redirect Into URL of Meeting */
         return Redirect(url.Result);
     }
 
@@ -214,7 +215,7 @@ public class MeetController : ControllerBase
                 : BadRequest(endExistMeeting.Exception.Data.ToString());
 
         /* End Meeting On Database */
-        var handleEnd=await _handleMeetingService.EndMeetingHandlerOnDatabase(meetingId);
+        var handleEnd = await _handleMeetingService.EndMeetingHandlerOnDatabase(meetingId);
         if (handleEnd.Data is null)
             return handleEnd.Errors.Count() > 1 ? BadRequest(handleEnd.Errors) : BadRequest(handleEnd.Error);
 

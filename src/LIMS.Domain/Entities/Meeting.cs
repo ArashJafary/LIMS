@@ -15,7 +15,7 @@ public sealed class Meeting : BaseEntity
     public DateTime EndDateTime { get; private set; }
     public bool IsRunning { get; private set; } = true;
     public int LimitCapacity { get; private set; }
-    public required bool IsBreakout { get; set; }
+    public  bool IsBreakout { get; private set; }
     public bool FreeJoinOnBreakout { get; private set; }
     public bool AutoStartRecording { get; private set; }
     public PlatformTypes Platform { get; private set; }

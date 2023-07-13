@@ -1,4 +1,6 @@
 ﻿
+using LIMS.Domain.Enumerables;
+
 namespace LIMS.Application.DTOs
 {
     public record MeetingAddDto(
@@ -11,8 +13,12 @@ namespace LIMS.Application.DTOs
         string ModeratorPassword,
         string AttendeePassword,
         DateTime StartDateTime,
+        DateTime EndDateTime,
         int LimitCapacity,
-        ServerAddEditDto Server
+        ServerAddEditDto Server,
+        bool AutoStartRecord,
+        PlatformTypes Platform
+
         );
 
     public record MeetingEditDto(

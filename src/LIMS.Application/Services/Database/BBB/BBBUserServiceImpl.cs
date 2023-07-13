@@ -33,7 +33,7 @@ namespace LIMS.Application.Services.Database.BBB
         }
 
 
-        public async ValueTask<OperationResult> EditUser(int Id, UserAddEditDto userDto)
+        public async ValueTask<OperationResult> EditUser(long Id, UserAddEditDto userDto)
         {
             try
             {
@@ -48,7 +48,7 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
-        public async ValueTask<OperationResult<UserAddEditDto>> GetUser(int userId)
+        public async ValueTask<OperationResult<UserAddEditDto>> GetUser(long userId)
         {
             try
             {
@@ -62,6 +62,7 @@ namespace LIMS.Application.Services.Database.BBB
                 return OperationResult<UserAddEditDto>.OnException(ex);
             }
         }
+
 
         public async ValueTask<OperationResult<List<UserAddEditDto>>> GetUsers()
         {
