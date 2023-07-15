@@ -2,12 +2,14 @@ using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entities;
 using LIMS.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace LIMS.Infrastructure.Persistence;
 public class LimsContext : DbContext, IUnitOfWork
 {
+
     public LimsContext(DbContextOptions<LimsContext> options)
-        : base(options) { }
+        : base(options) {}
 
     public virtual DbSet<User> Users { get; set; } = default!;
     public virtual DbSet<UserRole> UserRoles { get; set; } = default!;

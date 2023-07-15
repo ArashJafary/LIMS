@@ -89,7 +89,7 @@ namespace LIMS.Infrastructure.Services.Api.BBB
             }
         }
 
-        public async Task<OperationResult<string>> JoiningOnMeeting(JoinMeetingRequestModel joinOnMeetingRequest)
+        public async Task<OperationResult<string>> JoiningOnMeeting(string meetingId,JoinMeetingRequestModel joinOnMeetingRequest)
         {
             try
             {
@@ -99,7 +99,7 @@ namespace LIMS.Infrastructure.Services.Api.BBB
                         ? OperationResult<string>.OnFailed(user.OnFailedMessage)
                         : throw new Exception("Cannot Find User.");
 
-                var joinOnMeetingRequestJoin = new JoinMeetingRequest { meetingID = joinOnMeetingRequest.MeetingId };
+                var joinOnMeetingRequestJoin = new JoinMeetingRequest { meetingID = meetingId };
 
                 if (user.Result.Role == UserRoleTypes.Moderator)
                 {

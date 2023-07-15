@@ -20,6 +20,9 @@ using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddUserSecrets<Program>().Build();
+var connectionString = builder.Configuration.GetConnectionString("MSSQL");
+
 builder.Services
     .AddControllers();
 builder.Services
@@ -38,14 +41,14 @@ builder.Services
     .AddBBBServices();
 
 builder.Services
-    .AddSingleton<ServerSchedulerService>();
+    .AddScoped<ServerSchedulerService>();
 
 builder.Services
     .AddDbContext<LimsContext>(options =>
-        options.UseSqlServer());
+        options.UseSqlServer(connectionString));
 
 builder.Services
-    .AddSingleton<IUnitOfWork, LimsContext>();
+    .AddScoped<IUnitOfWork, LimsContext>();
 
 builder.Services
     .AddRepositories();

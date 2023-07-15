@@ -1,6 +1,7 @@
 using BigBlueButtonAPI.Core;
 using LIMS.Application.Services.Database.BBB;
 using LIMS.Application.Services.Meeting.BBB;
+using LIMS.Application.Services.Record;
 using LIMS.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,44 +14,38 @@ public class RecordController : ControllerBase
     private readonly BigBlueButtonAPIClient _client;
     private readonly BBBHandleMeetingService _handleMeetingService;
     private readonly BBBRecordServiceImpl _recordService;
-    public RecordController(BigBlueButtonAPIClient client, BBBHandleMeetingService handleMeetingService,BBBRecordServiceImpl recordService) 
-        => (_client, _handleMeetingService, _recordService) = (client,handleMeetingService,recordService);
+    private readonly BBBHandleRecordService _handleRecordService;
+    public RecordController(BigBlueButtonAPIClient client, BBBHandleMeetingService handleMeetingService,BBBRecordServiceImpl recordService, BBBHandleRecordService handleRecord) 
+        => (_client, _handleMeetingService, _recordService,_handleRecordService) = (client,handleMeetingService,recordService,handleRecord);
 
     [NonAction]
     private async ValueTask<bool> IsBigBlueSettingsOkAsync(string meetingId)
     {
+        /* Check Settings Will Be Ok */
         var meeting = await _handleMeetingService.IsBigBlueButtonOk(meetingId);
         return meeting.Data;
     }
 
-    [HttpGet("[action]", Name = nameof(Recordings))]
-    public async ValueTask<ActionResult> Recordings(string meetingId)
+    [HttpGet("[action]", Name = nameof(GetAllRecordings))]
+    public async ValueTask<ActionResult> GetAllRecordings(string meetingId)
     {
-        var setupOk = await IsBigBlueSettingsOkAsync(meetingId);
+        if (!await IsBigBlueSettingsOkAsync(meetingId))
+            return BadRequest("BigBlueButton Settings Have Problem.");
 
-        var result = new GetRecordingsRequest
-        {
-            meetingID = meetingId
-        };
-        var recordings = await _client.GetRecordingsAsync(result);
-        if (recordings is null)
-            return NotFound();
+        var records = await _handleRecordService.GetAllRecordedVideosFromBBB(meetingId);
+        if (records.Data is null)
+            return records.Errors.Count() > 1 ? NotFound(records.Errors) : NotFound(records.Error);
 
-        return Ok(recordings);
+        return Ok(records.Data);
     }
 
     [HttpPost("[action]", Name = nameof(PublishRecordings))]
     public async ValueTask<ActionResult> PublishRecordings(string recordId, bool publish)
     {
-        var request = new PublishRecordingsRequest
-        {
-            recordID = recordId,
-            publish = publish
-        };
-        var result = await _client.PublishRecordingsAsync(request);
+      var record =await _handleRecordService.PublishRecordings(recordId, publish);
+      if (record.Data is null)
+          return record.Errors.Count() > 1 ? BadRequest(record.Errors) : BadRequest(record.Error);
 
-        if (result.Returncode == Returncode.Failed)
-            return BadRequest(result.Message);
-        return Ok(result);
+      return Ok(record.Data);
     }
 }
