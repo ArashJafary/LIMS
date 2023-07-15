@@ -33,9 +33,9 @@ public class BBBServerServiceImpl
 
             return OperationResult<bool>.OnSuccess(true);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            return OperationResult<bool>.OnException(ex);
+            return OperationResult<bool>.OnException(exception);
         }
     }
 
@@ -52,6 +52,7 @@ public class BBBServerServiceImpl
 
             await newServer.UpdateServer(server.ServerUrl, server.ServerSecret, server.ServerLimit);
             await _unitOfWork.SaveChangesAsync();
+
             return new OperationResult();
         }
         catch (Exception exception)
@@ -84,18 +85,19 @@ public class BBBServerServiceImpl
         {
             var servers = await _servers.GetAllServersAsync();
 
-            var capableServer = servers.OrderByDescending(server
-                => server.ServerLimit - 
-                   server.Meetings.Sum(meeting 
-                    => meeting.Users.Count))!
-                        .FirstOrDefault();
+            var capableServer = servers
+                .OrderByDescending(
+                    server => server.ServerLimit - 
+                              server.Meetings.Where(meeting => meeting.IsRunning)
+                                  .Sum(meeting => meeting.Users.Count))!
+                                        .FirstOrDefault();
 
             var serverDto = ServerDtoMapper.Map(capableServer);
             return OperationResult<ServerAddEditDto>.OnSuccess(serverDto);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            return OperationResult<ServerAddEditDto>.OnException(ex);
+            return OperationResult<ServerAddEditDto>.OnException(exception);
         }
     }
     public async ValueTask<OperationResult<long>> DeleteServer(long Id)
@@ -105,9 +107,9 @@ public class BBBServerServiceImpl
             var serverId = await _servers.DeleteServerAsync(Id);
             return OperationResult<long>.OnSuccess(serverId);
         }
-        catch (Exception ex)
+        catch (Exception exceptionex)
         {
-            return OperationResult<long>.OnException(ex);
+            return OperationResult<long>.OnException(exceptionex);
         }
     }
     public async ValueTask<OperationResult<ServerAddEditDto>> GetServer(long Id)
@@ -117,9 +119,9 @@ public class BBBServerServiceImpl
             var server = ServerDtoMapper.Map(await _servers.GetServerAsync(Id));
             return OperationResult<ServerAddEditDto>.OnSuccess(server);
         }
-        catch (Exception ex)
+        catch (Exception exceptionex)
         {
-            return OperationResult<ServerAddEditDto>.OnException(ex);
+            return OperationResult<ServerAddEditDto>.OnException(exceptionex);
         }
     }
 
@@ -135,9 +137,9 @@ public class BBBServerServiceImpl
             }
             return OperationResult<List<ServerAddEditDto>>.OnSuccess(serversDto);
         }
-        catch (Exception ex)
+        catch (Exception exceptionex)
         {
-            return OperationResult<List<ServerAddEditDto>>.OnException(ex);
+            return OperationResult<List<ServerAddEditDto>>.OnException(exceptionex);
         }
     }
 

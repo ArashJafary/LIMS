@@ -105,21 +105,28 @@ namespace LIMS.Application.Services.Meeting.BBB
         /// <summary>
         /// Check and Handle Joining of an User
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="meetingId"></param>
         /// <param name="joinRequest"></param>
         /// <returns>Bool</returns>
-        public async ValueTask<SingleResponse<bool>> CanJoinOnMeetingHandler(long id,JoinMeetingRequestModel joinRequest)
+        public async ValueTask<SingleResponse<bool>> CanJoinOnMeetingHandler(string meetingId,JoinMeetingRequestModel joinRequest)
         {
             /* All Flows of App For Joining Check */
             var server = await _meetingService
-                .FindMeetingWithMeetingId(joinRequest.MeetingId);
+                .FindMeetingWithMeetingId(meetingId);
             if (!server.Success)
                 if (server.Exception is not null)
                     return SingleResponse<bool>.OnFailed(server.Exception.Data.ToString());
                 else
                     return SingleResponse<bool>.OnFailed(server.OnFailedMessage);
 
-            var canJoinOnMeeting = await _memberShipService.CanJoinUserOnMeetingAsync(id);
+            var meeting =await _meetingService.FindMeetingWithMeetingId(meetingId);
+            if (!meeting.Success)
+                if (meeting.Exception is not null)
+                    return SingleResponse<bool>.OnFailed(meeting.Exception.Data.ToString());
+                else
+                    return SingleResponse<bool>.OnFailed(meeting.OnFailedMessage);
+
+            var canJoinOnMeeting = await _memberShipService.CanJoinUserOnMeetingAsync(meeting.Result.Id);
             if (!canJoinOnMeeting.Success)
                 if (server.Exception is not null)
                     return SingleResponse<bool>.OnFailed(canJoinOnMeeting.Exception.Data.ToString());
@@ -139,7 +146,7 @@ namespace LIMS.Application.Services.Meeting.BBB
 
 
             var user = await _userService.GetUser(joinRequest.UserId);
-            var cnaLoginOnMeeting = _meetingService.CanLoginOnExistMeeting(joinRequest.MeetingId, UserDtoMapper.Map(user.Result), joinRequest.MeetingPassword).Result;
+            var cnaLoginOnMeeting = _meetingService.CanLoginOnExistMeeting(meetingId, UserDtoMapper.Map(user.Result), joinRequest.MeetingPassword).Result;
             if (!cnaLoginOnMeeting.Success)
                 if (cnaLoginOnMeeting.Exception is not null)
                     return SingleResponse<bool>.OnFailed(server.Exception.Data.ToString());

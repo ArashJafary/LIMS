@@ -16,27 +16,27 @@ namespace LIMS.Application.Services.Database.BBB
         public BBBRecordServiceImpl(IRecordRepository records)
             => _records = records;
 
-        public async ValueTask<OperationResult<IEnumerable<Record>>> GetAllRecordedVideos()
+        public async ValueTask<OperationResult<IEnumerable<Domain.Entities.Record>>> GetAllRecordedVideos()
         {
             try
             {
-                return OperationResult<IEnumerable<Record>>.OnSuccess(await _records.GetAllRecordsAsync());
+                return OperationResult<IEnumerable<Domain.Entities.Record>>.OnSuccess(await _records.GetAllRecordsAsync());
             }
             catch (Exception exception)
             {
-                return OperationResult<IEnumerable<Record>>.OnException(exception);
+                return OperationResult<IEnumerable<Domain.Entities.Record>>.OnException(exception);
             }
         }
 
-        public async ValueTask<OperationResult<Record>> GetOneRecordedVideo(long id)
+        public async ValueTask<OperationResult<Domain.Entities.Record>> GetOneRecordedVideo(long id)
         {
             try
             {
-                return OperationResult<Record>.OnSuccess(await _records.GetRecordAsync(id));
+                return OperationResult<Domain.Entities.Record>.OnSuccess(await _records.GetRecordAsync(id));
             }
             catch (Exception exception)
             {
-                return OperationResult<Record>.OnException(exception);
+                return OperationResult<Domain.Entities.Record>.OnException(exception);
             }
         }
 
