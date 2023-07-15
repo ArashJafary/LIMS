@@ -1,10 +1,10 @@
 using LIMS.Domain.IRepositories;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 using LIMS.Domain.IRepositories;
 using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace BigBlueApi.Persistence.Repositories;
+namespace LIMS.Persistence.Repositories;
 
 public class ServerRepository : IServerRepository
 {

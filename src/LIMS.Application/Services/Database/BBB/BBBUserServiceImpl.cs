@@ -2,7 +2,7 @@
 using LIMS.Application.Mappers;
 using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entities;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 using LIMS.Application.Models;
 
 namespace LIMS.Application.Services.Database.BBB
@@ -10,23 +10,20 @@ namespace LIMS.Application.Services.Database.BBB
     public class BBBUserServiceImpl
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IUserRepository _Repository;
+        private readonly IUserRepository _users;
 
-        public BBBUserServiceImpl(IUserRepository repository, IUnitOfWork uow)
-        {
-            _unitOfWork = uow;
-            _Repository = repository;
-        }
+        public BBBUserServiceImpl(IUnitOfWork unitOfWork, IUserRepository users) =>
+            (_unitOfWork, _users) = (unitOfWork, users);
 
         public async ValueTask<OperationResult<long>> CreateUser(UserAddEditDto user)
         {
             try
             {
                 var newUser = UserDtoMapper.Map(user);
-                await _Repository.CreateUser(newUser);
+                await _users.CreateUser(newUser);
                 await _unitOfWork.SaveChangesAsync();
                 if (newUser.Id == 0)
-                    return OperationResult<long>.OnFailed("We have proplem to creat user in creat");
+                    return OperationResult<long>.OnFailed("We have problem to create user in create");
                 return OperationResult<long>.OnSuccess(newUser.Id);
             }
             catch (Exception ex)
@@ -36,11 +33,11 @@ namespace LIMS.Application.Services.Database.BBB
         }
 
 
-        public async ValueTask<OperationResult> EditUser(int Id, UserAddEditDto userDto)
+        public async ValueTask<OperationResult> EditUser(long Id, UserAddEditDto userDto)
         {
             try
             {
-                var user = await _Repository.GetUser(Id);
+                var user = await _users.GetUser(Id);
                 user.UserUpdate(userDto.FullName, userDto.Alias,new UserRole(userDto.Role));
                 await _unitOfWork.SaveChangesAsync();
                 return new OperationResult(); 
@@ -51,11 +48,11 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
-        public async ValueTask<OperationResult<UserAddEditDto>> GetUser(int userId)
+        public async ValueTask<OperationResult<UserAddEditDto>> GetUser(long userId)
         {
             try
             {
-                var user = UserDtoMapper.Map(await _Repository.GetUser(userId));
+                var user = UserDtoMapper.Map(await _users.GetUser(userId));
                 if (user is null)
                     return OperationResult<UserAddEditDto>.OnFailed("user not find");
                 return OperationResult<UserAddEditDto>.OnSuccess(user);
@@ -66,11 +63,12 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
+
         public async ValueTask<OperationResult<List<UserAddEditDto>>> GetUsers()
         {
             try
             {
-                var users= await _Repository.GetUsers();
+                var users= await _users.GetUsers();
                 var userDto = new List<UserAddEditDto>();
                 foreach (var User in users)
                 {
@@ -88,7 +86,7 @@ namespace LIMS.Application.Services.Database.BBB
         {
             try
             {
-                var userId = await _Repository.DeleteUser(id);
+                var userId = await _users.DeleteUser(id);
                 return OperationResult<long>.OnSuccess(userId);
             }
             catch (Exception ex)

@@ -1,7 +1,7 @@
 ﻿using LIMS.Domain.IRepositories;
 using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entities;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 

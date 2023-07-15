@@ -1,15 +1,14 @@
 using LIMS.Domain.Entities;
 
-namespace LIMS.Domain.Entity;
+namespace LIMS.Domain.Entities;
 
-public sealed class Server
+public sealed class Server : BaseEntity
 {
-    public int Id { get; set; }
     public string ServerUrl { get; private set; }
     public string SharedSecret { get; private set; }
     public int ServerLimit { get; private set; }
     public bool IsActive { get; private set; }
-    public List<Meeting> Meetings { get; set; }
+    public List<Meeting> Meetings { get; }
 
     public Server(string serverUrl, string sharedSecret, int serverLimit)
     {
@@ -28,14 +27,17 @@ public sealed class Server
         ServerLimit = serverLimit;
     }
 
-    public void UpdateServer(string serverUrl, string sharedSecret, int serverLimit)
+    public async Task UpdateServer(string serverUrl, string sharedSecret, int serverLimit)
     {
-        IsValid(serverUrl, serverLimit);
-        if (serverLimit <= 0)
-            throw new ArgumentOutOfRangeException("Server Limit Cant Be Less Than ZERO.");
-        ServerUrl = serverUrl;
-        SharedSecret = sharedSecret;
-        ServerLimit = serverLimit;
+        await Task.Run(() =>
+        {
+            IsValid(serverUrl, serverLimit);
+            if (serverLimit <= 0)
+                throw new ArgumentOutOfRangeException("Server Limit Cant Be Less Than ZERO.");
+            ServerUrl = serverUrl;
+            SharedSecret = sharedSecret;
+            ServerLimit = serverLimit;
+        });
     }
 
     public async Task SetDownServer()

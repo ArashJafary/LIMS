@@ -1,22 +1,24 @@
 using LIMS.Application.DTOs;
 using LIMS.Domain.IRepositories;
 using LIMS.Application.DTOs;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 using LIMS.Application.Models;
 using System.Net.NetworkInformation;
 using LIMS.Application.Mappers;
 using LIMS.Application.Services.Http.BBB;
+using System;
+using LIMS.Domain.Entities;
 
 namespace LIMS.Application.Services.Database.BBB;
 
 public class BBBServerServiceImpl
 {
     private readonly IServerRepository _servers;
-    private readonly ServerActiveService _activeService;
+    private readonly BBBServerActiveService _activeService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public BBBServerServiceImpl(ServerActiveService activeService, IServerRepository serverRepository,
-        IUnitOfWork unitOfWork) => (_servers, _activeService, _unitOfWork) = (_servers, activeService, unitOfWork);
+    public BBBServerServiceImpl(BBBServerActiveService activeService, IServerRepository servers,
+        IUnitOfWork unitOfWork) => (_servers, _activeService, _unitOfWork) = (servers, activeService, unitOfWork);
 
     public async ValueTask<OperationResult<bool>> CanJoinServer(long id)
     {
@@ -31,17 +33,32 @@ public class BBBServerServiceImpl
 
             return OperationResult<bool>.OnSuccess(true);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            return OperationResult<bool>.OnException(ex);
+            return OperationResult<bool>.OnException(exception);
         }
     }
 
-    public async Task UpdateServer(long id, ServerAddEditDto server)
+    public async Task<OperationResult> UpdateServer(long id, ServerAddEditDto server)
     {
-        var newServer = await _servers.GetServerAsync(id);
-        newServer.UpdateServer(server.ServerUrl, server.ServerSecret, server.ServerLimit);
-        await _unitOfWork.SaveChangesAsync();
+        try
+        {
+            if (server is null)
+                return OperationResult<Server>.OnFailed("server Cant Be Null.");
+
+            var newServer = await _servers.GetServerAsync(id);
+            if (newServer is null)
+                return OperationResult<Server>.OnFailed("server not find");
+
+            await newServer.UpdateServer(server.ServerUrl, server.ServerSecret, server.ServerLimit);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new OperationResult();
+        }
+        catch (Exception exception)
+        {
+            return OperationResult<Server>.OnException(exception);
+        }
     }
     public async ValueTask<OperationResult<Server>> CreateServer(ServerAddEditDto serverAddEditDto)
     {
@@ -56,9 +73,9 @@ public class BBBServerServiceImpl
             }
             return OperationResult<Server>.OnSuccess(server);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            return OperationResult<Server>.OnException(ex);
+            return OperationResult<Server>.OnException(exception);
         }
     }
 
@@ -68,18 +85,19 @@ public class BBBServerServiceImpl
         {
             var servers = await _servers.GetAllServersAsync();
 
-            var capableServer = servers.OrderBy(server
-                => server.ServerLimit - 
-                   server.Meetings.Sum(meeting 
-                    => meeting.Users.Count))!
-                        .FirstOrDefault();
+            var capableServer = servers
+                .OrderByDescending(
+                    server => server.ServerLimit - 
+                              server.Meetings.Where(meeting => meeting.IsRunning)
+                                  .Sum(meeting => meeting.Users.Count))!
+                                        .FirstOrDefault();
 
             var serverDto = ServerDtoMapper.Map(capableServer);
             return OperationResult<ServerAddEditDto>.OnSuccess(serverDto);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            return OperationResult<ServerAddEditDto>.OnException(ex);
+            return OperationResult<ServerAddEditDto>.OnException(exception);
         }
     }
     public async ValueTask<OperationResult<long>> DeleteServer(long Id)
@@ -89,9 +107,9 @@ public class BBBServerServiceImpl
             var serverId = await _servers.DeleteServerAsync(Id);
             return OperationResult<long>.OnSuccess(serverId);
         }
-        catch (Exception ex)
+        catch (Exception exceptionex)
         {
-            return OperationResult<long>.OnException(ex);
+            return OperationResult<long>.OnException(exceptionex);
         }
     }
     public async ValueTask<OperationResult<ServerAddEditDto>> GetServer(long Id)
@@ -101,9 +119,9 @@ public class BBBServerServiceImpl
             var server = ServerDtoMapper.Map(await _servers.GetServerAsync(Id));
             return OperationResult<ServerAddEditDto>.OnSuccess(server);
         }
-        catch (Exception ex)
+        catch (Exception exceptionex)
         {
-            return OperationResult<ServerAddEditDto>.OnException(ex);
+            return OperationResult<ServerAddEditDto>.OnException(exceptionex);
         }
     }
 
@@ -119,9 +137,9 @@ public class BBBServerServiceImpl
             }
             return OperationResult<List<ServerAddEditDto>>.OnSuccess(serversDto);
         }
-        catch (Exception ex)
+        catch (Exception exceptionex)
         {
-            return OperationResult<List<ServerAddEditDto>>.OnException(ex);
+            return OperationResult<List<ServerAddEditDto>>.OnException(exceptionex);
         }
     }
 

@@ -8,14 +8,14 @@ using LIMS.Application.Models;
 using LIMS.Application.Services.Database.BBB;
 using LIMS.Application.Models;
 
-namespace LIMS.Application.Services.Schadulers.HangFire
+namespace LIMS.Application.Services.Schedulers.HangFire
 {
     
-    public class ServerSchadulerService
+    public class ServerSchedulerService
     {
         private readonly BBBServerServiceImpl _servers;
 
-        public ServerSchadulerService(BBBServerServiceImpl servers)
+        public ServerSchedulerService(BBBServerServiceImpl servers)
             => _servers = servers;
         public async Task<SingleResponse<string>> SetServerIsPassive()
         {

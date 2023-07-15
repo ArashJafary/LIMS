@@ -1,20 +1,21 @@
 using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entities;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace LIMS.Infrastructure.Persistence;
-
 public class LimsContext : DbContext, IUnitOfWork
 {
-    public LimsContext(DbContextOptions<LimsContext> options)
-        : base(options) { }
 
-    public DbSet<User> Users { get; set; }
-    public DbSet<UserRole> UserRoles { get; set; }
-    public DbSet<Meeting> Meetings { get; set; }
-    public DbSet<MemberShip> MemberShips { get; set; }
-    public DbSet<Server> Servers { get; set; }
+    public LimsContext(DbContextOptions<LimsContext> options)
+        : base(options) {}
+
+    public virtual DbSet<User> Users { get; set; } = default!;
+    public virtual DbSet<UserRole> UserRoles { get; set; } = default!;
+    public virtual DbSet<Meeting> Meetings { get; set; } = default!;
+    public virtual DbSet<MemberShip> MemberShips { get; set; } = default!;
+    public virtual DbSet<Server> Servers { get; set; } = default!;
 
     public async ValueTask<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
@@ -30,5 +31,10 @@ public class LimsContext : DbContext, IUnitOfWork
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(LimsContext).Assembly);
         base.OnModelCreating(modelBuilder);
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder options)
+    {
+        base.OnConfiguring(options);
     }
 }

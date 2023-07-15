@@ -7,11 +7,11 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using LIMS.Application.Models;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 
 namespace LIMS.Application.Services.Http.BBB
 {
-    public class ServerActiveService
+    public class BBBServerActiveService
     {
         public async Task<OperationResult<bool>> CheckIsActive(List<Server> servers)
         {

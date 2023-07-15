@@ -1,29 +1,34 @@
 ﻿using LIMS.Application.DTOs;
+using LIMS.Application.Exceptions.Http.BBB;
 using LIMS.Application.Mappers;
 using LIMS.Domain;
 using LIMS.Domain.IRepositories;
 using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entities;
 using LIMS.Application.Models;
-using LIMS.Domain.Entity;
+using LIMS.Domain.Entities;
 using LIMS.Domain;
+using LIMS.Domain.Enumerables;
 
 namespace LIMS.Application.Services.Database.BBB
 {
     public class BBBMeetingServiceImpl
     {
         private readonly IMeetingRepository _meetings;
-        private readonly IUnitOfWork _uow;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUserRepository _users;
 
-        public BBBMeetingServiceImpl(IMeetingRepository repository, IUnitOfWork uow) =>
-            (_meetings,_uow) = (repository, uow);
+        public BBBMeetingServiceImpl(IMeetingRepository meetings, IUnitOfWork unitOfWork, IUserRepository users) =>
+            (_meetings,_unitOfWork,_users
+            ) = (meetings, unitOfWork,users);
 
         public async ValueTask<OperationResult<string>> CreateNewMeetingAsync(MeetingAddDto meeting)
         {
             try
             {
-                var result = await _meetings.CreateMeetingAsync(MeetingDtoMapper.Map(meeting));
-                await _uow.SaveChangesAsync();
+                var result = await _meetings.CreateMeetingAsync(await MeetingDtoMapper.Map(meeting));
+                await _unitOfWork
+                    .SaveChangesAsync();
 
                 return OperationResult<string>.OnSuccess(result);
             }
@@ -33,27 +38,61 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
-        public async ValueTask<OperationResult<bool>> CanLoginOnExistMeeting(string meetingId, UserRoleTypes role, string password)
+        private async ValueTask<OperationResult> CheckUserRoles(User user,Domain.Entities.Meeting meeting,string password)
+        {
+            if (user.Role.RoleName == UserRoleTypes.Attendee.ToString())
+            {
+                if (meeting.AttendeePassword == password)
+                    return OperationResult<bool>.OnSuccess(true);
+            }
+            else if (user.Role.RoleName == UserRoleTypes.Moderator.ToString())
+            {
+                if (meeting.ModeratorPassword == password)
+                    return OperationResult<bool>.OnSuccess(true);
+            }
+            else if (user.Role.RoleName == UserRoleTypes.Guest.ToString())
+                return OperationResult<bool>.OnSuccess(true);
+
+            return OperationResult<bool>.OnFailed(
+                "Your Moderator User or Password Intended Not Exists in my Records.");
+        }
+
+        public async ValueTask<OperationResult<bool>> CanLoginOnExistMeeting(string meetingId,User user, string password)
         {
             try
             {
-                var meeting = await _meetings.FindByMeetingIdAsync(meetingId);
+                var meeting = await _meetings
+                    .FindByMeetingIdAsync(meetingId);
 
-                if (role == UserRoleTypes.Attendee)
-                {
-                        if (meeting.AttendeePassword == password)
-                                 return OperationResult<bool>.OnSuccess(true);
-                }
-                else if (role == UserRoleTypes.Moderator)
-                {
-                        if (meeting.ModeratorPassword == password)
-                                 return OperationResult<bool>.OnSuccess(true);
-                }
-                else if(role == UserRoleTypes.Guest)
-                        return OperationResult<bool>.OnSuccess(true);
+                var isPrivate = meeting.Type == MeetingTypes.Private;
 
-                return OperationResult<bool>.OnFailed(
-                    "Your Moderator User or Password Intended Not Exists in my Records.");
+                if (isPrivate)
+                {
+                    foreach (var meetingUser in meeting.Users)
+                    {
+                        if (meetingUser.Id == user.Id)
+                        {
+                            var checkUserRole = await CheckUserRoles(user, meeting, password);
+                            if (!checkUserRole.Success)
+                                return checkUserRole.Exception is null
+                                    ? OperationResult<bool>.OnFailed(checkUserRole.OnFailedMessage)
+                                    : throw new UserCannotLoginException(checkUserRole.Exception.Message);
+                        }
+                        else
+                            return OperationResult<bool>.OnFailed("This Meeting is Private and You Cant Join.");
+                    }
+                }
+                else
+                {
+                    var checkUserRole =await CheckUserRoles(user, meeting, password);
+                    if (!checkUserRole.Success)
+                        return checkUserRole.Exception is null
+                            ? OperationResult<bool>.OnFailed(checkUserRole.OnFailedMessage)
+                            : throw new UserCannotLoginException(checkUserRole.Exception.Message);
+
+                }
+
+                return OperationResult<bool>.OnSuccess(true);
             }
             catch (Exception exception)
             {
@@ -92,17 +131,17 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
-        public async ValueTask<OperationResult> EditSession(long id, MeetingEditDto meetingInput)
+        public async ValueTask<OperationResult> UpdateMeeting(long id, MeetingEditDto meetingInput)
         {
             try
             {
                 var meeting =await _meetings.FindAsync(id);
-                meeting.Update(meetingInput.Name,
+                await meeting.Update(meetingInput.Name,
                     meetingInput.ModeratorPassword,
                     meetingInput.AttendeePassword,
-                    meetingInput.EndDateTime,+
                     meetingInput.limitCapacity);
-                await _uow.SaveChangesAsync();
+                await _unitOfWork
+                    .SaveChangesAsync();
                 return new OperationResult();
             }
             catch (Exception exception)
@@ -117,7 +156,8 @@ namespace LIMS.Application.Services.Database.BBB
             {
                 var meeting = await _meetings.FindByMeetingIdAsync(meetingId);
                 meeting.EndSession(DateTime.Now);
-                await _uow.SaveChangesAsync();
+                await _unitOfWork
+                    .SaveChangesAsync();
                 return new OperationResult();
             }
             catch (Exception exception)
