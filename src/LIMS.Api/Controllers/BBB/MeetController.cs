@@ -65,15 +65,15 @@ public class MeetController : ControllerBase
 
 
         /* Get Informations of Meeting For Indicate To Client */
-        var getMeetingInformations = await _connectionService.GetMeetingInformations(meetingId);
-        if (!getMeetingInformations.Success)
-            return getMeetingInformations.Exception is null
-                ? BadRequest(getMeetingInformations.OnFailedMessage)
-                : BadRequest(getMeetingInformations.Exception.Data.ToString());
+        var getMeetingInformation = await _connectionService.GetMeetingInformations(meetingId);
+        if (!getMeetingInformation.Success)
+            return getMeetingInformation.Exception is null
+                ? BadRequest(getMeetingInformation.OnFailedMessage)
+                : BadRequest(getMeetingInformation.Exception.Data.ToString());
 
 
         /* Return Information To Client */
-        return Ok(getMeetingInformations.Result);
+        return Ok(getMeetingInformation.Result);
     }
 
     [HttpPost("[action]", Name = nameof(CreateMeeting))]
@@ -112,7 +112,7 @@ public class MeetController : ControllerBase
             .CreateMeetingOnBigBlueButton(
                 new MeetingAddDto(
                     request.MeetingId,
-                    request.MustRecord,
+                    request.IsRecord,
                     request.IsBreakout,
                     request.CanFreeJoinOnBreakout,
                     request.ParentId,
@@ -120,8 +120,11 @@ public class MeetController : ControllerBase
                     request.ModeratorPassword,
                     request.AttendeePassword,
                     request.StartDateTime,
+                    request.EndDateTime,
                     request.LimitCapacity,
-                    server.Data
+                    server.Data,
+                    request.AutoStartRecord,
+                    request.Platform
                 )
                     );
 
@@ -131,7 +134,7 @@ public class MeetController : ControllerBase
                 : BadRequest(createMeetingConnection.Exception.Data.ToString());
 
 
-        /* Create Meeting Informations On Database */
+        /* Create Meeting Information On Database */
         var createMeeting = await _handleMeetingService.CreateMeetingOnDatabase(createMeetingConnection.Result);
         if (createMeeting.Data is null)
             return createMeeting.Errors.Count() > 1
@@ -139,16 +142,16 @@ public class MeetController : ControllerBase
                 : BadRequest(createMeeting.Error);
 
 
-        /* Get Informations of Meeting For Indicate To Client */
-        var getMeetingInformations = await _connectionService.GetMeetingInformations(request.MeetingId);
-        if (!getMeetingInformations.Success)
-            return getMeetingInformations.Exception is null
-                ? BadRequest(getMeetingInformations.OnFailedMessage)
-                : BadRequest(getMeetingInformations.Exception.Data.ToString());
+        /* Get Information of Meeting For Indicate To Client */
+        var getMeetingInformation = await _connectionService.GetMeetingInformations(request.MeetingId);
+        if (!getMeetingInformation.Success)
+            return getMeetingInformation.Exception is null
+                ? BadRequest(getMeetingInformation.OnFailedMessage)
+                : BadRequest(getMeetingInformation.Exception.Data.ToString());
 
 
         /* Return Information To Client */
-        return Ok(getMeetingInformations);
+        return Ok(getMeetingInformation);
     }
 
     [HttpPost("[action]/{id}", Name = nameof(JoinOnMeeting))]
@@ -171,28 +174,15 @@ public class MeetController : ControllerBase
                 : BadRequest(canJoinOnMeeting.Error);
 
 
-        /* Creating User On Meeting */
-        var userId = await _userService.CreateUser(
-            new UserAddEditDto(
-                request.UserInformations.FullName,
-                request.UserInformations.Alias,
-                request.UserInformations.Role
-            )
-        );
-        if (!userId.Success)
-            if (userId.Exception is not null)
-                return StatusCode(500);
-            else
-                return BadRequest(userId.OnFailedMessage);
-
-
         /* Join On Meeting With BBB Api */
         var url = await _connectionService.JoiningOnMeeting(request);
         if (!url.Success)
             return url.Exception is null ? BadRequest(url.OnFailedMessage) : BadRequest(url.Exception.Data.ToString());
 
+
         /* Join Creating For Database */
-        await _handleMeetingService.JoiningOnMeetingOnDatabase(userId.Result, request.MeetingId);
+        await _handleMeetingService.JoiningOnMeetingOnDatabase(request.UserId, request.MeetingId);
+
 
         /* Redirect Into URL of Meeting */
         return Redirect(url.Result);

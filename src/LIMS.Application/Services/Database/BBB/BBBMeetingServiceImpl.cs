@@ -26,7 +26,7 @@ namespace LIMS.Application.Services.Database.BBB
         {
             try
             {
-                var result = await _meetings.CreateMeetingAsync(MeetingDtoMapper.Map(meeting));
+                var result = await _meetings.CreateMeetingAsync(await MeetingDtoMapper.Map(meeting));
                 await _unitOfWork
                     .SaveChangesAsync();
 

@@ -34,8 +34,17 @@ namespace LIMS.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("AutoStartRecording")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("EndDateTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("FreeJoinOnBreakout")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsBreakout")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsRecord")
                         .HasColumnType("bit");
@@ -58,11 +67,20 @@ namespace LIMS.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ParentMeetingId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Platform")
+                        .HasColumnType("int");
+
                     b.Property<long>("ServerId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("StartDateTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -353,6 +371,7 @@ namespace LIMS.Infrastructure.Persistence.Migrations
                 {
                     b.Navigation("Users");
                 });
+#pragma warning restore 612, 618
         }
     }
 }

@@ -9,6 +9,7 @@ using LIMS.Application.DTOs;
 using LIMS.Application.Models;
 using LIMS.Application.Models;
 using LIMS.Application.Models.Http.BBB;
+using LIMS.Application.Services.Database.BBB;
 using LIMS.Domain;
 using LIMS.Domain.Entities;
 
@@ -18,9 +19,10 @@ namespace LIMS.Infrastructure.Services.Api.BBB
     public class BBBConnectionService
     {
         private readonly BigBlueButtonAPIClient _bbbClient;
+        private readonly BBBUserServiceImpl _userService;
 
-        public BBBConnectionService(BigBlueButtonAPIClient bbbClient)
-            => _bbbClient = bbbClient;
+        public BBBConnectionService(BigBlueButtonAPIClient bbbClient, BBBUserServiceImpl userService)
+            => (_bbbClient, _userService) = (bbbClient, userService);
 
         public async ValueTask<OperationResult<MeetingAddDto>> CreateMeetingOnBigBlueButton(MeetingAddDto meetingRequestModel)
         {
@@ -49,13 +51,16 @@ namespace LIMS.Infrastructure.Services.Api.BBB
                         meetingRequestModel.IsRecord,
                         meetingRequestModel.IsBreakout,
                         meetingRequestModel.CanFreeJoinOnBreakout,
-                        meetingRequestModel.ParentId,
+                        meetingCreateRequest.parentMeetingID,
                         meetingRequestModel.Name,
                         meetingRequestModel.ModeratorPassword,
                         meetingRequestModel.AttendeePassword,
                         meetingRequestModel.StartDateTime,
+                        meetingRequestModel.EndDateTime,
                         meetingRequestModel.LimitCapacity,
-                        meetingRequestModel.Server
+                        meetingRequestModel.Server,
+                        meetingRequestModel.AutoStartRecord,
+                        meetingRequestModel.Platform
                     ));
             }
             catch (Exception exception)
@@ -64,7 +69,7 @@ namespace LIMS.Infrastructure.Services.Api.BBB
             }
         }
 
-        public async Task<OperationResult> ChangeServerSettings(BigBlueButtonAPISettings settings,ServerAddEditDto server)
+        public async Task<OperationResult> ChangeServerSettings(BigBlueButtonAPISettings settings, ServerAddEditDto server)
         {
             try
             {
@@ -88,24 +93,30 @@ namespace LIMS.Infrastructure.Services.Api.BBB
         {
             try
             {
+                var user = await _userService.GetUser(joinOnMeetingRequest.UserId);
+                if (!user.Success)
+                    return user.Exception is null
+                        ? OperationResult<string>.OnFailed(user.OnFailedMessage)
+                        : throw new Exception("Cannot Find User.");
+
                 var joinOnMeetingRequestJoin = new JoinMeetingRequest { meetingID = joinOnMeetingRequest.MeetingId };
 
-                if (joinOnMeetingRequest.UserInformations.Role == UserRoleTypes.Moderator)
+                if (user.Result.Role == UserRoleTypes.Moderator)
                 {
                     joinOnMeetingRequestJoin.password = joinOnMeetingRequest.MeetingPassword;
                     joinOnMeetingRequestJoin.userID = "1";
-                    joinOnMeetingRequestJoin.fullName = joinOnMeetingRequest.UserInformations.FullName;
+                    joinOnMeetingRequestJoin.fullName = user.Result.FullName;
                 }
-                else if (joinOnMeetingRequest.UserInformations.Role == UserRoleTypes.Attendee)
+                else if (user.Result.Role == UserRoleTypes.Attendee)
                 {
                     joinOnMeetingRequestJoin.password = joinOnMeetingRequest.MeetingPassword;
                     joinOnMeetingRequestJoin.userID = "2";
-                    joinOnMeetingRequestJoin.fullName = joinOnMeetingRequest.UserInformations.FullName;
+                    joinOnMeetingRequestJoin.fullName = user.Result.FullName;
                 }
                 else
                 {
                     joinOnMeetingRequestJoin.guest = true;
-                    joinOnMeetingRequestJoin.fullName = joinOnMeetingRequest.UserInformations.FullName;
+                    joinOnMeetingRequestJoin.fullName = user.Result.FullName;
                 }
 
                 var url = _bbbClient.GetJoinMeetingUrl(joinOnMeetingRequestJoin);
@@ -120,7 +131,7 @@ namespace LIMS.Infrastructure.Services.Api.BBB
             }
         }
 
-        public async Task<OperationResult> EndExistMeeting(string meetingId,string moderatorPassword)
+        public async Task<OperationResult> EndExistMeeting(string meetingId, string moderatorPassword)
         {
             try
             {

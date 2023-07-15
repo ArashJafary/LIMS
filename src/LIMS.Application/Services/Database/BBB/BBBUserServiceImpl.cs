@@ -23,7 +23,7 @@ namespace LIMS.Application.Services.Database.BBB
                 await _users.CreateUser(newUser);
                 await _unitOfWork.SaveChangesAsync();
                 if (newUser.Id == 0)
-                    return OperationResult<long>.OnFailed("We have proplem to creat user in creat");
+                    return OperationResult<long>.OnFailed("We have problem to create user in create");
                 return OperationResult<long>.OnSuccess(newUser.Id);
             }
             catch (Exception ex)
