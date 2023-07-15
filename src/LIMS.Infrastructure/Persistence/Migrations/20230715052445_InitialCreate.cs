@@ -47,6 +47,7 @@ namespace LIMS.Infrastructure.Persistence.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MeetingId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ParentMeetingId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsRecord = table.Column<bool>(type: "bit", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ModeratorPassword = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -55,6 +56,11 @@ namespace LIMS.Infrastructure.Persistence.Migrations
                     EndDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsRunning = table.Column<bool>(type: "bit", nullable: false),
                     LimitCapacity = table.Column<int>(type: "int", nullable: false),
+                    IsBreakout = table.Column<bool>(type: "bit", nullable: false),
+                    FreeJoinOnBreakout = table.Column<bool>(type: "bit", nullable: false),
+                    AutoStartRecording = table.Column<bool>(type: "bit", nullable: false),
+                    Platform = table.Column<int>(type: "int", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
                     ServerId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>

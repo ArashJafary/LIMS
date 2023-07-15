@@ -110,6 +110,26 @@ public sealed class Meeting : BaseEntity
         Platform = platformType;
     }
 
+    public Meeting(
+        string meetingId,
+        bool isRecord,
+        string name,
+        string moderatorPassword,
+        string attendeePassword,
+        DateTime endDateTime,
+        int limitCapacity,
+        bool canFreeJoinOnBreakout
+        )
+    {
+        MeetingId = meetingId;
+        IsRecord = isRecord;
+        Name = name;
+        ModeratorPassword = moderatorPassword;
+        AttendeePassword = attendeePassword;
+        EndDateTime = endDateTime;
+        IsRunning = true;
+        LimitCapacity = limitCapacity;
+    }
     public async Task Update(
         string name,
         string moderatorPassword,
