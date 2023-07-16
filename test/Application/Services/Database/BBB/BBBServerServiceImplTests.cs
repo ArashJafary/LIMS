@@ -11,6 +11,8 @@ using LIMS.Domain;
 using LIMS.Domain.Entities;
 using LIMS.Domain.Enumerables;
 using LIMS.Domain.IRepositories;
+using LIMS.Test.Utils;
+using LIMS.Test.Utils;
 using Moq;
 
 namespace LIMS.Test.Application.Services.Database.BBB
@@ -19,53 +21,38 @@ namespace LIMS.Test.Application.Services.Database.BBB
     {
         private readonly Mock<IServerRepository> _serverRepositoryMock
             = new Mock<IServerRepository>();
-        private readonly Mock<BBBServerActiveService> _activeServiceMock 
+        private readonly Mock<BBBServerActiveService> _activeServiceMock
             = new Mock<BBBServerActiveService>();
-        private readonly Mock<IUnitOfWork> _unitOfWorkMock 
+        private readonly Mock<IUnitOfWork> _unitOfWorkMock
             = new Mock<IUnitOfWork>();
 
 
         private async Task<List<Server>> GetServers()
-            => new List<Server>
-            {
-                new Server("https://TestServer1.com",
-                    "secret1234",
-                    100),
-                new Server("https://TestServer2.com",
-                    "secret5678",
-                    90),
-                new Server("https://TestServer3.com",
-                    "secret9876",
-                    80),
-                new Server("https://TestServer4.com",
-                    "secret5432",
-                    70)
-            };
+        {
+            var servers = await CreateServerUtils.CreateServers(5);
+            var meetings = await CreateMeetingUtils.CreateMeetings(5);
+            var users = await CreateUserUtils.CreateUsers(5);
+
+            meetings.ForEach(meeting => meeting.Users.AddRange(users));
+            servers.ForEach(server => server.Meetings.AddRange(meetings));
+
+            return servers;
+        }
 
         private async Task<Server> GetServer() => await Task.Run(() =>
         {
-             var server = new Server("https://TestServer1.com",
-                "secret1234",
-                100);
-             //var meeting = new Domain.Entities.Meeting("123b",
-             //    true,
-             //    "Asp.Net Core",
-             //    "mp",
-             //    "ap",
-             //    DateTime.Now,
-             //    DateTime.Now,
-             //    5,
-             //    "123bParent",
-             //    true,
-             //    false,
-             //    server,
-             //    true,
-             //    PlatformTypes.BigBlueButton);
-             //meeting.Users.Add(new User("Mohammad","MMD",new UserRole(UserRoleTypes.Moderator)));
+            var server = new Server("https://TestServer1.com",
+               "secret1234",
+               100);
+
+            var meetings = CreateMeetingUtils.CreateMeetings(5).Result;
+            var users = CreateUserUtils.CreateUsers(5).Result;
+
+            meetings.ForEach(meeting => meeting.Users.AddRange(users));
+            server.Meetings.AddRange(meetings);
 
             return server;
-        });  
-         
+        });
 
         [Fact]
         public async Task CanJoinUser_IfServerNotFound()
@@ -103,7 +90,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
         public async Task CanJoinUser_IfServerHasEmptyCapacity()
         {
             var server = await GetServer();
-          
+
             _serverRepositoryMock.Setup(repository => repository.GetServerAsync(It.IsAny<long>())).ReturnsAsync(server);
 
             var service = new BBBServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object);
@@ -121,7 +108,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
         {
             var service = new BBBServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object);
 
-            var result = await service.UpdateServer(1,null);
+            var result = await service.UpdateServer(1, null);
 
             Assert.False(result.Success);
             Assert.NotNull(result.OnFailedMessage);
@@ -144,7 +131,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
         [Fact]
         public async Task UpdateServer_MustUpdateServerCorrectly()
         {
-            var server  = await GetServer();
+            var server = await GetServer();
             _serverRepositoryMock.Setup(repository => repository.GetServerAsync(It.IsAny<long>())).ReturnsAsync(server);
 
             var service = new BBBServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object);
@@ -179,7 +166,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
             var result = await service.CreateServer(null);
 
             Assert.False(result.Success);
-            Assert.Equal(result.Result,0);
+            Assert.Equal(result.Result, 0);
             Assert.Null(result.Exception);
             Assert.NotNull(result.OnFailedMessage);
         }
@@ -197,8 +184,46 @@ namespace LIMS.Test.Application.Services.Database.BBB
 
             var result = await service.MostCapableServer();
 
-            Assert.Equal(ServerDtoMapper.Map(result.Result),expectedServer);
+            Assert.Equal(ServerDtoMapper.Map(result.Result), expectedServer);
             Assert.Null(result.OnFailedMessage);
         }
+
+        [Fact]
+        public async Task DeleteServer_MustRemoveCorrectly()
+        {
+            var serverId = 1;
+            _serverRepositoryMock.Setup(repository => repository.DeleteServerAsync(It.IsAny<long>())).Verifiable();
+
+            var service = new BBBServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object);
+            
+
+            var result = await service.DeleteServer(serverId);
+
+            _serverRepositoryMock.Verify(repository => repository.DeleteServerAsync(serverId),Times.Once);
+            Assert.True(result.Success);
+            Assert.Null(result.Exception);
+            Assert.Null(result.OnFailedMessage);
+        }
+
+        [Fact]
+        public async Task DeleteServer_MostThrowsException()
+        {
+            var serverId = 1;
+            var exception = "Server Not Found.";
+
+            _serverRepositoryMock.Setup(repository => repository.DeleteServerAsync(It.IsAny<long>())).ThrowsAsync(new Exception(exception)).Verifiable();
+
+            var service = new BBBServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object);
+
+            var result = await service.DeleteServer(serverId);
+
+
+            Assert.NotNull(result.Exception);
+            Assert.NotNull(result.OnFailedMessage);
+            Assert.Equal(exception, result.Exception.Message);
+            _serverRepositoryMock.Verify(repository => repository.DeleteServerAsync(serverId),Times.Once);
+        }
+
+
     }
 }

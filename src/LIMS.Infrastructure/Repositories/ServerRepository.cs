@@ -18,11 +18,10 @@ public class ServerRepository : IServerRepository
         return newServer.Entity.Id;
     }
 
-    public async Task<long> DeleteServerAsync(long Id)
+    public async Task DeleteServerAsync(long Id)
     {
         var server = await _servers.FirstOrDefaultAsync(ser => ser.Id == Id);
         _servers.Remove(server!);
-        return server!.Id;
     }
 
     public async ValueTask<Server> GetServerAsync(long Id)
