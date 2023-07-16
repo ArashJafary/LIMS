@@ -21,7 +21,7 @@ namespace LIMS.Application.Services.Schedulers.HangFire
         {
             try
             {
-                RecurringJob.AddOrUpdate(() => _servers.SetDownServers(), Cron.DayInterval(1));
+                RecurringJob.AddOrUpdate(() => _servers.CheckServers(), Cron.DayInterval(1));
                 return SingleResponse<string>.OnSuccess("Server is Active.");
             }
             catch (Exception exception)

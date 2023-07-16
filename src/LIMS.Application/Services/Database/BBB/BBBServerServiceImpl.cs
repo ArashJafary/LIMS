@@ -86,6 +86,7 @@ public class BBBServerServiceImpl
             var servers = await _servers.GetAllServersAsync();
 
             var capableServer = servers
+                .Where(server=> server.IsActive)
                 .OrderByDescending(
                     server => server.ServerLimit - 
                               server.Meetings.Where(meeting => meeting.IsRunning)
@@ -144,14 +145,13 @@ public class BBBServerServiceImpl
         }
     }
 
-    public async Task<OperationResult> SetDownServers()
+    public async Task<OperationResult> CheckServers()
     {
         try
         {
             var servers = await _servers.GetAllServersAsync();
 
-            await _activeService.CheckIsActive(servers);
-
+            servers=_activeService.CheckServersIsActive(servers).Result.Result;
             await _unitOfWork.SaveChangesAsync();
 
             return new OperationResult();
@@ -159,6 +159,26 @@ public class BBBServerServiceImpl
         catch (Exception exception)
         {
             return OperationResult.OnFailed(exception.Message);
+        }
+    }
+
+
+    public async Task<OperationResult<bool>> CheckServer(string url)
+    {
+        try
+        {
+            var server = await _servers.GetServerAsync(url);
+
+           var result=  await _activeService.CheckServerIsActive(server);
+            server = result.Result;
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return  OperationResult<bool>.OnSuccess(server.IsActive);
+        }
+        catch (Exception exception)
+        {
+            return OperationResult<bool>.OnFailed(exception.Message);
         }
     }
 }

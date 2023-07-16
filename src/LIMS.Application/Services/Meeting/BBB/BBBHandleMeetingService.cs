@@ -50,6 +50,18 @@ namespace LIMS.Application.Services.Meeting.BBB
             /* Use CapableServer Service of Database Service */
             var server = await _serverService
                 .MostCapableServer();
+            for (; ; )
+            {
+                var result = await _serverService.CheckServer(server.Result.ServerUrl);
+                if(result.Result)
+                {
+                    break;
+                }
+                else
+                {
+                    server= await _serverService.MostCapableServer();
+                }
+            }
 
             if (!server.Success)
                 if (server.Exception is not null)
