@@ -24,6 +24,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
         private readonly Mock<IUnitOfWork> _unitOfWorkMock 
             = new Mock<IUnitOfWork>();
 
+
         private async Task<List<Server>> GetServers()
             => new List<Server>
             {
@@ -46,21 +47,21 @@ namespace LIMS.Test.Application.Services.Database.BBB
              var server = new Server("https://TestServer1.com",
                 "secret1234",
                 100);
-             var meeting = new Domain.Entities.Meeting("123b",
-                 true,
-                 "Asp.Net Core",
-                 "mp",
-                 "ap",
-                 DateTime.Now,
-                 DateTime.Now,
-                 5,
-                 "123bParent",
-                 true,
-                 false,
-                 server,
-                 true,
-                 PlatformTypes.BigBlueButton);
-             meeting.Users.Add(new User("Mohammad","MMD",new UserRole(UserRoleTypes.Moderator)));
+             //var meeting = new Domain.Entities.Meeting("123b",
+             //    true,
+             //    "Asp.Net Core",
+             //    "mp",
+             //    "ap",
+             //    DateTime.Now,
+             //    DateTime.Now,
+             //    5,
+             //    "123bParent",
+             //    true,
+             //    false,
+             //    server,
+             //    true,
+             //    PlatformTypes.BigBlueButton);
+             //meeting.Users.Add(new User("Mohammad","MMD",new UserRole(UserRoleTypes.Moderator)));
 
             return server;
         });  
@@ -153,5 +154,53 @@ namespace LIMS.Test.Application.Services.Database.BBB
             Assert.Null(result.Exception);
             Assert.Null(result.OnFailedMessage);
         }
+
+        [Fact]
+        public async Task CreatServer_MustReturnIdOfEntitiyCorrectly()
+        {
+            var server = await GetServer();
+            _serverRepositoryMock.Setup(repository => repository.CreateServerAsync(server)).ReturnsAsync(server.Id);
+
+            var service = new BBBServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object);
+
+            var result = await service.CreateServer(ServerDtoMapper.Map(server));
+
+            Assert.True(result.Success);
+            Assert.Null(result.Exception);
+            Assert.Null(result.OnFailedMessage);
+            Assert.Equal(result.Result, server.Id);
+        }
+
+        [Fact]
+        public async Task CreateServer_IfInputIsNull()
+        {
+            var service = new BBBServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object);
+
+            var result = await service.CreateServer(null);
+
+            Assert.False(result.Success);
+            Assert.Equal(result.Result,0);
+            Assert.Null(result.Exception);
+            Assert.NotNull(result.OnFailedMessage);
+        }
+
+
+        [Fact]
+        public async Task MostCapableServer_ReturnCapableServer()
+        {
+            var servers = await GetServers();
+            var expectedServer = servers.FirstOrDefault();
+
+
+            _serverRepositoryMock.Setup(repository => repository.GetAllServersAsync()).ReturnsAsync(servers);
+
+            var service = new BBBServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object);
+
+            var result = await service.MostCapableServer();
+
+            Assert.Equal(ServerDtoMapper.Map(result.Result),expectedServer);
+            Assert.Null(result.OnFailedMessage);
+        }
+
     }
 }

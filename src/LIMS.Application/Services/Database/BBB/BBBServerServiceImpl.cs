@@ -60,22 +60,22 @@ public class BBBServerServiceImpl
             return OperationResult<Server>.OnException(exception);
         }
     }
-    public async ValueTask<OperationResult<Server>> CreateServer(ServerAddEditDto serverAddEditDto)
+    public async ValueTask<OperationResult<long>> CreateServer(ServerAddEditDto serverAddEditDto)
     {
         try
         {
-            var server = await _servers.
+            if (serverAddEditDto is null)
+                return OperationResult<long>.OnFailed("Please Send Valid Server Entity.");
+
+            var serverId = await _servers.
                    CreateServerAsync(ServerDtoMapper.Map(serverAddEditDto));
             await _unitOfWork.SaveChangesAsync();
-            if (server is null)
-            {
-                return OperationResult<Server>.OnFailed("server not find");
-            }
-            return OperationResult<Server>.OnSuccess(server);
+           
+            return OperationResult<long>.OnSuccess(serverId);
         }
         catch (Exception exception)
         {
-            return OperationResult<Server>.OnException(exception);
+            return OperationResult<long>.OnException(exception);
         }
     }
 
@@ -93,6 +93,7 @@ public class BBBServerServiceImpl
                                         .FirstOrDefault();
 
             var serverDto = ServerDtoMapper.Map(capableServer);
+
             return OperationResult<ServerAddEditDto>.OnSuccess(serverDto);
         }
         catch (Exception exception)

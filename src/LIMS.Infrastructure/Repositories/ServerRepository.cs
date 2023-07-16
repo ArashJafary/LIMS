@@ -12,10 +12,10 @@ public class ServerRepository : IServerRepository
 
     public ServerRepository(LimsContext context) => _servers = context.Set<Server>();
 
-    public async ValueTask<Server> CreateServerAsync(Server server)
+    public async ValueTask<long> CreateServerAsync(Server server)
     {
         var newServer = await _servers.AddAsync(server);
-        return newServer.Entity;
+        return newServer.Entity.Id;
     }
 
     public async Task<long> DeleteServerAsync(long Id)
