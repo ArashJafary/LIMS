@@ -146,6 +146,7 @@ namespace LIMS.Application.Services.Meeting.BBB
 
 
             var user = await _userService.GetUser(joinRequest.UserId);
+          
             var cnaLoginOnMeeting = _meetingService.CanLoginOnExistMeeting(meetingId, UserDtoMapper.Map(user.Result), joinRequest.MeetingPassword).Result;
             if (!cnaLoginOnMeeting.Success)
                 if (cnaLoginOnMeeting.Exception is not null)

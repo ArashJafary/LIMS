@@ -184,7 +184,6 @@ namespace LIMS.Test.Application.Services.Database.BBB
             Assert.NotNull(result.OnFailedMessage);
         }
 
-
         [Fact]
         public async Task MostCapableServer_ReturnCapableServer()
         {
@@ -201,6 +200,5 @@ namespace LIMS.Test.Application.Services.Database.BBB
             Assert.Equal(ServerDtoMapper.Map(result.Result),expectedServer);
             Assert.Null(result.OnFailedMessage);
         }
-
     }
 }

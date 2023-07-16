@@ -69,7 +69,6 @@ public class MeetController : ControllerBase
                 ? BadRequest(getMeetingInformation.OnFailedMessage)
                 : BadRequest(getMeetingInformation.Exception.Message);
 
-
         /* Return Information To Client */
         return Ok(getMeetingInformation.Result);
     }
@@ -164,6 +163,7 @@ public class MeetController : ControllerBase
 
         /* Checking User Can Join On Meeting */
         var canJoinOnMeeting = await _handleMeetingService.CanJoinOnMeetingHandler(meetingId, request);
+
         if (!canJoinOnMeeting.Data)
             return canJoinOnMeeting.Errors.Count() > 1
                 ? BadRequest(canJoinOnMeeting.Errors)
@@ -179,7 +179,6 @@ public class MeetController : ControllerBase
         /* Join Creating For Database */
         await _handleMeetingService.JoiningOnMeetingOnDatabase(request.UserId, meetingId);
 
-
         /* Redirect Into URL of Meeting */
         return Redirect(url.Result);
     }
@@ -190,7 +189,6 @@ public class MeetController : ControllerBase
         /* Test BBB Is Ok */
         if (!await IsBigBlueSettingsOkAsync(meetingId))
             return BadRequest("BigBlueButton Settings Have Problem.");
-
 
         /* End Existed Meeting With BBB Api */
         var endExistMeeting = await _connectionService.EndExistMeeting(meetingId, password);
