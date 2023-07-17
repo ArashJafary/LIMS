@@ -22,7 +22,7 @@ namespace LIMS.Application.Services.Database.BBB
             (_meetings,_unitOfWork,_users
             ) = (meetings, unitOfWork,users);
 
-        public async ValueTask<OperationResult<string>> CreateNewMeetingAsync(MeetingAddDto meeting)
+        public async ValueTask<OperationResult<string>> CreateNewMeeting(MeetingAddDto meeting)
         {
             try
             {
@@ -38,7 +38,7 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
-        private async ValueTask<OperationResult> CheckUserRoles(User user,Domain.Entities.Meeting meeting,string password)
+        private async ValueTask<OperationResult> CheckUserRolesForLogin(User user,Domain.Entities.Meeting meeting,string password)
         {
             if (user.Role.RoleName == UserRoleTypes.Attendee.ToString())
             {
@@ -72,7 +72,7 @@ namespace LIMS.Application.Services.Database.BBB
                     {
                         if (meetingUser.Id == user.Id)
                         {
-                            var checkUserRole = await CheckUserRoles(user, meeting, password);
+                            var checkUserRole = await CheckUserRolesForLogin(user, meeting, password);
                             if (!checkUserRole.Success)
                                 return checkUserRole.Exception is null
                                     ? OperationResult<bool>.OnFailed(checkUserRole.OnFailedMessage)
@@ -84,7 +84,7 @@ namespace LIMS.Application.Services.Database.BBB
                 }
                 else
                 {
-                    var checkUserRole =await CheckUserRoles(user, meeting, password);
+                    var checkUserRole =await CheckUserRolesForLogin(user, meeting, password);
                     if (!checkUserRole.Success)
                         return checkUserRole.Exception is null
                             ? OperationResult<bool>.OnFailed(checkUserRole.OnFailedMessage)
@@ -100,7 +100,7 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
-        public async ValueTask<OperationResult<Domain.Entities.Meeting>> FindMeeting(long id)
+        public async ValueTask<OperationResult<Domain.Entities.Meeting>> FindOneMeeting(long id)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
-        public async ValueTask<OperationResult<Domain.Entities.Meeting>> FindMeetingWithMeetingId(string meetingId)
+        public async ValueTask<OperationResult<Domain.Entities.Meeting>> FindOneMeetingWithMeetingId(string meetingId)
         {
             try
             {
@@ -150,7 +150,7 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
-        public async ValueTask<OperationResult> StopRunning(string meetingId)
+        public async ValueTask<OperationResult> StopRunMeeting(string meetingId)
         {
             try
             {

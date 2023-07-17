@@ -13,8 +13,6 @@ public sealed class Server : BaseEntity
     public Server(string serverUrl, string sharedSecret, int serverLimit)
     {
         IsValid(serverUrl, serverLimit);
-        if (serverLimit <= 0)
-            throw new ArgumentOutOfRangeException("Server Limit Cant Be Less Than ZERO.");
         ServerUrl = serverUrl;
         SharedSecret = sharedSecret;
         ServerLimit = serverLimit;
@@ -32,8 +30,6 @@ public sealed class Server : BaseEntity
         await Task.Run(() =>
         {
             IsValid(serverUrl, serverLimit);
-            if (serverLimit <= 0)
-                throw new ArgumentOutOfRangeException("Server Limit Cant Be Less Than ZERO.");
             ServerUrl = serverUrl;
             SharedSecret = sharedSecret;
             ServerLimit = serverLimit;
@@ -47,11 +43,20 @@ public sealed class Server : BaseEntity
             IsActive = false;
         });
     }
+
+    public async Task SetActiveServer()
+    {
+        await Task.Run(() =>
+        {
+            IsActive = true;
+        });
+    }
+
     private void IsValid(string serverUrl, int serverLimit)
     {
         if (string.IsNullOrWhiteSpace(serverUrl))
             throw new ArgumentNullException($"{nameof(serverUrl)} is Null Or Invalid.");
         if (serverLimit <= 0)
-            throw new ArgumentOutOfRangeException("Server Limit Cant Be Less Than ZERO.");
+            throw new ArgumentOutOfRangeException("Server Limit Cant Be Less Than ZERO.!"+ serverLimit);
     }
 }

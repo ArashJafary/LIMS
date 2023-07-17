@@ -12,22 +12,27 @@ public class ServerRepository : IServerRepository
 
     public ServerRepository(LimsContext context) => _servers = context.Set<Server>();
 
-    public async ValueTask<Server> CreateServerAsync(Server server)
+    public async ValueTask<long> CreateServerAsync(Server server)
     {
         var newServer = await _servers.AddAsync(server);
-        return newServer.Entity;
+        return newServer.Entity.Id;
     }
 
-    public async Task<long> DeleteServerAsync(long Id)
+    public async Task DeleteServerAsync(long Id)
     {
         var server = await _servers.FirstOrDefaultAsync(ser => ser.Id == Id);
         _servers.Remove(server!);
-        return server!.Id;
     }
 
     public async ValueTask<Server> GetServerAsync(long Id)
     {
         var Server = await _servers.FirstOrDefaultAsync(ser => ser.Id == Id);
+        return Server!;
+    }
+
+    public async ValueTask<Server> GetServerWithUrlAsync(string url)
+    {
+        var Server = await _servers.FirstOrDefaultAsync(ser => ser.ServerUrl == url);
         return Server!;
     }
 
