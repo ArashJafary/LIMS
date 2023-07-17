@@ -82,10 +82,7 @@ public class MeetController : ControllerBase
 
 
         /* Use Capable Server For Creating Meeting On That */
-        var server = await _handleMeetingService.UseCapableServerCreateMeeting();
-      
-        
-        
+        var server = await _handleMeetingService.UseMostCapableAndActiveServer();
         if (server.Errors.Count() != 0)
             return server.Error is null || server.Error == string.Empty
                 ? BadRequest(server.Errors)

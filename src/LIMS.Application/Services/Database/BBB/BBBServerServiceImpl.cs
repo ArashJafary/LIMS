@@ -70,7 +70,7 @@ public class BBBServerServiceImpl
             var serverId = await _servers.
                    CreateServerAsync(ServerDtoMapper.Map(serverAddEditDto));
             await _unitOfWork.SaveChangesAsync();
-           
+
             return OperationResult<long>.OnSuccess(serverId);
         }
         catch (Exception exception)
@@ -86,9 +86,9 @@ public class BBBServerServiceImpl
             var servers = await _servers.GetAllServersAsync();
 
             var capableServer = servers
-                .Where(server=> server.IsActive)
+                .Where(server => server.IsActive)
                 .OrderByDescending(
-                    server => server.ServerLimit - 
+                    server => server.ServerLimit -
                               server.Meetings.Where(meeting => meeting.IsRunning)
                                   .Sum(meeting => meeting.Users.Count))!
                                         .FirstOrDefault();
@@ -105,7 +105,7 @@ public class BBBServerServiceImpl
     public async ValueTask<OperationResult> DeleteServer(long Id)
     {
         try
-        { 
+        {
             await _servers.DeleteServerAsync(Id);
             return new OperationResult();
         }
@@ -131,12 +131,15 @@ public class BBBServerServiceImpl
     {
         try
         {
-            var servers = await _servers.GetAllServersAsync();
+            var servers = await _servers
+                .GetAllServersAsync();
+
             var serversDto = new List<ServerAddEditDto>();
-            for (long i = 0; i < servers.Count; i++)
+            foreach (var server in servers)
             {
-                serversDto.Add(ServerDtoMapper.Map(servers[(int)i]));
+                serversDto.Add(ServerDtoMapper.Map(server));
             }
+
             return OperationResult<List<ServerAddEditDto>>.OnSuccess(serversDto);
         }
         catch (Exception exception)
@@ -145,13 +148,20 @@ public class BBBServerServiceImpl
         }
     }
 
-    public async Task<OperationResult> CheckServers()
+    public async Task<OperationResult> UpdateServersForActivate()
     {
         try
         {
-            var servers = await _servers.GetAllServersAsync();
+            var servers = await _servers
+                .GetAllServersAsync();
 
-            servers=_activeService.CheckServersIsActive(servers).Result.Result;
+            var checkActiveServers = await _activeService
+               .SetServersActiveIfAreNotDown(servers);
+            if (!checkActiveServers.Success)
+                return checkActiveServers.Exception is null 
+                    ? OperationResult.OnFailed(checkActiveServers.OnFailedMessage) 
+                    : throw new Exception(checkActiveServers.Exception.Message);
+
             await _unitOfWork.SaveChangesAsync();
 
             return new OperationResult();
@@ -163,18 +173,27 @@ public class BBBServerServiceImpl
     }
 
 
-    public async Task<OperationResult<bool>> CheckServer(string url)
+    public async Task<OperationResult<bool>> UpdateServerForBeingDown(string url)
     {
         try
         {
-            var server = await _servers.GetServerAsync(url);
+            var server = await _servers.GetServerWithUrlAsync(url);
 
-           var result=  await _activeService.CheckServerIsActive(server);
-            server = result.Result;
+            var checkServerIsDown = await _activeService
+                .CheckBeingDownServer(server.ServerUrl);
 
+            if (!checkServerIsDown.Success)
+                return checkServerIsDown.Exception is null
+                    ? OperationResult<bool>.OnFailed(checkServerIsDown.OnFailedMessage)
+                    : throw new Exception(checkServerIsDown.Exception.Message);
+
+            if (!checkServerIsDown.Success)
+                return OperationResult<bool>.OnFailed("Server Is Not Down");
+
+            await server.SetDownServer();
             await _unitOfWork.SaveChangesAsync();
 
-            return  OperationResult<bool>.OnSuccess(server.IsActive);
+            return OperationResult<bool>.OnSuccess(true);
         }
         catch (Exception exception)
         {

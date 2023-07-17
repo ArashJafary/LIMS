@@ -17,11 +17,16 @@ namespace LIMS.Application.Services.Schedulers.HangFire
 
         public ServerSchedulerService(BBBServerServiceImpl servers)
             => _servers = servers;
+
         public async Task<SingleResponse<string>> SetServerIsPassive()
         {
             try
             {
-                RecurringJob.AddOrUpdate(() => _servers.CheckServers(), Cron.DayInterval(1));
+                RecurringJob
+                    .AddOrUpdate(() 
+                            => _servers.UpdateServersForActivate(),
+                    Cron.DayInterval(1));
+
                 return SingleResponse<string>.OnSuccess("Server is Active.");
             }
             catch (Exception exception)

@@ -5,7 +5,7 @@ public interface IServerRepository
 {
     Task DeleteServerAsync(long Id);
     ValueTask<Server> GetServerAsync(long Id);
-    ValueTask<Server> GetServerAsync(string url);
+    ValueTask<Server> GetServerWithUrlAsync(string url);
     ValueTask<List<Server>> GetAllServersAsync();
     ValueTask<long> CreateServerAsync(Server server);
 }

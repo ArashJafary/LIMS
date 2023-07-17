@@ -48,9 +48,10 @@ public sealed class Server : BaseEntity
     {
         await Task.Run(() =>
         {
-            IsActive = false;
+            IsActive = true;
         });
     }
+
     private void IsValid(string serverUrl, int serverLimit)
     {
         if (string.IsNullOrWhiteSpace(serverUrl))
