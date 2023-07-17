@@ -30,7 +30,7 @@ public class ServerRepository : IServerRepository
         return Server!;
     }
 
-    public async ValueTask<Server> GetServerAsync(string url)
+    public async ValueTask<Server> GetServerWithUrlAsync(string url)
     {
         var Server = await _servers.FirstOrDefaultAsync(ser => ser.ServerUrl == url);
         return Server!;

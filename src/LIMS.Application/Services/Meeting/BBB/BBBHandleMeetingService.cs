@@ -88,7 +88,7 @@ namespace LIMS.Application.Services.Meeting.BBB
         public async ValueTask<SingleResponse<string>> CreateMeetingOnDatabase(MeetingAddDto meeting)
         {
             /* Use CreateNewMeeting Service of Database Service */
-            var createMeeting = await _meetingService.CreateNewMeetingAsync(meeting);
+            var createMeeting = await _meetingService.CreateNewMeeting(meeting);
 
             if (!createMeeting.Success)
                 if (createMeeting.Exception is not null)
@@ -133,14 +133,14 @@ namespace LIMS.Application.Services.Meeting.BBB
         {
             /* All Flows of App For Joining Check */
             var server = await _meetingService
-                .FindMeetingWithMeetingId(meetingId);
+                .FindOneMeetingWithMeetingId(meetingId);
             if (!server.Success)
                 if (server.Exception is not null)
                     return SingleResponse<bool>.OnFailed(server.Exception.Data.ToString());
                 else
                     return SingleResponse<bool>.OnFailed(server.OnFailedMessage);
 
-            var meeting = await _meetingService.FindMeetingWithMeetingId(meetingId);
+            var meeting = await _meetingService.FindOneMeetingWithMeetingId(meetingId);
             if (!meeting.Success)
                 if (meeting.Exception is not null)
                     return SingleResponse<bool>.OnFailed(meeting.Exception.Data.ToString());
@@ -202,7 +202,7 @@ namespace LIMS.Application.Services.Meeting.BBB
         /// <returns></returns>
         public async Task<SingleResponse<string>> EndMeetingHandlerOnDatabase(string meetingId)
         {
-            var endMeeting = await _meetingService.StopRunning(meetingId);
+            var endMeeting = await _meetingService.StopRunMeeting(meetingId);
             if (!endMeeting.Success)
                 if (endMeeting.Exception is not null)
                     return SingleResponse<string>.OnFailed(endMeeting.Exception.Data.ToString());
