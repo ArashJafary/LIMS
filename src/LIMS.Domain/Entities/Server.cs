@@ -43,6 +43,15 @@ public sealed class Server : BaseEntity
             IsActive = false;
         });
     }
+
+    public async Task SetActiveServer()
+    {
+        await Task.Run(() =>
+        {
+            IsActive = true;
+        });
+    }
+
     private void IsValid(string serverUrl, int serverLimit)
     {
         if (string.IsNullOrWhiteSpace(serverUrl))
