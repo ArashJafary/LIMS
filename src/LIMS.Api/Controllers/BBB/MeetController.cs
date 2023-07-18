@@ -82,7 +82,7 @@ public class MeetController : ControllerBase
 
 
         /* Use Capable Server For Creating Meeting On That */
-        var server = await _handleMeetingService.UseCapableServerCreateMeeting();
+        var server = await _handleMeetingService.UseMostCapableAndActiveServer();
         if (server.Errors.Count() != 0)
             return server.Error is null || server.Error == string.Empty
                 ? BadRequest(server.Errors)
@@ -123,7 +123,6 @@ public class MeetController : ControllerBase
                     request.Platform
                 )
                     );
-
         if (!createMeetingConnection.Success)
             return createMeetingConnection.Exception is null
                 ? BadRequest(createMeetingConnection.OnFailedMessage)
@@ -191,14 +190,16 @@ public class MeetController : ControllerBase
             return BadRequest("BigBlueButton Settings Have Problem.");
 
         /* End Existed Meeting With BBB Api */
-        var endExistMeeting = await _connectionService.EndExistMeeting(meetingId, password);
+        var endExistMeeting = await _connectionService
+            .EndExistMeeting(meetingId, password);
         if (!endExistMeeting.Success)
             return endExistMeeting.Exception is null
                 ? BadRequest(endExistMeeting.OnFailedMessage)
                 : BadRequest(new { endExistMeeting.Exception.Message });
 
         /* End Meeting On Database */
-        var handleEnd = await _handleMeetingService.EndMeetingHandlerOnDatabase(meetingId);
+        var handleEnd = await _handleMeetingService
+            .EndMeetingHandlerOnDatabase(meetingId,DateTime.Now);
         if (handleEnd.Data is null)
             return handleEnd.Errors.Count() > 1 ? BadRequest(handleEnd.Errors) : BadRequest(handleEnd.Error);
 

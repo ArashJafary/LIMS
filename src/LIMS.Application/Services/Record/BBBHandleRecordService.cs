@@ -23,7 +23,10 @@ namespace LIMS.Application.Services.Record
             {
                 meetingID = meetingId
             };
-            var recordedVideos = await _client.GetRecordingsAsync(result);
+
+            var recordedVideos = await _client
+                .GetRecordingsAsync(result);
+
             if (recordedVideos is null)
                 return SingleResponse<List<Recording>>.OnFailed("No Any Record Exists.");
 
@@ -37,7 +40,8 @@ namespace LIMS.Application.Services.Record
                 recordID = recordId,
                 publish = publish
             };
-            var result = await _client.PublishRecordingsAsync(request);
+            var result = await _client
+                .PublishRecordingsAsync(request);
 
             if (result.Returncode == Returncode.Failed)
                 return SingleResponse<PublishRecordingsResponse>.OnFailed(result.Message);       
