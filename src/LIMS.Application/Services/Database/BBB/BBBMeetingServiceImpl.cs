@@ -17,6 +17,7 @@ namespace LIMS.Application.Services.Database.BBB
         private readonly IMeetingRepository _meetings;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserRepository _users;
+        private readonly IMemberShipRepository _memberShips;
 
         public BBBMeetingServiceImpl(IMeetingRepository meetings, IUnitOfWork unitOfWork, IUserRepository users) =>
             (_meetings,_unitOfWork,_users
@@ -42,19 +43,47 @@ namespace LIMS.Application.Services.Database.BBB
 
         private async ValueTask<OperationResult> CheckUserRolesForLoginOnMeeting(User user,Domain.Entities.Meeting meeting,string password)
         {
-            if (user.Role.RoleName == UserRoleTypes.Attendee.ToString())
-                if (meeting.AttendeePassword == password)
+            try
+            {
+                if (user.Role.RoleName == UserRoleTypes.Attendee.ToString())
+                    if (meeting.AttendeePassword == password)
+                        return OperationResult<bool>.OnSuccess(true);
+
+                    else if (user.Role.RoleName == UserRoleTypes.Moderator.ToString())
+                        if (meeting.ModeratorPassword == password)
+                            return OperationResult<bool>.OnSuccess(true);
+
+                        else if (user.Role.RoleName == UserRoleTypes.Guest.ToString())
+                            return OperationResult<bool>.OnSuccess(true);
+
+                return OperationResult<bool>.OnFailed(
+                    "Your Moderator User or Password Intended Not Exists in my Records.");
+            }
+            catch (Exception exception)
+            {
+                return OperationResult<bool>.OnException(exception);
+
+            }
+        }
+
+
+        private async ValueTask<OperationResult<bool>> CheckUserBannedOrNot(long userId,long meetingId)
+        {
+            try
+            {
+                var memberShip = await _memberShips
+                    .GetMemberShipAsync(userId, meetingId);
+
+                if (memberShip.UserRejected)
                     return OperationResult<bool>.OnSuccess(true);
+                else
+                    return OperationResult<bool>.OnFailed("User Not Banned and Active.");
+            }
+            catch (Exception exception)
+            {
+                return OperationResult<bool>.OnException(exception);
 
-                else if (user.Role.RoleName == UserRoleTypes.Moderator.ToString())
-                    if (meeting.ModeratorPassword == password)
-                        return OperationResult<bool>.OnSuccess(true);
-
-                    else if (user.Role.RoleName == UserRoleTypes.Guest.ToString())
-                        return OperationResult<bool>.OnSuccess(true);
-
-            return OperationResult<bool>.OnFailed(
-                "Your Moderator User or Password Intended Not Exists in my Records.");
+            }
         }
 
         public async ValueTask<OperationResult<bool>> CanLoginOnExistMeeting(string meetingId,User user, string password)
@@ -63,6 +92,14 @@ namespace LIMS.Application.Services.Database.BBB
             {
                 var meeting = await _meetings
                     .FindByMeetingIdAsync(meetingId);
+
+                var checkBannedOrNot = await CheckUserBannedOrNot(user.Id, meeting.Id);
+                if (!checkBannedOrNot.Success)
+                    return checkBannedOrNot.Exception is null
+                        ? OperationResult<bool>.OnFailed(checkBannedOrNot.OnFailedMessage)
+                        : throw new UserCannotLoginException(checkBannedOrNot.Exception.Message);
+                if (checkBannedOrNot.Result)
+                    return OperationResult<bool>.OnFailed("User Is Banned And Cannot Login.");
 
                 var isPrivate = meeting.Type == MeetingTypes.Private;
 
@@ -115,9 +152,11 @@ namespace LIMS.Application.Services.Database.BBB
         {
             try
             {
-                var meeting = await _meetings.FindByMeetingIdAsync(meetingId);
+                var meeting = await _meetings
+                    .FindByMeetingIdAsync(meetingId);
                 if (meeting is null)
                     return OperationResult<Domain.Entities.Meeting>.OnFailed("Meeting Information is Null");
+
                 return OperationResult<Domain.Entities.Meeting>.OnSuccess(meeting);
             }
             catch (Exception exception)

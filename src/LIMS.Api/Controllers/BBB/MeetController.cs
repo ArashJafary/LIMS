@@ -123,7 +123,6 @@ public class MeetController : ControllerBase
                     request.Platform
                 )
                     );
-
         if (!createMeetingConnection.Success)
             return createMeetingConnection.Exception is null
                 ? BadRequest(createMeetingConnection.OnFailedMessage)
