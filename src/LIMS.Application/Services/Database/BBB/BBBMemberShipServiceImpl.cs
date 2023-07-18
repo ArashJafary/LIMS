@@ -14,13 +14,15 @@ namespace LIMS.Application.Services.Database.BBB
         private readonly IUserRepository _users;
         private readonly IMeetingRepository _meetings;
 
-        public BBBMemberShipServiceImpl(IUnitOfWork unitOfWork,
+        public BBBMemberShipServiceImpl(
+            IUnitOfWork unitOfWork,
             IMemberShipRepository memberShips,
             IUserRepository users,
             IMeetingRepository meetings)
-                => (_unitOfWork, _memberShips, _users, _meetings) = (unitOfWork, memberShips, users, meetings);
+                => (_unitOfWork, _memberShips, _users, _meetings) 
+                    = (unitOfWork, memberShips, users, meetings);
 
-        public async ValueTask<OperationResult<bool>> CanJoinUserOnMeetingAsync(long meetingId)
+        public async ValueTask<OperationResult<bool>> CanJoinUserOnMeeting(long meetingId)
         {
             try
             {
@@ -44,18 +46,22 @@ namespace LIMS.Application.Services.Database.BBB
             }
         }
 
-        public async ValueTask<OperationResult<long>> JoinUserAsync(long userId, string meetingId)
+        public async ValueTask<OperationResult<long>> JoinUserOnMeeting(long userId, string meetingId)
         {
             try
             {
-                var user = await _users.GetUser(userId);
+                var user = await _users
+                    .GetUser(userId);
                 if (user is null)
                     return OperationResult<long>.OnFailed("User is Not Valid.");
-                var meeting = await _meetings.FindByMeetingIdAsync(meetingId);
+
+                var meeting = await _meetings
+                    .FindByMeetingIdAsync(meetingId);
                 if (meeting is null)
                     return OperationResult<long>.OnFailed("Meeting is Not Valid.");
 
-                var result = await _memberShips.CreateMemeberShipForMeetingAsync(meeting, user);
+                var result = await _memberShips
+                    .CreateMemeberShipForMeetingAsync(meeting, user);
                 await _unitOfWork.SaveChangesAsync();
 
                 return OperationResult<long>.OnSuccess(result);

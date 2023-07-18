@@ -24,7 +24,8 @@ public class BBBServerServiceImpl
     {
         try
         {
-            var server = await _servers.GetServerAsync(id);
+            var server = await _servers
+                .GetServerAsync(id);
             if (server is null)
                 return OperationResult<bool>.OnFailed("Server Not Found.");
 
@@ -46,12 +47,15 @@ public class BBBServerServiceImpl
             if (server is null)
                 return OperationResult<Server>.OnFailed("server Cant Be Null.");
 
-            var newServer = await _servers.GetServerAsync(id);
+            var newServer = await _servers
+                .GetServerAsync(id);
             if (newServer is null)
                 return OperationResult<Server>.OnFailed("server not find");
 
-            await newServer.UpdateServer(server.ServerUrl, server.ServerSecret, server.ServerLimit);
-            await _unitOfWork.SaveChangesAsync();
+            await newServer
+                .UpdateServer(server.ServerUrl, server.ServerSecret, server.ServerLimit);
+            await _unitOfWork
+                .SaveChangesAsync();
 
             return new OperationResult();
         }
@@ -69,7 +73,8 @@ public class BBBServerServiceImpl
 
             var serverId = await _servers.
                    CreateServerAsync(ServerDtoMapper.Map(serverAddEditDto));
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork
+                .SaveChangesAsync();
 
             return OperationResult<long>.OnSuccess(serverId);
         }
@@ -106,7 +111,8 @@ public class BBBServerServiceImpl
     {
         try
         {
-            await _servers.DeleteServerAsync(Id);
+            await _servers
+                .DeleteServerAsync(Id);
             return new OperationResult();
         }
         catch (Exception exception)
@@ -118,7 +124,8 @@ public class BBBServerServiceImpl
     {
         try
         {
-            var server = ServerDtoMapper.Map(await _servers.GetServerAsync(Id));
+            var server = ServerDtoMapper.Map(
+                await _servers.GetServerAsync(Id));
             return OperationResult<ServerAddEditDto>.OnSuccess(server);
         }
         catch (Exception exception)
@@ -157,6 +164,7 @@ public class BBBServerServiceImpl
 
             var checkActiveServers = await _activeService
                .SetServersActiveIfAreNotDown(servers);
+
             if (!checkActiveServers.Success)
                 return checkActiveServers.Exception is null 
                     ? OperationResult.OnFailed(checkActiveServers.OnFailedMessage) 

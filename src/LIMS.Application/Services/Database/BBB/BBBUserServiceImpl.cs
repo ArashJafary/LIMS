@@ -20,8 +20,12 @@ namespace LIMS.Application.Services.Database.BBB
             try
             {
                 var newUser = UserDtoMapper.Map(user);
-                await _users.CreateUser(newUser);
-                await _unitOfWork.SaveChangesAsync();
+
+                await _users
+                    .CreateUser(newUser);
+                await _unitOfWork
+                    .SaveChangesAsync();
+
                 if (newUser.Id == 0)
                     return OperationResult<long>.OnFailed("We have problem to create user in create");
                 return OperationResult<long>.OnSuccess(newUser.Id);
@@ -33,13 +37,18 @@ namespace LIMS.Application.Services.Database.BBB
         }
 
 
-        public async ValueTask<OperationResult> EditUser(long Id, UserAddEditDto userDto)
+        public async ValueTask<OperationResult> EditExistedUser(long Id, UserAddEditDto userDto)
         {
             try
             {
-                var user = await _users.GetUser(Id);
-                user.UserUpdate(userDto.FullName, userDto.Alias,new UserRole(userDto.Role));
-                await _unitOfWork.SaveChangesAsync();
+                var user = await _users
+                    .GetUser(Id);
+                user
+                    .UserUpdate(userDto.FullName, userDto.Alias,new UserRole(userDto.Role));
+
+                await _unitOfWork
+                    .SaveChangesAsync();
+
                 return new OperationResult(); 
             }
             catch (Exception ex)
@@ -52,9 +61,12 @@ namespace LIMS.Application.Services.Database.BBB
         {
             try
             {
-                var user = UserDtoMapper.Map(await _users.GetUser(userId));
+                var user = UserDtoMapper.Map(
+                    await _users.GetUser(userId));
+
                 if (user is null)
                     return OperationResult<UserAddEditDto>.OnFailed("user not find");
+
                 return OperationResult<UserAddEditDto>.OnSuccess(user);
             }
             catch (Exception ex)
@@ -68,12 +80,15 @@ namespace LIMS.Application.Services.Database.BBB
         {
             try
             {
-                var users= await _users.GetUsers();
+                var users= await _users
+                    .GetUsers();
                 var userDto = new List<UserAddEditDto>();
+
                 foreach (var User in users)
                 {
                     userDto.Add(UserDtoMapper.Map(User));
                 }
+
                 return OperationResult<List<UserAddEditDto>>.OnSuccess(userDto);
             }
             catch(Exception ex)
@@ -86,7 +101,11 @@ namespace LIMS.Application.Services.Database.BBB
         {
             try
             {
-                var userId = await _users.DeleteUser(id);
+                var userId = await _users
+                    .DeleteUser(id);                
+
+                await _unitOfWork.SaveChangesAsync();
+
                 return OperationResult<long>.OnSuccess(userId);
             }
             catch (Exception ex)
