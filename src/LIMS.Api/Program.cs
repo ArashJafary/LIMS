@@ -1,3 +1,4 @@
+
 using BigBlueButtonAPI.Core;
 using LIMS.Persistence.Repositories;
 using Hangfire;
@@ -66,6 +67,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseHangfireDashboard(
+    options: new DashboardOptions() { DashboardTitle = "Server Alive Schedulers" , IgnoreAntiforgeryToken = false },
+    pathMatch: "/Scheduler", 
+    storage: new SqlServerStorage(connectionString));
 
 app.UseHttpsRedirection();
 

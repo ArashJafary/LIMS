@@ -52,7 +52,9 @@ namespace LIMS.Application.Services.Meeting.BBB
         public async Task<SingleResponse<ServerAddEditDto>> UseMostCapableAndActiveServer()
         {
             /* Use CapableServer Service of Database Service */
-            var server = await _serverService.MostCapableServer();
+            var server = await _serverService
+                .MostCapableServer();
+
             if (!server.Success)
                 return server.Exception is null
                     ? SingleResponse<ServerAddEditDto>.OnFailed(server.Exception.Data.ToString())
@@ -147,7 +149,7 @@ namespace LIMS.Application.Services.Meeting.BBB
                 else
                     return SingleResponse<bool>.OnFailed(meeting.OnFailedMessage);
 
-            var canJoinOnMeeting = await _memberShipService.CanJoinUserOnMeetingAsync(meeting.Result.Id);
+            var canJoinOnMeeting = await _memberShipService.CanJoinUserOnMeeting(meeting.Result.Id);
             if (!canJoinOnMeeting.Success)
                 if (server.Exception is not null)
                     return SingleResponse<bool>.OnFailed(canJoinOnMeeting.Exception.Data.ToString());
@@ -168,12 +170,15 @@ namespace LIMS.Application.Services.Meeting.BBB
 
             var user = await _userService.GetUser(joinRequest.UserId);
 
-            var cnaLoginOnMeeting = _meetingService.CanLoginOnExistMeeting(meetingId, UserDtoMapper.Map(user.Result), joinRequest.MeetingPassword).Result;
+            var cnaLoginOnMeeting = _meetingService
+                .CanLoginOnExistMeeting(meetingId, UserDtoMapper.Map(user.Result), joinRequest.MeetingPassword).Result;
+
             if (!cnaLoginOnMeeting.Success)
                 if (cnaLoginOnMeeting.Exception is not null)
                     return SingleResponse<bool>.OnFailed(server.Exception.Data.ToString());
                 else
                     return SingleResponse<bool>.OnFailed(server.OnFailedMessage);
+
             if (!cnaLoginOnMeeting.Result)
                 return SingleResponse<bool>.OnFailed("Your Credentials is not Exist in our Records.");
 
@@ -187,12 +192,13 @@ namespace LIMS.Application.Services.Meeting.BBB
         /// <returns>Id of MemberShip</returns>
         public async ValueTask<SingleResponse<long>> JoiningOnMeetingOnDatabase(long userId, string meetingId)
         {
-            var joinUserOnMeeting = await _memberShipService.JoinUserAsync(userId, meetingId);
+            var joinUserOnMeeting = await _memberShipService.JoinUserOnMeeting(userId, meetingId);
             if (!joinUserOnMeeting.Success)
                 if (joinUserOnMeeting.Exception is not null)
                     return SingleResponse<long>.OnFailed(joinUserOnMeeting.Exception.Data.ToString());
                 else
                     return SingleResponse<long>.OnFailed(joinUserOnMeeting.OnFailedMessage);
+
             return SingleResponse<long>.OnSuccess(joinUserOnMeeting.Result);
         }
         /// <summary>
@@ -200,14 +206,17 @@ namespace LIMS.Application.Services.Meeting.BBB
         /// </summary>
         /// <param name="meetingId"></param>
         /// <returns></returns>
-        public async Task<SingleResponse<string>> EndMeetingHandlerOnDatabase(string meetingId)
+        public async Task<SingleResponse<string>> EndMeetingHandlerOnDatabase(string meetingId, DateTime now)
         {
-            var endMeeting = await _meetingService.StopRunMeeting(meetingId);
+            var endMeeting = await _meetingService
+                .StopRunningMeeting(meetingId, now);
+
             if (!endMeeting.Success)
                 if (endMeeting.Exception is not null)
                     return SingleResponse<string>.OnFailed(endMeeting.Exception.Data.ToString());
                 else
                     return SingleResponse<string>.OnFailed(endMeeting.OnFailedMessage);
+
             else
                 return SingleResponse<string>.OnSuccess("Meeting is End.");
         }
