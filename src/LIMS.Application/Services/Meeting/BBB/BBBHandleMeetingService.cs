@@ -56,6 +56,7 @@ namespace LIMS.Application.Services.Meeting.BBB
                 return server.Exception is null
                     ? SingleResponse<ServerAddEditDto>.OnFailed(server.Exception.Data.ToString())
                     : SingleResponse<ServerAddEditDto>.OnFailed(server.OnFailedMessage);
+
             do
             {
                 var serverIsDown = await _serverService
@@ -70,10 +71,9 @@ namespace LIMS.Application.Services.Meeting.BBB
                     break;
 
                 server = await _serverService
-                        .MostCapableServer();
+                    .MostCapableServer();
 
             } while (server.Result.IsActive);
-
 
             return SingleResponse<ServerAddEditDto>.OnSuccess(server.Result);
         }
