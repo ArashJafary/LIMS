@@ -9,11 +9,11 @@ using LIMS.Application.Models;
 
 namespace LIMS.Application.Services.Database.BBB
 {
-    public class BBBRecordServiceImpl
+    public class BbbRecordServiceImpl
     {
         private readonly IRecordRepository _records;
 
-        public BBBRecordServiceImpl(IRecordRepository records)
+        public BbbRecordServiceImpl(IRecordRepository records)
             => _records = records;
 
         public async ValueTask<OperationResult<IEnumerable<Domain.Entities.Record>>> GetAllRecordedVideos()

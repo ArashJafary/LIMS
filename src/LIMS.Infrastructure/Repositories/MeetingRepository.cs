@@ -22,7 +22,10 @@ namespace LIMS.Persistence.Repositories
         public async ValueTask<IEnumerable<Meeting>> GetMeetingsAsync() => await _meetings.ToListAsync();
 
         public async Task DeleteMeetingAsync(long id)
-            => _meetings.Remove(await _meetings.FirstOrDefaultAsync(meeting => meeting.Id == id)!);
+        {
+            var meeting = await FindAsync(id);
+            _meetings.Remove(meeting);
+        }
 
         public async ValueTask<Meeting> FindAsync(long id) =>
             await _meetings.FirstOrDefaultAsync(meeting => meeting.Id == id);

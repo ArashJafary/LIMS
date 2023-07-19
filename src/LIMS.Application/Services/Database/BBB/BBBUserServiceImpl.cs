@@ -7,12 +7,12 @@ using LIMS.Application.Models;
 
 namespace LIMS.Application.Services.Database.BBB
 {
-    public class BBBUserServiceImpl
+    public class BbbUserServiceImpl
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserRepository _users;
 
-        public BBBUserServiceImpl(IUnitOfWork unitOfWork, IUserRepository users) =>
+        public BbbUserServiceImpl(IUnitOfWork unitOfWork, IUserRepository users) =>
             (_unitOfWork, _users) = (unitOfWork, users);
 
         public async ValueTask<OperationResult<long>> CreateUser(UserAddEditDto user)

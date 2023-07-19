@@ -7,17 +7,18 @@ using System.Net.NetworkInformation;
 using LIMS.Application.Mappers;
 using LIMS.Application.Services.Http.BBB;
 using System;
+using Hangfire.Annotations;
 using LIMS.Domain.Entities;
 
 namespace LIMS.Application.Services.Database.BBB;
 
-public class BBBServerServiceImpl
+public class BbbServerServiceImpl
 {
     private readonly IServerRepository _servers;
-    private readonly BBBServerActiveService _activeService;
+    private readonly BbbServerActiveService _activeService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public BBBServerServiceImpl(BBBServerActiveService activeService, IServerRepository servers,
+    public BbbServerServiceImpl(BbbServerActiveService activeService, IServerRepository servers,
         IUnitOfWork unitOfWork) => (_servers, _activeService, _unitOfWork) = (servers, activeService, unitOfWork);
 
     public async ValueTask<OperationResult<bool>> CanJoinServer(long id)
@@ -198,7 +199,7 @@ public class BBBServerServiceImpl
             if (!checkServerIsDown.Success)
                 return OperationResult<bool>.OnFailed("Server Is Not Down");
 
-            await server.SetDownServer();
+            server.SetDownServer();
             await _unitOfWork.SaveChangesAsync();
 
             return OperationResult<bool>.OnSuccess(true);

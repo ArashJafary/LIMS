@@ -7,14 +7,14 @@ using LIMS.Application.Models;
 
 namespace LIMS.Application.Services.Database.BBB
 {
-    public class BBBMemberShipServiceImpl
+    public class BbbMemberShipServiceImpl
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMemberShipRepository _memberShips;
         private readonly IUserRepository _users;
         private readonly IMeetingRepository _meetings;
 
-        public BBBMemberShipServiceImpl(
+        public BbbMemberShipServiceImpl(
             IUnitOfWork unitOfWork,
             IMemberShipRepository memberShips,
             IUserRepository users,

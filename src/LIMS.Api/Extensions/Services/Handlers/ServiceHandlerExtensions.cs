@@ -7,7 +7,7 @@ namespace LIMS.Api.Extensions.Services.Handlers
         public static IServiceCollection AddServiceHandler(this IServiceCollection services)
         {
             services
-                .AddScoped<BBBHandleMeetingService>();
+                .AddScoped<BbbHandleMeetingService>();
             return services;
         }
     }

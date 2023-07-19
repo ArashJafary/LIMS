@@ -18,30 +18,27 @@ namespace LIMS.Application.Services.Meeting.BBB
 {
     #region Main Services
 
-    public class BBBHandleMeetingService
+    public class BbbHandleMeetingService
     {
+        private readonly BbbMemberShipServiceImpl _memberShipService;
         private readonly BigBlueButtonAPIClient _client;
-        private readonly BBBMeetingServiceImpl _meetingService;
-        private readonly BBBServerServiceImpl _serverService;
-        private readonly BBBMemberShipServiceImpl _memberShipService;
-        private readonly BBBUserServiceImpl _userService;
-        private readonly IServerRepository _serverRepository;
+        private readonly BbbMeetingServiceImpl _meetingService;
+        private readonly BbbServerServiceImpl _serverService;
+        private readonly BbbUserServiceImpl _userService;
 
-        public BBBHandleMeetingService(
-            BBBUserServiceImpl userService,
+        public BbbHandleMeetingService(
             BigBlueButtonAPIClient client,
-            BBBServerServiceImpl serverService,
-            BBBMeetingServiceImpl sessionService,
-            BBBMemberShipServiceImpl memberShipService,
-            IServerRepository serverRepository
+            BbbUserServiceImpl userService,
+            BbbServerServiceImpl serverService,
+            BbbMeetingServiceImpl sessionService,
+            BbbMemberShipServiceImpl memberShipService
         ) =>
-            (_userService, _client, _meetingService, _serverService, _memberShipService, _serverRepository) = (
+            (_userService, _client, _meetingService, _serverService, _memberShipService) = (
                 userService,
                 client,
                 sessionService,
                 serverService,
-                memberShipService,
-                serverRepository
+                memberShipService
             );
 
         #endregion
@@ -60,25 +57,23 @@ namespace LIMS.Application.Services.Meeting.BBB
                     ? SingleResponse<ServerAddEditDto>.OnFailed(server.Exception.Data.ToString())
                     : SingleResponse<ServerAddEditDto>.OnFailed(server.OnFailedMessage);
 
-            var servers = await _serverRepository
-                .GetAllServersAsync();
-
-            for (int i = 1; i <= servers.Count; i++)
+            do
             {
-
-                var serverIdDown = await _serverService
+                var serverIsDown = await _serverService
                     .UpdateServerForBeingDown(server.Result.ServerUrl);
 
-                if (!serverIdDown.Success)
-                    return serverIdDown.Exception is null
-                        ? SingleResponse<ServerAddEditDto>.OnFailed(serverIdDown.OnFailedMessage)
-                        : SingleResponse<ServerAddEditDto>.OnFailed(serverIdDown.Exception.Message);
+                if (!serverIsDown.Success)
+                    return serverIsDown.Exception is null
+                        ? SingleResponse<ServerAddEditDto>.OnFailed(serverIsDown.OnFailedMessage)
+                        : SingleResponse<ServerAddEditDto>.OnFailed(serverIsDown.Exception.Message);
 
-                if (serverIdDown.Result)
-                    server = await _serverService.MostCapableServer();
-                else
+                if (!serverIsDown.Result)
                     break;
-            }
+
+                server = await _serverService
+                    .MostCapableServer();
+
+            } while (server.Result.IsActive);
 
             return SingleResponse<ServerAddEditDto>.OnSuccess(server.Result);
         }

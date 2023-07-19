@@ -14,14 +14,14 @@ using LIMS.Domain;
 using LIMS.Domain.Entities;
 
 
-namespace LIMS.Infrastructure.Services.Api.BBB
+namespace LIMS.Infrastructure.ExternalApi.BBB
 {
-    public class BBBConnectionService
+    public class BbbConnectionService
     {
         private readonly BigBlueButtonAPIClient _bbbClient;
-        private readonly BBBUserServiceImpl _userService;
+        private readonly BbbUserServiceImpl _userService;
 
-        public BBBConnectionService(BigBlueButtonAPIClient bbbClient, BBBUserServiceImpl userService)
+        public BbbConnectionService(BigBlueButtonAPIClient bbbClient, BbbUserServiceImpl userService)
             => (_bbbClient, _userService) = (bbbClient, userService);
 
         public async ValueTask<OperationResult<MeetingAddDto>> CreateMeetingOnBigBlueButton(MeetingAddDto meetingRequestModel)
@@ -89,7 +89,7 @@ namespace LIMS.Infrastructure.Services.Api.BBB
             }
         }
 
-        public async Task<OperationResult<string>> JoiningOnMeeting(string meetingId,JoinMeetingRequestModel joinOnMeetingRequest)
+        public async Task<OperationResult<string>> JoiningOnMeeting(string meetingId, JoinMeetingRequestModel joinOnMeetingRequest)
         {
             try
             {

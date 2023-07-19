@@ -13,9 +13,9 @@ namespace LIMS.Application.Services.Schedulers.HangFire
     
     public class ServerSchedulerService
     {
-        private readonly BBBServerServiceImpl _servers;
+        private readonly BbbServerServiceImpl _servers;
 
-        public ServerSchedulerService(BBBServerServiceImpl servers)
+        public ServerSchedulerService(BbbServerServiceImpl servers)
             => _servers = servers;
 
         public async Task<SingleResponse<string>> SetServerIsPassive()
