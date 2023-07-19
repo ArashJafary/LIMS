@@ -1,24 +1,24 @@
 ﻿using LIMS.Application.Services.Database.BBB;
-using LIMS.Infrastructure.Services.Api.BBB;
+using LIMS.Infrastructure.ExternalApi.BBB;
 
-namespace LIMS.Api.Extensions.Services.BBB.Database
+namespace LIMS.Api.Extensions.Services.Bbb.Database
 {
-    public static class BBBDatabaseServiceExtensions
+    public static class BbbDatabaseServiceExtensions
     {
-        public static IServiceCollection AddBBBServices(this IServiceCollection services)
+        public static IServiceCollection AddBbbServices(this IServiceCollection services)
         {
             services
-                .AddScoped<BBBConnectionService>();
+                .AddScoped<BbbConnectionService>();
             services
-                .AddScoped<BBBMeetingServiceImpl>();
+                .AddScoped<BbbMeetingServiceImpl>();
             services
-                .AddScoped<BBBMemberShipServiceImpl>();
+                .AddScoped<BbbMemberShipServiceImpl>();
             services
-                .AddScoped<BBBRecordServiceImpl>();
+                .AddScoped<BbbRecordServiceImpl>();
             services
-                .AddScoped<BBBServerServiceImpl>();
+                .AddScoped<BbbServerServiceImpl>();
             services
-                .AddScoped<BBBUserServiceImpl>();
+                .AddScoped<BbbUserServiceImpl>();
 
             return services;
         }

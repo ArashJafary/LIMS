@@ -23,7 +23,7 @@ namespace LIMS.Persistence.Repositories
 
         public async Task<long> DeleteUser(long userId)
         {
-            var user = await _User.FirstOrDefaultAsync(user => user.Id == userId);
+            var user = await GetUser(userId);
             _User.Remove(user);
             return user.Id;
         }

@@ -11,10 +11,9 @@ using LIMS.Application.Services.Schedulers.HangFire;
 using LIMS.Domain;
 using LIMS.Domain.Entities;
 using LIMS.Domain.Entities;
-using LIMS.Infrastructure.Services.Api.BBB;
-using LIMS.Infrastructure.Services.Api.BBB;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using LIMS.Infrastructure.ExternalApi.BBB;
 
 namespace LIMS.Api.Controllers.BBB;
 
@@ -23,14 +22,14 @@ namespace LIMS.Api.Controllers.BBB;
 public class MeetController : ControllerBase
 {
     #region Main Services
-    private readonly BBBUserServiceImpl _userService;
-    private readonly BBBConnectionService _connectionService;
-    private readonly BBBHandleMeetingService _handleMeetingService;
+    private readonly BbbUserServiceImpl _userService;
+    private readonly BbbConnectionService _connectionService;
+    private readonly BbbHandleMeetingService _handleMeetingService;
 
     public MeetController(
-        BBBUserServiceImpl userService,
-        BBBConnectionService connectionService,
-        BBBHandleMeetingService handleMeetingService
+        BbbUserServiceImpl userService,
+        BbbConnectionService connectionService,
+        BbbHandleMeetingService handleMeetingService
     ) =>
     (
         _handleMeetingService,

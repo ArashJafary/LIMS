@@ -1,23 +1,15 @@
-
-using BigBlueButtonAPI.Core;
-using LIMS.Persistence.Repositories;
 using Hangfire;
 using Hangfire.SqlServer;
 using LIMS.Api.Extensions.Repositories;
 using LIMS.Api.Extensions.Services.BBB;
-using LIMS.Api.Extensions.Services.BBB.Database;
+using LIMS.Api.Extensions.Services.Bbb.Database;
 using LIMS.Api.Extensions.Services.Handlers;
 using LIMS.Api.Extensions.Services.Schedulers;
-using LIMS.Application.Services.Database.BBB;
 using LIMS.Application.Services.Http.BBB;
-using LIMS.Application.Services.Meeting.BBB;
 using LIMS.Application.Services.Schedulers.HangFire;
 using LIMS.Domain.IRepositories;
 using LIMS.Infrastructure.Persistence;
-using LIMS.Infrastructure.Repositories;
-using LIMS.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,7 +31,7 @@ builder.Services
         builder.Configuration);
 
 builder.Services
-    .AddBBBServices();
+    .AddBbbServices();
 
 builder.Services
     .AddScoped<ServerSchedulerService>();
@@ -55,7 +47,7 @@ builder.Services
     .AddRepositories();
 
 builder.Services
-    .AddScoped<BBBServerActiveService>();
+    .AddScoped<BbbServerActiveService>();
 
 builder.Services
     .AddServiceHandler();

@@ -12,7 +12,7 @@ using LIMS.Domain.Entities;
 
 namespace LIMS.Application.Services.Http.BBB
 {
-    public class BBBServerActiveService
+    public class BbbServerActiveService
     {
         public async Task<OperationResult<List<Server>>> SetServersActiveIfAreNotDown(List<Server> servers)
         {
@@ -27,7 +27,7 @@ namespace LIMS.Application.Services.Http.BBB
                         .Send(server.ServerUrl, 60 * 1000);
 
                     if (reply.Status != IPStatus.Success)
-                        await server.SetDownServer();
+                        server.SetDownServer();
                 }
 
                 return OperationResult<List<Server>>.OnSuccess(servers);

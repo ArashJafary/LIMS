@@ -12,10 +12,14 @@ namespace LIMS.Api.Controllers.BBB;
 public class RecordController : ControllerBase
 {
     private readonly BigBlueButtonAPIClient _client;
-    private readonly BBBHandleMeetingService _handleMeetingService;
-    private readonly BBBRecordServiceImpl _recordService;
-    private readonly BBBHandleRecordService _handleRecordService;
-    public RecordController(BigBlueButtonAPIClient client, BBBHandleMeetingService handleMeetingService,BBBRecordServiceImpl recordService, BBBHandleRecordService handleRecord) 
+    private readonly BbbHandleMeetingService _handleMeetingService;
+    private readonly BbbRecordServiceImpl _recordService;
+    private readonly BbbHandleRecordService _handleRecordService;
+    public RecordController(
+        BigBlueButtonAPIClient client,
+        BbbHandleMeetingService handleMeetingService,
+        BbbRecordServiceImpl recordService, 
+        BbbHandleRecordService handleRecord) 
         => (_client, _handleMeetingService, _recordService,_handleRecordService) = (client,handleMeetingService,recordService,handleRecord);
 
     [NonAction]
