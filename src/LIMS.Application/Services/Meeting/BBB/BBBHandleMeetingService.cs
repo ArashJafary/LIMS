@@ -18,22 +18,22 @@ namespace LIMS.Application.Services.Meeting.BBB
 {
     #region Main Services
 
-    public class BBBHandleMeetingService
+    public class BbbHandleMeetingService
     {
+        private readonly BbbMemberShipServiceImpl _memberShipService;
         private readonly BigBlueButtonAPIClient _client;
-        private readonly BBBMeetingServiceImpl _meetingService;
-        private readonly BBBServerServiceImpl _serverService;
-        private readonly BBBMemberShipServiceImpl _memberShipService;
-        private readonly BBBUserServiceImpl _userService;
+        private readonly BbbMeetingServiceImpl _meetingService;
+        private readonly BbbServerServiceImpl _serverService;
+        private readonly BbbUserServiceImpl _userService;
         private readonly IServerRepository _serverRepository;
 
-        public BBBHandleMeetingService(
-            BBBUserServiceImpl userService,
+        public BbbHandleMeetingService(
             BigBlueButtonAPIClient client,
-            BBBServerServiceImpl serverService,
-            BBBMeetingServiceImpl sessionService,
-            BBBMemberShipServiceImpl memberShipService,
-            IServerRepository serverRepository
+            BbbUserServiceImpl userService,
+            IServerRepository serverRepository,
+            BbbServerServiceImpl serverService,
+            BbbMeetingServiceImpl sessionService,
+            BbbMemberShipServiceImpl memberShipService
         ) =>
             (_userService, _client, _meetingService, _serverService, _memberShipService, _serverRepository) = (
                 userService,
@@ -60,22 +60,19 @@ namespace LIMS.Application.Services.Meeting.BBB
                     ? SingleResponse<ServerAddEditDto>.OnFailed(server.Exception.Data.ToString())
                     : SingleResponse<ServerAddEditDto>.OnFailed(server.OnFailedMessage);
 
-            var servers = await _serverRepository
-                .GetAllServersAsync();
-
-            for (int i = 1; i <= servers.Count; i++)
+            while (!server.Result.IsActive)
             {
-
-                var serverIdDown = await _serverService
+                var serverIsDown = await _serverService
                     .UpdateServerForBeingDown(server.Result.ServerUrl);
 
-                if (!serverIdDown.Success)
-                    return serverIdDown.Exception is null
-                        ? SingleResponse<ServerAddEditDto>.OnFailed(serverIdDown.OnFailedMessage)
-                        : SingleResponse<ServerAddEditDto>.OnFailed(serverIdDown.Exception.Message);
+                if (!serverIsDown.Success)
+                    return serverIsDown.Exception is null
+                        ? SingleResponse<ServerAddEditDto>.OnFailed(serverIsDown.OnFailedMessage)
+                        : SingleResponse<ServerAddEditDto>.OnFailed(serverIsDown.Exception.Message);
 
-                if (serverIdDown.Result)
-                    server = await _serverService.MostCapableServer();
+                if (serverIsDown.Result)
+                    server = await _serverService
+                        .MostCapableServer();
                 else
                     break;
             }

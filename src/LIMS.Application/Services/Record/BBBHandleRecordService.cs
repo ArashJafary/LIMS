@@ -10,11 +10,11 @@ using LIMS.Domain.Entities;
 
 namespace LIMS.Application.Services.Record
 {
-    public class BBBHandleRecordService
+    public class BbbHandleRecordService
     {
         private readonly BigBlueButtonAPIClient _client;
 
-        public BBBHandleRecordService(BigBlueButtonAPIClient client)
+        public BbbHandleRecordService(BigBlueButtonAPIClient client)
             => _client = client;
 
         public async ValueTask<SingleResponse<List<Recording>>> GetAllRecordedVideosFromBBB(string meetingId)

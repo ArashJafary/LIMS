@@ -12,14 +12,14 @@ using LIMS.Domain.Enumerables;
 
 namespace LIMS.Application.Services.Database.BBB
 {
-    public class BBBMeetingServiceImpl
+    public class BbbMeetingServiceImpl
     {
         private readonly IMeetingRepository _meetings;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserRepository _users;
         private readonly IMemberShipRepository _memberShips;
 
-        public BBBMeetingServiceImpl(IMeetingRepository meetings, IUnitOfWork unitOfWork, IUserRepository users) =>
+        public BbbMeetingServiceImpl(IMeetingRepository meetings, IUnitOfWork unitOfWork, IUserRepository users) =>
             (_meetings,_unitOfWork,_users
             ) = (meetings, unitOfWork,users);
 

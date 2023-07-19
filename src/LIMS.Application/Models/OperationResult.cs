@@ -12,9 +12,9 @@ public class OperationResult
     public Exception Exception { get; protected set; }
 
     public static OperationResult OnFailed(string message)
-        => new OperationResult(message);
+        => new(message);
     public static OperationResult OnException(Exception exception)
-        => new OperationResult(exception);
+        => new(exception);
 }
 public class OperationResult<TResult> : OperationResult
 {
