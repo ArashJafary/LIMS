@@ -9,12 +9,11 @@ public class MemberShip : BaseEntity
     public DateTime JoinedDateTime { get; private set; }
     public bool UserRejected { get; private set; }
     public bool UserExited { get; private set; }
-    public async Task BanUser()
-        => await Task.FromResult(UserRejected = true);
+    public void BanUser()
+        => UserRejected = true;
 
-    private MemberShip()
-    {
-        
-    }
-    public MemberShip(Meeting meeting, User user) => (Meeting, User) = (meeting, user);
+    private MemberShip() { }
+
+    public MemberShip(Meeting meeting, User user) 
+        => (Meeting, User) = (meeting, user);
 }
