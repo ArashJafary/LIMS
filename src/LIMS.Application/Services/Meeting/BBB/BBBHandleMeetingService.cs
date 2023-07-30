@@ -93,7 +93,7 @@ namespace LIMS.Application.Services.Meeting.BBB
                     new IsMeetingRunningRequest
                     { meetingID = meetingId });
 
-                if (result.Returncode == Returncode.Failed)
+                if (result.Returncode is Returncode.Failed)
                     return SingleResponse<bool>.OnFailed(result.Message);
 
                 return SingleResponse<bool>.OnSuccess(true);
