@@ -8,7 +8,7 @@ namespace LIMS.Application.Mappers
     {
         public static async Task<Meeting> Map(MeetingAddDto meetingDto)
         {
-            var meeting =new Meeting(meetingDto.MeetingId,
+            var meeting = new Meeting(meetingDto.MeetingId,
                 meetingDto.IsRecord,
                 meetingDto.Name,
                 meetingDto.ModeratorPassword,
@@ -22,7 +22,7 @@ namespace LIMS.Application.Mappers
                 ServerDtoMapper.Map(meetingDto.Server),
                 meetingDto.AutoStartRecord,
                 meetingDto.Platform);
-            await meeting.CanFreeJoinOnBreakout(meetingDto.CanFreeJoinOnBreakout);
+            meeting.CanFreeJoinOnBreakout(meetingDto.CanFreeJoinOnBreakout);
 
             return meeting;
         }
@@ -50,7 +50,7 @@ namespace LIMS.Application.Mappers
 
                 return meetingDto;
             });
-          
+
 
         public static Meeting MapEditDto(MeetingEditDto meetingDto) =>
             new Meeting(
@@ -60,8 +60,7 @@ namespace LIMS.Application.Mappers
                 meetingDto.ModeratorPassword,
                 meetingDto.AttendeePassword,
                 meetingDto.EndDateTime,
-                meetingDto.limitCapacity,
-                meetingDto.CanFreeJoinOnBreakout
+                meetingDto.limitCapacity
             );
 
         public static MeetingEditDto MapEditDto(Meeting meeting) =>

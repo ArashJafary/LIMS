@@ -5,17 +5,17 @@ using LIMS.Domain.Enumerables;
 namespace LIMS.Domain.Entities;
 public sealed class Meeting : BaseEntity
 {
-    public string MeetingId { get; private set; }
-    public string? ParentMeetingId { get; private set; }
-    public bool IsRecord { get; private set; }
+    public string MeetingId { get; }
+    public string? ParentMeetingId { get; }
+    public bool IsRecord { get; }
     public string Name { get; private set; }
     public string ModeratorPassword { get; private set; }
     public string AttendeePassword { get; private set; }
-    public DateTime StartDateTime { get; private set; }
-    public DateTime EndDateTime { get; private set; }
+    public DateTime StartDateTime { get; }
+    public DateTime EndDateTime { get; private set;  }
     public bool IsRunning { get; private set; } = true;
     public int LimitCapacity { get; private set; }
-    public  bool IsBreakout { get; private set; }
+    public bool IsBreakout { get; private set; }
     public bool FreeJoinOnBreakout { get; private set; }
     public bool AutoStartRecording { get; private set; }
     public PlatformTypes Platform { get; private set; }
@@ -117,8 +117,7 @@ public sealed class Meeting : BaseEntity
         string moderatorPassword,
         string attendeePassword,
         DateTime endDateTime,
-        int limitCapacity,
-        bool canFreeJoinOnBreakout
+        int limitCapacity
         )
     {
         MeetingId = meetingId;
@@ -130,42 +129,35 @@ public sealed class Meeting : BaseEntity
         IsRunning = true;
         LimitCapacity = limitCapacity;
     }
-    public async Task Update(
+    public void Update(
         string name,
         string moderatorPassword,
         string attendeePassword,
         int limitCapacity
         )
     {
-        await Task.Run(() =>
-        {
-            IsValid(
-                name,
-                moderatorPassword,
-                attendeePassword,
-                limitCapacity,
-                new DateTime());
+        IsValid(
+            name,
+            moderatorPassword,
+            attendeePassword,
+            limitCapacity,
+            new DateTime());
 
-            Name = name;
-            ModeratorPassword = moderatorPassword;
-            AttendeePassword = attendeePassword;
-            LimitCapacity = limitCapacity;
-        });
+        Name = name;
+        ModeratorPassword = moderatorPassword;
+        AttendeePassword = attendeePassword;
+        LimitCapacity = limitCapacity;
     }
 
-    public async Task CanFreeJoinOnBreakout(bool canJoin)
-        => await Task.Run(() =>
-        {
+    public void CanFreeJoinOnBreakout(bool canJoin) =>
             FreeJoinOnBreakout = canJoin;
-        });
 
-    public async Task SetPrivateMeeting(List<User> accessedUsers)
-        => await Task.Run(() =>
-        {
-            Type = MeetingTypes.Private;
-            Users = accessedUsers;
-            LimitCapacity = accessedUsers.Count();
-        });
+    public void SetPrivateMeeting(List<User> accessedUsers)
+    {
+        Type = MeetingTypes.Private;
+        Users = accessedUsers;
+        LimitCapacity = accessedUsers.Count();
+    }
 
     public void EndSession(DateTime endDateTime)
         => (IsRunning, EndDateTime) = (false, endDateTime);

@@ -10,47 +10,44 @@ using LIMS.Application.Services.Schedulers.HangFire;
 using LIMS.Domain.IRepositories;
 using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using LIMS.Api.Middlewares;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddUserSecrets<Program>().Build();
+
 var connectionString = builder.Configuration.GetConnectionString("MSSQL");
 
-builder.Services
-    .AddControllers();
-builder.Services
-    .AddEndpointsApiExplorer();
-builder.Services
-    .AddSwaggerGen();
+var logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).Enrich.FromLogContext().CreateLogger();
 
-builder.Services
-    .AddCustomHangfire(builder.Configuration);
+builder.Logging.ClearProviders();
 
-builder.Services
-    .AddBBBConfigurations(
-        builder.Configuration);
+builder.Logging.AddSerilog(logger);
 
-builder.Services
-    .AddBbbServices();
+builder.Services.AddControllers();
 
-builder.Services
-    .AddScoped<ServerSchedulerService>();
+builder.Services.AddEndpointsApiExplorer();
 
-builder.Services
-    .AddDbContext<LimsContext>(options =>
-        options.UseSqlServer(connectionString));
+builder.Services.AddSwaggerGen();
 
-builder.Services
-    .AddScoped<IUnitOfWork, LimsContext>();
+builder.Services.AddCustomHangfire(builder.Configuration);
 
-builder.Services
-    .AddRepositories();
+builder.Services.AddBBBConfigurations(builder.Configuration);
 
-builder.Services
-    .AddScoped<BbbServerActiveService>();
+builder.Services.AddBbbServices();
 
-builder.Services
-    .AddServiceHandler();
+builder.Services.AddScoped<ServerSchedulerService>();
+
+builder.Services.AddDbContext<LimsContext>(options => options.UseSqlServer(connectionString));
+
+builder.Services.AddScoped<IUnitOfWork, LimsContext>();
+
+builder.Services.AddRepositories();
+
+builder.Services.AddScoped<BbbServerActiveService>();
+
+builder.Services.AddServiceHandler();
 
 var app = builder.Build();
 
@@ -60,9 +57,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseGlobalExceptionHandler();
+
 app.UseHangfireDashboard(
-    options: new DashboardOptions() { DashboardTitle = "Server Alive Schedulers" , IgnoreAntiforgeryToken = false },
-    pathMatch: "/Scheduler", 
+    options: new DashboardOptions() { DashboardTitle = "Server Alive Schedulers", IgnoreAntiforgeryToken = false },
+    pathMatch: "/Scheduler",
     storage: new SqlServerStorage(connectionString));
 
 app.UseHttpsRedirection();

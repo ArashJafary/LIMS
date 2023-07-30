@@ -5,8 +5,8 @@ namespace LIMS.Application.Mappers;
 public static class ServerDtoMapper
 {
     public static ServerAddEditDto Map(Server server) =>
-        new ServerAddEditDto(server.ServerUrl, server.SharedSecret, server.ServerLimit);
+        new ServerAddEditDto(server.ServerUrl, server.SharedSecret, server.ServerLimit,server.IsActive);
 
     public static Server Map(ServerAddEditDto server) =>
-        new Server(server.ServerUrl,server.ServerSecret, server.ServerLimit);
+        new Server(server.ServerUrl,server.ServerSecret, server.ServerLimit, server.IsActive);
 }
