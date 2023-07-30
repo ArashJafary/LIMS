@@ -4,8 +4,8 @@ using LIMS.Domain.Entities;
 namespace LIMS.Domain.IRepositories;
 public interface IUserRepository
 {
-    ValueTask<long> CreateUser(User User);
-    ValueTask<User> GetUser(long UserId);
-    ValueTask<IEnumerable<User>> GetUsers();
-    Task<long> DeleteUser(long UserId);
+    ValueTask<long> CreateAsync(User User);
+    ValueTask<User> GetByIdAsync(long id);
+    ValueTask<IEnumerable<User>> GetAllAsync();
+    Task<long> DeleteAsync(long UserId);
 }

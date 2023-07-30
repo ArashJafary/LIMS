@@ -11,8 +11,10 @@ namespace LIMS.Domain.Entities
     public sealed class Platform : BaseEntity
     {
         public string PlatformType { get; private set; }
+
         public Platform(PlatformTypes platformType)
             => PlatformType = platformType.ToString();
+
         public IReadOnlyList<Meeting> Meetings { get; }
     }
 }

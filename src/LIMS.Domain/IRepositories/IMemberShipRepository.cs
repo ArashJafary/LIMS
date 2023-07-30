@@ -5,8 +5,8 @@ namespace LIMS.Domain.IRepositories;
 
 public interface IMemberShipRepository
 {
-   ValueTask<MemberShip> GetMemberShipAsync(long userId, long meetingId);
-   ValueTask<List<MemberShip>> GetMemberShipsAsync();
-   ValueTask<long> CreateMemeberShipForMeetingAsync(Meeting meeting, User user);
+   ValueTask<MemberShip> GetAsync(long userId, long meetingId);
+   ValueTask<List<MemberShip>> GetAllAsync();
+   ValueTask<long> CreateForMeetingAsync(Meeting meeting, User user);
 }
 

@@ -10,12 +10,13 @@ public sealed class Server : BaseEntity
     public bool IsActive { get; private set; }
     public IReadOnlyList<Meeting> Meetings { get; }
 
-    public Server(string serverUrl, string sharedSecret, int serverLimit)
+    public Server(string serverUrl, string sharedSecret, int serverLimit,bool isActive = true)
     {
         IsValid(serverUrl, serverLimit);
         ServerUrl = serverUrl;
         SharedSecret = sharedSecret;
         ServerLimit = serverLimit;
+        IsActive = isActive;
     }
 
     public Server(string serverUrl, int serverLimit)

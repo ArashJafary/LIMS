@@ -9,8 +9,8 @@ namespace LIMS.Domain.IRepositories
 {
     public interface IRecordRepository
     {
-        ValueTask<IEnumerable<Record>> GetAllRecordsAsync();
-        Task<Record> GetRecordAsync(long id);
-        ValueTask<long> CreateRecordForMeeting(Record record);
+        ValueTask<IEnumerable<Record>> GetAllAsync();
+        Task<Record> GetAsync(long id);
+        ValueTask<long> CreateForMeetingAsync(Record record);
     }
 }
