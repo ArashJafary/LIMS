@@ -1,36 +1,64 @@
 ﻿using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entities;
-using LIMS.Domain.Entities;
-using LIMS.Domain.IRepositories;
 using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using LIMS.Domain.Exceptions.Database.BBB;
+using Microsoft.Extensions.Logging;
 
 namespace LIMS.Persistence.Repositories
 {
     public class MeetingRepository : IMeetingRepository
     {
         private readonly DbSet<Meeting> _meetings;
-        public MeetingRepository(LimsContext context) 
-            => _meetings = context.Set<Meeting>();
 
-        public async ValueTask<string> CreateMeetingAsync(Meeting meeting)
+        public MeetingRepository(LimsContext context, ILogger<MeetingRepository> logger)
+            => (_meetings) = (context.Set<Meeting>());
+
+        public async ValueTask<string> CreateAsync(Meeting meeting)
         {
             var newMeeting = await _meetings.AddAsync(meeting);
+
+            ThrowExpectedExceptions(newMeeting.Entity, false, true);
+
             return newMeeting.Entity.MeetingId;
         }
 
-        public async ValueTask<IEnumerable<Meeting>> GetMeetingsAsync() => await _meetings.ToListAsync();
+        public async ValueTask<IEnumerable<Meeting>> GetAllAsync() => await _meetings.ToListAsync();
 
-        public async Task DeleteMeetingAsync(long id)
+        public async Task DeleteAsync(Meeting meeting)
         {
-            var meeting = await FindAsync(id);
+            ThrowExpectedExceptions(meeting, true);
+
             _meetings.Remove(meeting);
         }
 
-        public async ValueTask<Meeting> FindAsync(long id) =>
-            await _meetings.FirstOrDefaultAsync(meeting => meeting.Id == id);
+        public async ValueTask<Meeting> GetAsync(long id)
+        {
+            var meeting = await _meetings.FirstOrDefaultAsync(meeting => meeting.Id == id);
 
-        public async ValueTask<Meeting> FindByMeetingIdAsync(string meetingId)
-           => await _meetings.FirstOrDefaultAsync(meeting => meeting.MeetingId == meetingId);
+            ThrowExpectedExceptions(meeting);
+
+            return meeting;
+        }
+
+        public async ValueTask<Meeting> GetByMeetingIdAsync(string meetingId)
+        {
+            var meeting = await _meetings.FirstOrDefaultAsync(meeting => meeting.MeetingId == meetingId);
+
+            ThrowExpectedExceptions(meeting);
+
+            return meeting;
+        }
+
+        private void ThrowExpectedExceptions(Meeting? meeting, bool argumentNullThrow = false, bool createdInDatabase = false)
+        {
+            if (meeting == null)
+                if (argumentNullThrow)
+                    throw new ArgumentNullException("Meeting Cannot Be Null.");
+                else if (createdInDatabase)
+                    throw new EntityConnotAddInDatabaseException("Cannot Create Meeting On Database");
+                else
+                    throw new NotAnyEntityFoundInDatabaseException("Not Any Meeting Found With Expected Datas");
+        }
     }
 }

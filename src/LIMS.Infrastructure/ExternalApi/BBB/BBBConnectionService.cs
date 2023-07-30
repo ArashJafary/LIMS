@@ -1,28 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Azure.Core;
-using BigBlueButtonAPI.Core;
+﻿using BigBlueButtonAPI.Core;
 using LIMS.Application.DTOs;
-using LIMS.Application.Models;
 using LIMS.Application.Models;
 using LIMS.Application.Models.Http.BBB;
 using LIMS.Application.Services.Database.BBB;
 using LIMS.Domain;
 using LIMS.Domain.Entities;
-
+using Microsoft.Extensions.Logging;
 
 namespace LIMS.Infrastructure.ExternalApi.BBB
 {
     public class BbbConnectionService
     {
         private readonly BigBlueButtonAPIClient _bbbClient;
+        private readonly ILogger<BbbConnectionService> _logger;
         private readonly BbbUserServiceImpl _userService;
 
-        public BbbConnectionService(BigBlueButtonAPIClient bbbClient, BbbUserServiceImpl userService)
-            => (_bbbClient, _userService) = (bbbClient, userService);
+        public BbbConnectionService(BigBlueButtonAPIClient bbbClient,
+            BbbUserServiceImpl userService,
+            ILogger<BbbConnectionService> logger)
+            => (_bbbClient, _userService, _logger) = (bbbClient, userService, logger);
 
         public async ValueTask<OperationResult<MeetingAddDto>> CreateMeetingOnBigBlueButton(MeetingAddDto meetingRequestModel)
         {
@@ -44,32 +40,33 @@ namespace LIMS.Infrastructure.ExternalApi.BBB
 
                 if (createMeetingResponse.Returncode == Returncode.Failed)
                     return OperationResult<MeetingAddDto>.OnFailed("A Problem Has Been Occurred in Creating Meet.");
-                else
-                    return OperationResult<MeetingAddDto>.OnSuccess(
-                        new MeetingAddDto(
-                        meetingRequestModel.MeetingId,
-                        meetingRequestModel.IsRecord,
-                        meetingRequestModel.IsBreakout,
-                        meetingRequestModel.CanFreeJoinOnBreakout,
-                        meetingCreateRequest.parentMeetingID,
-                        meetingRequestModel.Name,
-                        meetingRequestModel.ModeratorPassword,
-                        meetingRequestModel.AttendeePassword,
-                        meetingRequestModel.StartDateTime,
-                        meetingRequestModel.EndDateTime,
-                        meetingRequestModel.LimitCapacity,
-                        meetingRequestModel.Server,
-                        meetingRequestModel.AutoStartRecord,
-                        meetingRequestModel.Platform
-                    ));
+
+                return OperationResult<MeetingAddDto>.OnSuccess(
+                    new MeetingAddDto(
+                    meetingRequestModel.MeetingId,
+                    meetingRequestModel.IsRecord,
+                    meetingRequestModel.IsBreakout,
+                    meetingRequestModel.CanFreeJoinOnBreakout,
+                    meetingCreateRequest.parentMeetingID,
+                    meetingRequestModel.Name,
+                    meetingRequestModel.ModeratorPassword,
+                    meetingRequestModel.AttendeePassword,
+                    meetingRequestModel.StartDateTime,
+                    meetingRequestModel.EndDateTime,
+                    meetingRequestModel.LimitCapacity,
+                    meetingRequestModel.Server,
+                    meetingRequestModel.AutoStartRecord,
+                    meetingRequestModel.Platform));
             }
             catch (Exception exception)
             {
+                _logger.LogError(exception, exception.Message);
+
                 return OperationResult<MeetingAddDto>.OnException(exception);
             }
         }
 
-        public async Task<OperationResult> ChangeServerSettings(BigBlueButtonAPISettings settings, ServerAddEditDto server)
+        public async Task<OperationResult> ChangeServerSettings(ServerAddEditDto server)
         {
             try
             {
@@ -78,13 +75,14 @@ namespace LIMS.Infrastructure.ExternalApi.BBB
                     {
                         SharedSecret = server.ServerSecret,
                         ServerAPIUrl = server.ServerUrl
-                    }
-                );
-                return new OperationResult();
+                    });
 
+                return new OperationResult();
             }
             catch (Exception exception)
             {
+                _logger.LogError(exception, exception.Message);
+
                 return OperationResult<MeetingAddDto>.OnException(exception);
             }
         }
@@ -93,40 +91,39 @@ namespace LIMS.Infrastructure.ExternalApi.BBB
         {
             try
             {
-                var user = await _userService.GetUser(joinOnMeetingRequest.UserId);
+                var meeting = await _bbbClient.GetMeetingInfoAsync(new GetMeetingInfoRequest { meetingID = meetingId });
+
+                var user = await _userService.GetUserById(joinOnMeetingRequest.UserId);
+
                 if (!user.Success)
-                    return user.Exception is null
-                        ? OperationResult<string>.OnFailed(user.OnFailedMessage)
-                        : throw new Exception("Cannot Find User.");
+                    return OperationResult<string>.OnFailed(user.OnFailedMessage);
 
-                var joinOnMeetingRequestJoin = new JoinMeetingRequest { meetingID = meetingId };
+                var joinOnMeetingRequestJoin = new JoinMeetingRequest { meetingID = meeting.meetingName };
 
-                if (user.Result.Role == UserRoleTypes.Moderator)
-                {
-                    joinOnMeetingRequestJoin.password = joinOnMeetingRequest.MeetingPassword;
-                    joinOnMeetingRequestJoin.userID = "1";
-                    joinOnMeetingRequestJoin.fullName = user.Result.FullName;
-                }
-                else if (user.Result.Role == UserRoleTypes.Attendee)
-                {
-                    joinOnMeetingRequestJoin.password = joinOnMeetingRequest.MeetingPassword;
-                    joinOnMeetingRequestJoin.userID = "2";
-                    joinOnMeetingRequestJoin.fullName = user.Result.FullName;
-                }
-                else
-                {
+                joinOnMeetingRequestJoin.fullName = user.Result.FullName;
+                joinOnMeetingRequestJoin.userID = joinOnMeetingRequest.UserId.ToString();
+                joinOnMeetingRequestJoin.password = joinOnMeetingRequest.MeetingPassword;
+
+                if (user.Result.Role == UserRoleTypes.Moderator || user.Result.Role == UserRoleTypes.Attendee)
+                    joinOnMeetingRequestJoin.guest = false;
+                else if (user.Result.Role == UserRoleTypes.Guest)
                     joinOnMeetingRequestJoin.guest = true;
-                    joinOnMeetingRequestJoin.fullName = user.Result.FullName;
-                }
+                else
+                    throw new NotImplementedException("Undefined User Role Type.");
 
                 var url = _bbbClient.GetJoinMeetingUrl(joinOnMeetingRequestJoin);
+
                 if (url is null || string.IsNullOrEmpty(url))
                     return OperationResult<string>.OnFailed("A Problem in Joining On Meet.");
+
+                _logger.LogInformation($"{user.Result.FullName} Joined on {meeting.meetingName} at {DateTime.Now}");
 
                 return OperationResult<string>.OnSuccess(url);
             }
             catch (Exception exception)
             {
+                _logger.LogError(exception, exception.Message);
+
                 return OperationResult<string>.OnException(exception);
             }
         }
@@ -135,15 +132,22 @@ namespace LIMS.Infrastructure.ExternalApi.BBB
         {
             try
             {
-                var result = await _bbbClient.EndMeetingAsync(
-                    new EndMeetingRequest { meetingID = meetingId, password = moderatorPassword }
-                );
-                if (result.Returncode == Returncode.Failed)
-                    return OperationResult.OnFailed(result.Message);
+                var meeting = _bbbClient.GetMeetingInfoAsync(new GetMeetingInfoRequest { meetingID = meetingId });
+
+                var endMeeting = await _bbbClient.EndMeetingAsync(
+                    new EndMeetingRequest { meetingID = meetingId, password = moderatorPassword });
+
+                if (endMeeting.Returncode == Returncode.Failed)
+                    return OperationResult.OnFailed(endMeeting.Message);
+
+                _logger.LogInformation($"the Started Meeting : {meeting.Result.meetingName} is Stop and Finished at {DateTime.Now}.");
+
                 return new OperationResult();
             }
             catch (Exception exception)
             {
+                _logger.LogError(exception, exception.Message);
+
                 return OperationResult<string>.OnException(exception);
             }
         }
@@ -152,16 +156,18 @@ namespace LIMS.Infrastructure.ExternalApi.BBB
         {
             try
             {
-                var result = await _bbbClient.GetMeetingInfoAsync(
-                    new GetMeetingInfoRequest { meetingID = meetingId }
-                );
-                if (result.Returncode == Returncode.Failed)
-                    return OperationResult<GetMeetingInfoResponse>.OnFailed(result.Message);
+                var getMeetingInformation = await _bbbClient.GetMeetingInfoAsync(
+                    new GetMeetingInfoRequest { meetingID = meetingId });
 
-                return OperationResult<GetMeetingInfoResponse>.OnSuccess(result);
+                if (getMeetingInformation.Returncode == Returncode.Failed)
+                    return OperationResult<GetMeetingInfoResponse>.OnFailed(getMeetingInformation.Message);
+
+                return OperationResult<GetMeetingInfoResponse>.OnSuccess(getMeetingInformation);
             }
             catch (Exception exception)
             {
+                _logger.LogError(exception, exception.Message);
+
                 return OperationResult<GetMeetingInfoResponse>.OnException(exception);
             }
         }
