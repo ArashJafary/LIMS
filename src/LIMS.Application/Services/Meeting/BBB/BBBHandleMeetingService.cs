@@ -1,50 +1,39 @@
 ﻿using LIMS.Application.Services.Database.BBB;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Security;
-using System.Text;
-using System.Threading.Tasks;
 using LIMS.Application.DTOs;
 using BigBlueButtonAPI.Core;
-using LIMS.Application.DTOs;
 using LIMS.Application.Models;
-using LIMS.Domain.Entities;
 using LIMS.Application.Models.Http.BBB;
 using LIMS.Application.Mappers;
-using LIMS.Domain.IRepositories;
 
 namespace LIMS.Application.Services.Meeting.BBB
 {
     #region Main Services
 
-    public class BBBHandleMeetingService
+    public class BbbHandleMeetingService
     {
+        private readonly BbbMemberShipServiceImpl _memberShipService;
         private readonly BigBlueButtonAPIClient _client;
-        private readonly BBBMeetingServiceImpl _meetingService;
-        private readonly BBBServerServiceImpl _serverService;
-        private readonly BBBMemberShipServiceImpl _memberShipService;
-        private readonly BBBUserServiceImpl _userService;
-        private readonly IServerRepository _serverRepository;
+        private readonly BbbMeetingServiceImpl _meetingService;
+        private readonly BbbServerServiceImpl _serverService;
+        private readonly BbbUserServiceImpl _userService;
 
-        public BBBHandleMeetingService(
-            BBBUserServiceImpl userService,
+        public BbbHandleMeetingService(
             BigBlueButtonAPIClient client,
-            BBBServerServiceImpl serverService,
-            BBBMeetingServiceImpl sessionService,
-            BBBMemberShipServiceImpl memberShipService,
-            IServerRepository serverRepository
+            BbbUserServiceImpl userService,
+            BbbServerServiceImpl serverService,
+            BbbMeetingServiceImpl sessionService,
+            BbbMemberShipServiceImpl memberShipService
         ) =>
-            (_userService, _client, _meetingService, _serverService, _memberShipService, _serverRepository) = (
+            (_userService, _client, _meetingService, _serverService, _memberShipService) = (
                 userService,
                 client,
                 sessionService,
                 serverService,
-                memberShipService,
-                serverRepository
+                memberShipService
             );
 
         #endregion
+
         /// <summary>
         /// Find Capable Server For Creating Meeting
         /// </summary>
@@ -52,36 +41,28 @@ namespace LIMS.Application.Services.Meeting.BBB
         public async Task<SingleResponse<ServerAddEditDto>> UseMostCapableAndActiveServer()
         {
             /* Use CapableServer Service of Database Service */
-            var server = await _serverService
-                .MostCapableServer();
+            var server = await _serverService.MostCapableServer();
 
             if (!server.Success)
-                return server.Exception is null
-                    ? SingleResponse<ServerAddEditDto>.OnFailed(server.Exception.Data.ToString())
-                    : SingleResponse<ServerAddEditDto>.OnFailed(server.OnFailedMessage);
+                return SingleResponse<ServerAddEditDto>.OnFailed(server.OnFailedMessage);
 
-            var servers = await _serverRepository
-                .GetAllServersAsync();
-
-            for (int i = 1; i <= servers.Count; i++)
+            do
             {
+                var serverIsDown = await _serverService.UpdateServerCheckForBeingDown(server.Result.ServerUrl);
 
-                var serverIdDown = await _serverService
-                    .UpdateServerForBeingDown(server.Result.ServerUrl);
+                if (!serverIsDown.Success)
+                    return SingleResponse<ServerAddEditDto>.OnFailed(serverIsDown.OnFailedMessage);
 
-                if (!serverIdDown.Success)
-                    return serverIdDown.Exception is null
-                        ? SingleResponse<ServerAddEditDto>.OnFailed(serverIdDown.OnFailedMessage)
-                        : SingleResponse<ServerAddEditDto>.OnFailed(serverIdDown.Exception.Message);
-
-                if (serverIdDown.Result)
-                    server = await _serverService.MostCapableServer();
-                else
+                if (!serverIsDown.Result)
                     break;
-            }
+
+                server = await _serverService.MostCapableServer();
+
+            } while (server.Result.IsActive);
 
             return SingleResponse<ServerAddEditDto>.OnSuccess(server.Result);
         }
+
         /// <summary>
         /// Create A Meeting On Database
         /// </summary>
@@ -93,13 +74,11 @@ namespace LIMS.Application.Services.Meeting.BBB
             var createMeeting = await _meetingService.CreateNewMeeting(meeting);
 
             if (!createMeeting.Success)
-                if (createMeeting.Exception is not null)
-                    return SingleResponse<string>.OnFailed(createMeeting.Exception.Data.ToString());
-                else
-                    return SingleResponse<string>.OnFailed(createMeeting.OnFailedMessage);
-            else
-                return SingleResponse<string>.OnSuccess(createMeeting.Result);
+                return SingleResponse<string>.OnFailed(createMeeting.OnFailedMessage);
+
+            return SingleResponse<string>.OnSuccess(createMeeting.Result);
         }
+
         /// <summary>
         /// Check BBB Settings are Ok or not
         /// </summary>
@@ -112,19 +91,19 @@ namespace LIMS.Application.Services.Meeting.BBB
                 /* Use IsRunning Service of BBB Api Service */
                 var result = await _client.IsMeetingRunningAsync(
                     new IsMeetingRunningRequest
-                    { meetingID = meetingId }
-                );
+                    { meetingID = meetingId });
 
                 if (result.Returncode == Returncode.Failed)
                     return SingleResponse<bool>.OnFailed(result.Message);
-                else
-                    return SingleResponse<bool>.OnSuccess(true);
+
+                return SingleResponse<bool>.OnSuccess(true);
             }
             catch (Exception exception)
             {
-                return SingleResponse<bool>.OnFailed(exception.Data.ToString());
+                return SingleResponse<bool>.OnFailed(exception.Message);
             }
         }
+
         /// <summary>
         /// Check and Handle Joining of an User
         /// </summary>
@@ -134,56 +113,38 @@ namespace LIMS.Application.Services.Meeting.BBB
         public async ValueTask<SingleResponse<bool>> CanJoinOnMeetingHandler(string meetingId, JoinMeetingRequestModel joinRequest)
         {
             /* All Flows of App For Joining Check */
-            var server = await _meetingService
-                .FindOneMeetingWithMeetingId(meetingId);
+            var server = await _meetingService.FindOneMeetingWithMeetingId(meetingId);
             if (!server.Success)
-                if (server.Exception is not null)
-                    return SingleResponse<bool>.OnFailed(server.Exception.Data.ToString());
-                else
-                    return SingleResponse<bool>.OnFailed(server.OnFailedMessage);
+                return SingleResponse<bool>.OnFailed(server.OnFailedMessage);
 
             var meeting = await _meetingService.FindOneMeetingWithMeetingId(meetingId);
             if (!meeting.Success)
-                if (meeting.Exception is not null)
-                    return SingleResponse<bool>.OnFailed(meeting.Exception.Data.ToString());
-                else
-                    return SingleResponse<bool>.OnFailed(meeting.OnFailedMessage);
+                return SingleResponse<bool>.OnFailed(meeting.OnFailedMessage);
 
             var canJoinOnMeeting = await _memberShipService.CanJoinUserOnMeeting(meeting.Result.Id);
             if (!canJoinOnMeeting.Success)
-                if (server.Exception is not null)
-                    return SingleResponse<bool>.OnFailed(canJoinOnMeeting.Exception.Data.ToString());
-                else
-                    return SingleResponse<bool>.OnFailed(server.OnFailedMessage);
+                return SingleResponse<bool>.OnFailed(server.OnFailedMessage);
             if (!canJoinOnMeeting.Result)
                 return SingleResponse<bool>.OnFailed("Joining into This Class Not Accessed.");
 
             var canJoinOnServer = await _serverService.CanJoinServer(server.Result.Id);
             if (!canJoinOnServer.Success)
-                if (canJoinOnServer.Exception is not null)
-                    return SingleResponse<bool>.OnFailed(server.Exception.Data.ToString());
-                else
-                    return SingleResponse<bool>.OnFailed(server.OnFailedMessage);
+                return SingleResponse<bool>.OnFailed(server.OnFailedMessage);
             if (!canJoinOnServer.Result)
                 return SingleResponse<bool>.OnFailed("Server Capacity is Fulled.");
 
+            var user = await _userService.GetUserById(joinRequest.UserId);
 
-            var user = await _userService.GetUser(joinRequest.UserId);
+            var canLoginOnMeeting = _meetingService.CanLoginOnExistMeeting(meetingId, UserDtoMapper.Map(user.Result), joinRequest.MeetingPassword).Result;
 
-            var cnaLoginOnMeeting = _meetingService
-                .CanLoginOnExistMeeting(meetingId, UserDtoMapper.Map(user.Result), joinRequest.MeetingPassword).Result;
-
-            if (!cnaLoginOnMeeting.Success)
-                if (cnaLoginOnMeeting.Exception is not null)
-                    return SingleResponse<bool>.OnFailed(server.Exception.Data.ToString());
-                else
-                    return SingleResponse<bool>.OnFailed(server.OnFailedMessage);
-
-            if (!cnaLoginOnMeeting.Result)
+            if (!canLoginOnMeeting.Success)
+                return SingleResponse<bool>.OnFailed(server.OnFailedMessage);
+            if (!canLoginOnMeeting.Result)
                 return SingleResponse<bool>.OnFailed("Your Credentials is not Exist in our Records.");
 
             return SingleResponse<bool>.OnSuccess(true);
         }
+
         /// <summary>
         /// Absolute Join On Meeting
         /// </summary>
@@ -193,14 +154,13 @@ namespace LIMS.Application.Services.Meeting.BBB
         public async ValueTask<SingleResponse<long>> JoiningOnMeetingOnDatabase(long userId, string meetingId)
         {
             var joinUserOnMeeting = await _memberShipService.JoinUserOnMeeting(userId, meetingId);
+
             if (!joinUserOnMeeting.Success)
-                if (joinUserOnMeeting.Exception is not null)
-                    return SingleResponse<long>.OnFailed(joinUserOnMeeting.Exception.Data.ToString());
-                else
-                    return SingleResponse<long>.OnFailed(joinUserOnMeeting.OnFailedMessage);
+                return SingleResponse<long>.OnFailed(joinUserOnMeeting.OnFailedMessage);
 
             return SingleResponse<long>.OnSuccess(joinUserOnMeeting.Result);
         }
+
         /// <summary>
         /// Handle Ending A Meeting On Database
         /// </summary>
@@ -208,17 +168,12 @@ namespace LIMS.Application.Services.Meeting.BBB
         /// <returns></returns>
         public async Task<SingleResponse<string>> EndMeetingHandlerOnDatabase(string meetingId, DateTime now)
         {
-            var endMeeting = await _meetingService
-                .StopRunningMeeting(meetingId, now);
+            var endMeeting = await _meetingService.StopRunningMeeting(meetingId, now);
 
             if (!endMeeting.Success)
-                if (endMeeting.Exception is not null)
-                    return SingleResponse<string>.OnFailed(endMeeting.Exception.Data.ToString());
-                else
-                    return SingleResponse<string>.OnFailed(endMeeting.OnFailedMessage);
+                return SingleResponse<string>.OnFailed(endMeeting.OnFailedMessage);
 
-            else
-                return SingleResponse<string>.OnSuccess("Meeting is End.");
+            return SingleResponse<string>.OnSuccess("Meeting is End.");
         }
     }
 }
