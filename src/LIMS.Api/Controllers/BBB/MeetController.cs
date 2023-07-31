@@ -14,14 +14,14 @@ namespace LIMS.Api.Controllers.BBB
     public class MeetController : ControllerBase
     {
         #region Main Services
-        private readonly BBBUserServiceImpl _userService;
+        private readonly BbbUserServiceImpl _userService;
         private readonly BbbConnectionService _connectionService;
-        private readonly BBBHandleMeetingService _handleMeetingService;
+        private readonly BbbHandleMeetingService _handleMeetingService;
 
         public MeetController(
-            BBBUserServiceImpl userService,
+            BbbUserServiceImpl userService,
             BbbConnectionService connectionService,
-            BBBHandleMeetingService handleMeetingService
+            BbbHandleMeetingService handleMeetingService
         ) =>
         (
             _handleMeetingService,
