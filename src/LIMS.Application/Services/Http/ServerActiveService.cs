@@ -7,19 +7,20 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using LIMS.Application.Models;
-using LIMS.Application.Services.Database.BBB;
 using LIMS.Domain.Entities;
 using Microsoft.Extensions.Logging;
+using LIMS.Application.Services.Database;
 
-namespace LIMS.Application.Services.Http.BBB
+namespace LIMS.Application.Services.Http
 {
-    public class BbbServerActiveService
+    public class ServerActiveService
     {
-        private readonly ILogger<BbbServerServiceImpl> _logger;
-        public BbbServerActiveService(ILogger<BbbServerServiceImpl> logger) 
+        private readonly ILogger<ServerServiceImpl> _logger;
+
+        public ServerActiveService(ILogger<ServerServiceImpl> logger)
             => _logger = logger;
 
-        public async Task<OperationResult<List<Server>>> SetServersActiveIfNotDown(List<Server> servers)
+        public async Task<OperationResult<List<Server>>> SetActiveServers(List<Server> servers) => await Task.Run(() =>
         {
             try
             {
@@ -43,9 +44,10 @@ namespace LIMS.Application.Services.Http.BBB
 
                 return OperationResult<List<Server>>.OnException(exception);
             }
-        }
 
-        public async Task<OperationResult<bool>> CheckServerBeingDown(string serverUrl)
+        });
+
+        public async Task<OperationResult<bool>> CheckServerBeingDown(string serverUrl) => await Task.Run(() =>
         {
             try
             {
@@ -64,6 +66,6 @@ namespace LIMS.Application.Services.Http.BBB
 
                 return OperationResult<bool>.OnException(exception);
             }
-        }
+        });
     }
 }

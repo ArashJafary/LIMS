@@ -9,6 +9,7 @@ public class MemberShip : BaseEntity
     public DateTime JoinedDateTime { get; private set; }
     public bool UserRejected { get; private set; }
     public bool UserExited { get; private set; }
+
     public void BanUser()
         => UserRejected = true;
 

@@ -9,18 +9,13 @@ namespace LIMS.Application.Mappers
     public static class UserDtoMapper
     {
         public static User Map(UserAddEditDto userDto) =>
-            new User(userDto.FullName, userDto.Alias, new UserRole(userDto.Role));
+            new User(userDto.FullName, userDto.Alias, userDto.Role);
 
         public static UserAddEditDto Map(User user) =>
             new UserAddEditDto(
                 user.FullName,
                 user.Alias,
-                user.Role.RoleName switch
-                {
-                    "Moderator" => UserRoleTypes.Moderator,
-                    "Attendee" => UserRoleTypes.Attendee,
-                    "Guest" => UserRoleTypes.Guest
-                }
+                user.Role
             );
     }
 }

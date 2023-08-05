@@ -13,7 +13,6 @@ namespace LIMS.Infrastructure.Persistence.Configuration
     {
         public void Configure(EntityTypeBuilder<Record> builder)
         {
-            builder.HasOne(record => record.Meeting).WithMany(playback => playback.Records).HasForeignKey("MeetingId");
             builder.HasMany(record => record.Playbacks).WithOne(playback => playback.Record).HasForeignKey("RecordId");
         }
     }

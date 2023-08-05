@@ -1,26 +1,27 @@
 ﻿using BigBlueButtonAPI.Core;
 using LIMS.Application.DTOs;
 using LIMS.Application.Models;
-using LIMS.Application.Models.Http.BBB;
-using LIMS.Application.Services.Database.BBB;
+using LIMS.Application.Models.Http;
+using LIMS.Application.Services.Database;
+using LIMS.Application.Services.Interfaces;
 using LIMS.Domain;
 using LIMS.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace LIMS.Infrastructure.ExternalApi.BBB
 {
-    public class BbbConnectionService
+    public class BbbConnectionService : IConnectionService
     {
         private readonly BigBlueButtonAPIClient _bbbClient;
         private readonly ILogger<BbbConnectionService> _logger;
-        private readonly BbbUserServiceImpl _userService;
+        private readonly UserServiceImpl _userService;
 
         public BbbConnectionService(BigBlueButtonAPIClient bbbClient,
-            BbbUserServiceImpl userService,
+            UserServiceImpl userService,
             ILogger<BbbConnectionService> logger)
             => (_bbbClient, _userService, _logger) = (bbbClient, userService, logger);
 
-        public async ValueTask<OperationResult<MeetingAddDto>> CreateMeetingOnBigBlueButton(MeetingAddDto meetingRequestModel)
+        public async ValueTask<OperationResult<MeetingAddDto>> CreateMeetingOnPlatform(MeetingAddDto meetingRequestModel)
         {
             try
             {
@@ -87,7 +88,7 @@ namespace LIMS.Infrastructure.ExternalApi.BBB
             }
         }
 
-        public async Task<OperationResult<string>> JoiningOnMeeting(string meetingId, JoinMeetingRequestModel joinOnMeetingRequest)
+        public async Task<OperationResult<string>> JoiningOnMeeting(string meetingId, BbbJoinMeetingRequestModel joinOnMeetingRequest)
         {
             try
             {

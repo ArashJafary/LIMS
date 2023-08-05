@@ -6,24 +6,24 @@ using LIMS.Domain.IRepositories;
 using LIMS.Application.Models;
 using Microsoft.Extensions.Logging;
 
-namespace LIMS.Application.Services.Database.BBB
+namespace LIMS.Application.Services.Database
 {
-    public class BbbMemberShipServiceImpl
+    public class MemberShipServiceImpl
     {
         private readonly IUserRepository _users;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMeetingRepository _meetings;
         private readonly IMemberShipRepository _memberShips;
-        private readonly ILogger<BbbMemberShipServiceImpl> _logger;
+        private readonly ILogger<MemberShipServiceImpl> _logger;
 
-        public BbbMemberShipServiceImpl(
+        public MemberShipServiceImpl(
             IUnitOfWork unitOfWork,
             IMemberShipRepository memberShips,
             IUserRepository users,
             IMeetingRepository meetings,
-             ILogger<BbbMemberShipServiceImpl> logger)
+             ILogger<MemberShipServiceImpl> logger)
                 => (_unitOfWork, _memberShips, _users, _meetings, _logger)
-                    = (unitOfWork, memberShips, users, meetings,logger);
+                    = (unitOfWork, memberShips, users, meetings, logger);
 
         public async ValueTask<OperationResult<bool>> CanJoinUserOnMeeting(long meetingId)
         {

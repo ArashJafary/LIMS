@@ -6,18 +6,18 @@ using LIMS.Application.Models;
 using Microsoft.Extensions.Logging;
 using System;
 
-namespace LIMS.Application.Services.Database.BBB
+namespace LIMS.Application.Services.Database
 {
-    public class BbbUserServiceImpl
+    public class UserServiceImpl
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserRepository _users;
-        private readonly ILogger<BbbServerServiceImpl> _logger;
+        private readonly ILogger<ServerServiceImpl> _logger;
 
 
-        public BbbUserServiceImpl(IUnitOfWork unitOfWork,
+        public UserServiceImpl(IUnitOfWork unitOfWork,
             IUserRepository users,
-            ILogger<BbbServerServiceImpl> logger) =>
+            ILogger<ServerServiceImpl> logger) =>
             (_unitOfWork, _users, _logger) = (unitOfWork, users, logger);
 
         public async ValueTask<OperationResult<long>> CreateNewUser(UserAddEditDto user)
@@ -46,7 +46,7 @@ namespace LIMS.Application.Services.Database.BBB
             {
                 var user = await _users.GetByIdAsync(Id);
 
-                user.UserUpdate(userDto.FullName, userDto.Alias, new UserRole(userDto.Role));
+                user.UserUpdate(userDto.FullName, userDto.Alias, userDto.Role);
 
                 await _unitOfWork.SaveChangesAsync();
 

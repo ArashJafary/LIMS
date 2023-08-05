@@ -1,6 +1,5 @@
 using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entities;
-using LIMS.Domain.IRepositories;
 using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using LIMS.Domain.Exceptions.Database.BBB;
@@ -52,20 +51,23 @@ public class ServerRepository : IServerRepository
     public async ValueTask<List<Server>> GetAllAsync()
         => await _servers.ToListAsync();
 
-    public async ValueTask<Server> GetCapableAsync() => await Task.Run(() =>
+    public async ValueTask<Server> GetCapableAsync()
     {
-        var capableServer = _servers
-                .Where(server => server.IsActive)
-                .OrderByDescending(
-                    server => server.ServerLimit -
-                              server.Meetings.Where(meeting => meeting.IsRunning)
-                                  .Sum(meeting => meeting.Users.Count))!
-                                        .FirstOrDefault()!;
+        var activeServers = _servers.Where(server => server.IsActive);
+
+        var orderedServers = activeServers
+                .OrderByDescending(server => server.ServerLimit - server.Meetings
+                .Where(meeting => meeting.IsRunning)
+                                  .Sum(meeting => meeting.MemberShips
+                                  .Where(memberShip => memberShip.Meeting == meeting && (!memberShip.UserRejected && !memberShip.UserExited))
+                                  .Count()))!;
+
+        var capableServer = await orderedServers.FirstOrDefaultAsync();
 
         ThrowExpectedExceptions(capableServer);
 
-        return capableServer;
-    });
+        return capableServer!;
+    }
 
     private void ThrowExpectedExceptions(Server? server, bool argumentNullThrow = false, bool createdInDatabase = false)
     {

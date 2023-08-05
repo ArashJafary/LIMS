@@ -1,56 +1,49 @@
 using LIMS.Application.DTOs;
 using BigBlueButtonAPI.Core;
-using LIMS.Application.Models.Http.BBB;
-using LIMS.Application.Services.Database.BBB;
-using LIMS.Application.Services.Meeting.BBB;
 using Microsoft.AspNetCore.Mvc;
-using LIMS.Infrastructure.ExternalApi.BBB;
+using LIMS.Application.Services.Database;
+using LIMS.Application.Models.Http;
+using LIMS.Domain.Services;
+using LIMS.Application.Services.Interfaces;
+using LIMS.Application.Services.Http;
 
-namespace LIMS.Api.Controllers.BBB
+namespace LIMS.Api.Controllers
 {
 
     [ApiController]
-    [Route("api/BBB/Meeting")]
-    public class MeetController : ControllerBase
+    [Route("api/Meeting")]
+    public class MeetingController : ControllerBase
     {
-        #region Main Services
-        private readonly BbbUserServiceImpl _userService;
-        private readonly BbbConnectionService _connectionService;
-        private readonly BbbHandleMeetingService _handleMeetingService;
+        private readonly UserServiceImpl _userService;
+        private readonly IConnectionService _connectionService;
+        private readonly IHandleMeetingService _handleMeetingService;
+        private readonly MeetingSettingsService _meetingSettingsService;
 
-        public MeetController(
-            BbbUserServiceImpl userService,
-            BbbConnectionService connectionService,
-            BbbHandleMeetingService handleMeetingService
+        public MeetingController(
+            UserServiceImpl userService,
+            MeetingSettingsService meetingSettingsService,
+            IConnectionService connectionService,
+            IHandleMeetingService handleMeetingService
         ) =>
         (
+            _connectionService,
             _handleMeetingService,
             _userService,
-            _connectionService
+            _meetingSettingsService
         ) = (
+            connectionService,
             handleMeetingService,
             userService,
-            connectionService
+            meetingSettingsService
         );
-        #endregion
 
-        #region Non and Simple Methods
-        [NonAction]
-        private async ValueTask<bool> IsBigBlueSettingsOkAsync(string meetingId)
-        {
-            /* Check Settings Will Be Ok */
-            var meeting = await _handleMeetingService.IsBigBlueButtonOk(meetingId);
-            return meeting.Data;
-        }
-        #endregion
-
-        #region Endpoints
         [HttpGet("[action]", Name = nameof(GetMeetingInformation))]
         public async ValueTask<IActionResult> GetMeetingInformation([FromQuery] GetMeetingInfoRequest meetingRequest)
         {
-            /* Test BBB Is Ok */
-            if (!await IsBigBlueSettingsOkAsync(meetingRequest.meetingID))
-                return BadRequest("BigBlueButton Settings Have Problem.");
+            /* Test Platform Is Ok */
+            var platformSettings = await _meetingSettingsService.IsSettingsOkAsync(meetingRequest.meetingID);
+            if (!platformSettings.Success)
+                return BadRequest($"{platformSettings.Platform} Settings Have Problem.");
 
             /* Get Informations of Meeting For Indicate To Client */
             var getMeetingInformation = await _connectionService.GetMeetingInformations(meetingRequest.meetingID);
@@ -62,41 +55,37 @@ namespace LIMS.Api.Controllers.BBB
         }
 
         [HttpPost("[action]", Name = nameof(CreateMeeting))]
-        public async Task<IActionResult> CreateMeeting([FromBody] CreateMeetingRequestModel request)
+        public async Task<IActionResult> CreateMeeting([FromBody] BbbCreateMeetingRequestModel createMeetingRequest)
         {
-            /* Test BBB Is Ok */
-            if (!await IsBigBlueSettingsOkAsync(request.MeetingId))
-                return BadRequest("BigBlueButton Settings Have Problem.");
-
             /* Use Capable Server For Creating Meeting On That */
             var server = await _handleMeetingService.UseMostCapableAndActiveServer();
             if (server.Data is null)
                 return BadRequest(server.Error);
 
-            /* Change BBB Configuration Settings For New Server */
+            /* Change Server Configuration Settings For New Server */
             var changeSettings = await _connectionService.ChangeServerSettings(server.Data);
 
             if (!changeSettings.Success)
                 return BadRequest(changeSettings.OnFailedMessage);
 
-            /* Create Meeting On BBB With its Apis */
+            /* Create Meeting On Platform With its Apis */
             var createMeetingConnection = await _connectionService
-                .CreateMeetingOnBigBlueButton(
+                .CreateMeetingOnPlatform(
                     new MeetingAddDto(
-                        request.MeetingId,
-                        request.IsRecord,
-                        request.IsBreakout,
-                        request.CanFreeJoinOnBreakout,
-                        request.ParentId,
-                        request.Name,
-                        request.ModeratorPassword,
-                        request.AttendeePassword,
-                        request.StartDateTime,
-                        request.EndDateTime,
-                        request.LimitCapacity,
+                        createMeetingRequest.MeetingId,
+                        createMeetingRequest.IsRecord,
+                        createMeetingRequest.IsBreakout,
+                        createMeetingRequest.CanFreeJoinOnBreakout,
+                        createMeetingRequest.ParentId,
+                        createMeetingRequest.Name,
+                        createMeetingRequest.ModeratorPassword,
+                        createMeetingRequest.AttendeePassword,
+                        createMeetingRequest.StartDateTime,
+                        createMeetingRequest.EndDateTime,
+                        createMeetingRequest.LimitCapacity,
                         server.Data,
-                        request.AutoStartRecord,
-                        request.Platform
+                        createMeetingRequest.AutoStartRecord,
+                        createMeetingRequest.Platform
                     ));
 
             if (!createMeetingConnection.Success)
@@ -109,7 +98,7 @@ namespace LIMS.Api.Controllers.BBB
                 return BadRequest(createMeeting.Error);
 
             /* Get Information of Meeting For Indicate To Client */
-            var getMeetingInformation = await _connectionService.GetMeetingInformations(request.MeetingId);
+            var getMeetingInformation = await _connectionService.GetMeetingInformations(createMeetingRequest.MeetingId);
 
             if (!getMeetingInformation.Success)
                 return BadRequest(getMeetingInformation.OnFailedMessage);
@@ -121,29 +110,30 @@ namespace LIMS.Api.Controllers.BBB
         [HttpPost("[action]/{meetingId}", Name = nameof(JoinOnMeeting))]
         public async ValueTask<IActionResult> JoinOnMeeting(
             [FromRoute] string meetingId,
-            [FromBody] JoinMeetingRequestModel request
+            [FromBody] BbbJoinMeetingRequestModel joinOnMeetingRequest
         )
         {
-            /* Test BBB Is Ok */
-            if (!await IsBigBlueSettingsOkAsync(meetingId))
-                return BadRequest("BigBlueButton Settings Have Problem.");
+            /* Test Platform Is Ok */
+            var platformSettings = await _meetingSettingsService.IsSettingsOkAsync(meetingId);
+            if (!platformSettings.Success)
+                return BadRequest($"{platformSettings.Platform} Settings Have Problem.");
 
             /* Checking User Can Join On Meeting */
-            var canJoinOnMeeting = await _handleMeetingService.CanJoinOnMeetingHandler(meetingId, request);
+            var canJoinOnMeeting = await _handleMeetingService.CanJoinOnMeetingHandler(meetingId, joinOnMeetingRequest);
 
             if (!canJoinOnMeeting.Data)
                 return canJoinOnMeeting.Errors.Count() > 1
                     ? BadRequest(canJoinOnMeeting.Errors)
                     : BadRequest(canJoinOnMeeting.Error);
 
-            /* Join On Meeting With BBB Api */
-            var url = await _connectionService.JoiningOnMeeting(meetingId, request);
+            /* Join On Meeting With Plaform Api */
+            var url = await _connectionService.JoiningOnMeeting(meetingId, joinOnMeetingRequest);
 
             if (!url.Success)
                 return url.Exception is null ? BadRequest(url.OnFailedMessage) : BadRequest(url.Exception.Data.ToString());
 
             /* Join Creating For Database */
-            await _handleMeetingService.JoiningOnMeetingOnDatabase(request.UserId, meetingId);
+            await _handleMeetingService.JoiningOnMeetingOnDatabase(joinOnMeetingRequest.UserId, meetingId);
 
             /* Redirect Into URL of Meeting */
             return Redirect(url.Result);
@@ -152,11 +142,12 @@ namespace LIMS.Api.Controllers.BBB
         [HttpGet("[action]", Name = nameof(EndMeeting))]
         public async ValueTask<IActionResult> EndMeeting(string meetingId, string password)
         {
-            /* Test BBB Is Ok */
-            if (!await IsBigBlueSettingsOkAsync(meetingId))
-                return BadRequest("BigBlueButton Settings Have Problem.");
+            /* Test Platform Is Ok */
+            var platformSettings = await _meetingSettingsService.IsSettingsOkAsync(meetingId);
+            if (!platformSettings.Success)
+                return BadRequest($"{platformSettings.Platform} Settings Have Problem.");
 
-            /* End Existed Meeting With BBB Api */
+            /* End Existed Meeting With Platform Api */
             var endExistMeeting = await _connectionService.EndExistMeeting(meetingId, password);
 
             if (!endExistMeeting.Success)
@@ -173,6 +164,5 @@ namespace LIMS.Api.Controllers.BBB
             /* Return Datas Into Client */
             return Ok(handleEnd.Data);
         }
-        #endregion
     }
 }

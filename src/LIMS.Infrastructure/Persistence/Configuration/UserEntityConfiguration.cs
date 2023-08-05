@@ -10,6 +10,5 @@ public class UserEntityConfiguration : IEntityTypeConfiguration<User>
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.HasKey(user => user.Id);
-        builder.HasOne(user => user.Role).WithMany(role => role.Users).HasForeignKey("RoleId");
     }
 }

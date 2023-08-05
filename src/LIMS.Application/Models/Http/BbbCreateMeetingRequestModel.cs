@@ -1,11 +1,11 @@
 using LIMS.Application.DTOs;
 using LIMS.Domain.Enumerables;
 
-namespace LIMS.Application.Models.Http.BBB;
-public record CreateMeetingRequestModel(
+namespace LIMS.Application.Models.Http;
+public record BbbCreateMeetingRequestModel(
     string Name,
     bool IsPrivate,
-    string MeetingId, 
+    string MeetingId,
     bool IsRecord,
     bool AutoStartRecord,
     string ModeratorPassword,

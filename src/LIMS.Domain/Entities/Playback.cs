@@ -13,9 +13,12 @@ namespace LIMS.Domain.Entities
         public string Url { get; }
         public long Length { get; }
         public long Size { get; }
+
         public Record Record { get; }
 
+        private Playback() { }
+
         public Playback(string url, long length,long size) 
-            => (Url,Length,Size) = (url,Length,Size);
+            => (Url,Length,Size) = (url,length,size);
     }
 }

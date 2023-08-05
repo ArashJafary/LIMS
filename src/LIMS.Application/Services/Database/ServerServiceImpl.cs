@@ -5,26 +5,26 @@ using LIMS.Domain.Entities;
 using LIMS.Application.Models;
 using System.Net.NetworkInformation;
 using LIMS.Application.Mappers;
-using LIMS.Application.Services.Http.BBB;
 using System;
 using Hangfire.Annotations;
 using LIMS.Domain.Entities;
 using Microsoft.Extensions.Logging;
+using LIMS.Application.Services.Http;
 
-namespace LIMS.Application.Services.Database.BBB;
+namespace LIMS.Application.Services.Database;
 
-public class BbbServerServiceImpl
+public class ServerServiceImpl
 {
     private readonly IServerRepository _servers;
-    private readonly ILogger<BbbServerServiceImpl> _logger;
-    private readonly BbbServerActiveService _activeService;
+    private readonly ILogger<ServerServiceImpl> _logger;
+    private readonly ServerActiveService _activeService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public BbbServerServiceImpl(
-        BbbServerActiveService activeService,
+    public ServerServiceImpl(
+        ServerActiveService activeService,
         IServerRepository servers,
         IUnitOfWork unitOfWork,
-        ILogger<BbbServerServiceImpl> logger) => (_servers, _activeService, _unitOfWork, _logger) = (servers, activeService, unitOfWork, logger);
+        ILogger<ServerServiceImpl> logger) => (_servers, _activeService, _unitOfWork, _logger) = (servers, activeService, unitOfWork, logger);
 
     public async ValueTask<OperationResult<bool>> CanJoinServer(long id)
     {
@@ -173,7 +173,7 @@ public class BbbServerServiceImpl
         {
             var servers = await _servers.GetAllAsync();
 
-            var checkActiveServers = await _activeService.SetServersActiveIfNotDown(servers);
+            var checkActiveServers = await _activeService.SetActiveServers(servers);
 
             if (!checkActiveServers.Success)
                 return OperationResult.OnFailed(checkActiveServers.OnFailedMessage);

@@ -1,4 +1,5 @@
-﻿using LIMS.Application.Services.Meeting.BBB;
+﻿using LIMS.Application.Services.Handlers;
+using LIMS.Domain.Services;
 
 namespace LIMS.Api.Extensions.Services.Handlers
 {
@@ -7,7 +8,8 @@ namespace LIMS.Api.Extensions.Services.Handlers
         public static IServiceCollection AddServiceHandler(this IServiceCollection services)
         {
             services
-                .AddScoped<BbbHandleMeetingService>();
+                .AddScoped<IHandleMeetingService,BbbHandleMeetingService>();
+
             return services;
         }
     }

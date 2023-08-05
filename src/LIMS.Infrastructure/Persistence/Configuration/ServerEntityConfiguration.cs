@@ -8,6 +8,7 @@ public class ServerEntityConfiguration : IEntityTypeConfiguration<Server>
     public void Configure(EntityTypeBuilder<Server> builder)
     {
         builder.HasKey(entity => entity.Id);
+
         builder
             .HasMany(entity => entity.Meetings)
             .WithOne(entity => entity.Server)

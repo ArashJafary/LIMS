@@ -20,7 +20,7 @@ namespace LIMS.Test.Utils
                         new User(
                             $"Test {user}",
                             $"Test 2 {user}",
-                            new UserRole((UserRoleTypes)randomNumber.Next(-1, 2))))
+                            UserRoleTypes.Attendee))
                     .ToList();
             });
     }
