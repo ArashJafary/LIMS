@@ -11,7 +11,7 @@ namespace LIMS.Persistence.Repositories
     {
         private readonly DbSet<Meeting> _meetings;
 
-        public MeetingRepository(LimsContext context, ILogger<MeetingRepository> logger)
+        public MeetingRepository(LimsContext context)
             => (_meetings) = (context.Set<Meeting>());
 
         public async ValueTask<string> CreateAsync(Meeting meeting)
@@ -25,12 +25,12 @@ namespace LIMS.Persistence.Repositories
 
         public async ValueTask<IEnumerable<Meeting>> GetAllAsync() => await _meetings.ToListAsync();
 
-        public async Task DeleteAsync(Meeting meeting)
+        public async Task DeleteAsync(Meeting meeting) => await Task.Run(() =>
         {
             ThrowExpectedExceptions(meeting, true);
 
             _meetings.Remove(meeting);
-        }
+        });
 
         public async ValueTask<Meeting> GetAsync(long id)
         {
@@ -38,7 +38,7 @@ namespace LIMS.Persistence.Repositories
 
             ThrowExpectedExceptions(meeting);
 
-            return meeting;
+            return meeting!;
         }
 
         public async ValueTask<Meeting> GetByMeetingIdAsync(string meetingId)
@@ -47,7 +47,7 @@ namespace LIMS.Persistence.Repositories
 
             ThrowExpectedExceptions(meeting);
 
-            return meeting;
+            return meeting!;
         }
 
         private void ThrowExpectedExceptions(Meeting? meeting, bool argumentNullThrow = false, bool createdInDatabase = false)

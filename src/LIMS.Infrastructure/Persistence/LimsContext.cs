@@ -1,6 +1,5 @@
 using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entities;
-using LIMS.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -12,7 +11,7 @@ public class LimsContext : DbContext, IUnitOfWork
         : base(options) {}
 
     public virtual DbSet<User> Users { get; set; } = default!;
-    public virtual DbSet<UserRole> UserRoles { get; set; } = default!;
+    public virtual DbSet<Playback> Playbacks { get; set; } = default!;
     public virtual DbSet<Meeting> Meetings { get; set; } = default!;
     public virtual DbSet<MemberShip> MemberShips { get; set; } = default!;
     public virtual DbSet<Server> Servers { get; set; } = default!;
