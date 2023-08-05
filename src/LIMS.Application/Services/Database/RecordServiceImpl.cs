@@ -8,14 +8,14 @@ using LIMS.Domain.IRepositories;
 using LIMS.Application.Models;
 using Microsoft.Extensions.Logging;
 
-namespace LIMS.Application.Services.Database.BBB
+namespace LIMS.Application.Services.Database
 {
-    public class BbbRecordServiceImpl
+    public class RecordServiceImpl
     {
         private readonly IRecordRepository _records;
-        private readonly ILogger<BbbRecordServiceImpl> _logger;
+        private readonly ILogger<RecordServiceImpl> _logger;
 
-        public BbbRecordServiceImpl(IRecordRepository records, ILogger<BbbRecordServiceImpl> logger)
+        public RecordServiceImpl(IRecordRepository records, ILogger<RecordServiceImpl> logger)
             => (_records, _logger) = (records, logger);
 
         public async ValueTask<IEnumerable<Domain.Entities.Record>> GetAllRecordedVideos()

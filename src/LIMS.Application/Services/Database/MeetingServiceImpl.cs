@@ -3,24 +3,21 @@ using LIMS.Application.Exceptions.Http.BBB;
 using LIMS.Application.Mappers;
 using LIMS.Domain;
 using LIMS.Domain.IRepositories;
-using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entities;
 using LIMS.Application.Models;
-using LIMS.Domain.Entities;
-using LIMS.Domain;
 using LIMS.Domain.Enumerables;
 using Microsoft.Extensions.Logging;
 
-namespace LIMS.Application.Services.Database.BBB
+namespace LIMS.Application.Services.Database
 {
-    public class BbbMeetingServiceImpl
+    public class MeetingServiceImpl
     {
         private readonly IMeetingRepository _meetings;
-        private readonly ILogger<BbbMeetingServiceImpl> _logger;
+        private readonly ILogger<MeetingServiceImpl> _logger;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMemberShipRepository _memberShips;
 
-        public BbbMeetingServiceImpl(IMeetingRepository meetings, IUnitOfWork unitOfWork, ILogger<BbbMeetingServiceImpl> logger) =>
+        public MeetingServiceImpl(IMeetingRepository meetings, IUnitOfWork unitOfWork, ILogger<MeetingServiceImpl> logger) =>
             (_meetings, _unitOfWork, _logger
             ) = (meetings, unitOfWork, logger);
 
@@ -49,18 +46,18 @@ namespace LIMS.Application.Services.Database.BBB
         {
             try
             {
-                if (user.Role.RoleName == UserRoleTypes.Attendee.ToString())
+                if (user.Role == UserRoleTypes.Attendee)
                     if (meeting.AttendeePassword == password)
                         return OperationResult<bool>.OnSuccess(true);
 
-                    else if (user.Role.RoleName == UserRoleTypes.Moderator.ToString())
+                    else if (user.Role == UserRoleTypes.Moderator)
                         if (meeting.ModeratorPassword == password)
                             return OperationResult<bool>.OnSuccess(true);
 
-                        else if (user.Role.RoleName == UserRoleTypes.Guest.ToString())
+                        else if (user.Role == UserRoleTypes.Guest)
                             return OperationResult<bool>.OnSuccess(true);
 
-                _logger.LogWarning($"{user.FullName} Login Proccess as {user.Role.RoleName} Failed Because of Incorrect Password.");
+                _logger.LogWarning($"{user.FullName} Login Proccess as {user.Role} Failed Because of Incorrect Password.");
 
                 return OperationResult<bool>.OnFailed(
                     "Your Moderator User or Password Intended Not Exists in my Records.");
