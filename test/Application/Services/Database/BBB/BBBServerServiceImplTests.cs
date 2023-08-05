@@ -6,8 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Castle.Core.Logging;
 using LIMS.Application.Mappers;
-using LIMS.Application.Services.Database.BBB;
-using LIMS.Application.Services.Http.BBB;
+using LIMS.Application.Services.Database;
+using LIMS.Application.Services.Http;
 using LIMS.Domain.Entities;
 using LIMS.Domain.IRepositories;
 using LIMS.Test.Utils;
@@ -20,11 +20,11 @@ namespace LIMS.Test.Application.Services.Database.BBB
     {
         private readonly Mock<IServerRepository> _serverRepositoryMock
             = new Mock<IServerRepository>();
-        private readonly Mock<BbbServerActiveService> _activeServiceMock
-            = new Mock<BbbServerActiveService>();
+        private readonly Mock<ServerActiveService> _activeServiceMock
+            = new Mock<ServerActiveService>();
         private readonly Mock<IUnitOfWork> _unitOfWorkMock
             = new Mock<IUnitOfWork>();
-        private readonly Mock<ILogger<BbbServerServiceImpl>> _loggerMock = new Mock<ILogger<BbbServerServiceImpl>>();
+        private readonly Mock<ILogger<ServerServiceImpl>> _loggerMock = new Mock<ILogger<ServerServiceImpl>>();
 
         private async Task<List<Server>> GetServers()
         {
@@ -59,7 +59,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
             var server = await GetServer();
             _serverRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<long>())).Returns(null);
 
-            var service = new BbbServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
+            var service = new ServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
 
             var result = await service.CanJoinServer(1);
 
@@ -75,7 +75,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
             var server = await GetServer();
             _serverRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<long>())).ReturnsAsync(server);
 
-            var service = new BbbServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object, _loggerMock.Object);
+            var service = new ServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object, _loggerMock.Object);
 
             var result = await service.CanJoinServer(1);
 
@@ -92,7 +92,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
 
             _serverRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<long>())).ReturnsAsync(server);
 
-            var service =new BbbServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
+            var service =new ServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
 
             var result = await service.CanJoinServer(1);
 
@@ -105,7 +105,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
         [Fact]
         public async Task UpdateServer_IfInputServerIsNull()
         {
-            var service =new BbbServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
+            var service =new ServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
 
             var result = await service.UpdateServer(1, null);
 
@@ -119,7 +119,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
         {
             _serverRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<long>())).Returns(null);
 
-            var service =new BbbServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
+            var service =new ServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
             var result = await service.UpdateServer(1, ServerDtoMapper.Map(await GetServer()));
 
             Assert.False(result.Success);
@@ -133,7 +133,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
             var server = await GetServer();
             _serverRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<long>())).ReturnsAsync(server);
 
-            var service =new BbbServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
+            var service =new ServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
             var result = await service.UpdateServer(1, ServerDtoMapper.Map(await GetServer()));
 
             Assert.True(result.Success);
@@ -147,7 +147,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
             var server = await GetServer();
             _serverRepositoryMock.Setup(repository => repository.CreateAsync(server)).ReturnsAsync(server.Id);
 
-            var service =new BbbServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
+            var service =new ServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
 
             var result = await service.CreateServer(ServerDtoMapper.Map(server));
 
@@ -160,7 +160,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
         [Fact]
         public async Task CreateServer_IfInputIsNull()
         {
-            var service =new BbbServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
+            var service =new ServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
 
             var result = await service.CreateServer(null);
 
@@ -179,7 +179,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
 
             _serverRepositoryMock.Setup(repository => repository.GetAllAsync()).ReturnsAsync(servers);
 
-            var service =new BbbServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
+            var service =new ServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
 
             var result = await service.MostCapableServer();
 
@@ -193,7 +193,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
             var serverId = 1;
             _serverRepositoryMock.Setup(repository => repository.DeleteAsync(It.IsAny<long>())).Verifiable();
 
-            var service =new BbbServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
+            var service =new ServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
             
 
             var result = await service.DeleteServer(serverId);
@@ -212,7 +212,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
 
             _serverRepositoryMock.Setup(repository => repository.DeleteAsync(It.IsAny<long>())).ThrowsAsync(new Exception(exception)).Verifiable();
 
-            var service =new BbbServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
+            var service =new ServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
 
             var result = await service.DeleteServer(serverId);
 
