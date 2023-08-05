@@ -12,9 +12,12 @@ namespace LIMS.Application.Models
         public string Platform { get; private set; }
 
         private MeetingSettingsSingleResponse(string platform) => Platform = platform;
-        public MeetingSettingsSingleResponse() => Success = false;
+        private MeetingSettingsSingleResponse()
+        {
+            
+        }
 
-        public static MeetingSettingsSingleResponse OnOk(string platform) => new MeetingSettingsSingleResponse(platform);
-        public static MeetingSettingsSingleResponse OnFail() => new MeetingSettingsSingleResponse();
+        public static MeetingSettingsSingleResponse OnOk() => new MeetingSettingsSingleResponse();
+        public static MeetingSettingsSingleResponse OnFail(string platform) => new MeetingSettingsSingleResponse(platform);
     }
 }
