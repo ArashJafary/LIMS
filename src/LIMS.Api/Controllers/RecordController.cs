@@ -1,31 +1,32 @@
 using BigBlueButtonAPI.Core;
-using LIMS.Application.Services.Database.BBB;
-using LIMS.Application.Services.Meeting.BBB;
-using LIMS.Application.Services.Record;
+using LIMS.Application.Services.Database;
+using LIMS.Application.Services.Handlers;
+using LIMS.Application.Services.Interfaces;
+using LIMS.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LIMS.Api.Controllers.BBB
+namespace LIMS.Api.Controllers
 {
     [ApiController]
     [Route("api/BBB/[controller]")]
     public class RecordController : ControllerBase
     {
         private readonly BigBlueButtonAPIClient _client;
-        private readonly BbbHandleMeetingService _handleMeetingService;
-        private readonly BbbRecordServiceImpl _recordService;
-        private readonly BbbHandleRecordService _handleRecordService;
+        private readonly IHandleMeetingService _handleMeetingService;
+        private readonly RecordServiceImpl _recordService;
+        private readonly IHandleRecordService _handleRecordService;
         public RecordController(
             BigBlueButtonAPIClient client,
             BbbHandleMeetingService handleMeetingService,
-            BbbRecordServiceImpl recordService,
-            BbbHandleRecordService handleRecord)
+            RecordServiceImpl recordService,
+            IHandleRecordService handleRecord)
             => (_client, _handleMeetingService, _recordService, _handleRecordService) = (client, handleMeetingService, recordService, handleRecord);
 
         [NonAction]
         private async ValueTask<bool> IsBigBlueSettingsOkAsync(string meetingId)
         {
             /* Check Settings Will Be Ok */
-            var meeting = await _handleMeetingService.IsBigBlueButtonOk(meetingId);
+            var meeting = await _handleMeetingService.IsOkSettings(meetingId);
 
             return meeting.Data;
         }
@@ -36,7 +37,7 @@ namespace LIMS.Api.Controllers.BBB
             if (!await IsBigBlueSettingsOkAsync(meetingId))
                 return BadRequest("BigBlueButton Settings Have Problem.");
 
-            var records = await _handleRecordService.GetAllRecordedVideosFromBbb(meetingId);
+            var records = await _handleRecordService.GetAllRecordedVideos(meetingId);
 
             if (records.Data is null)
                 return records.Errors.Count() > 1
