@@ -40,7 +40,7 @@ namespace LIMS.Api.Controllers
         [HttpGet("[action]", Name = nameof(GetMeetingInformation))]
         public async ValueTask<IActionResult> GetMeetingInformation([FromQuery] GetMeetingInfoRequest meetingRequest)
         {
-            /* Test BBB Is Ok */
+            /* Test Platform Is Ok */
             var platformSettings = await _meetingSettingsService.IsSettingsOkAsync(meetingRequest.meetingID);
             if (!platformSettings.Success)
                 return BadRequest($"{platformSettings.Platform} Settings Have Problem.");
@@ -57,23 +57,18 @@ namespace LIMS.Api.Controllers
         [HttpPost("[action]", Name = nameof(CreateMeeting))]
         public async Task<IActionResult> CreateMeeting([FromBody] BbbCreateMeetingRequestModel createMeetingRequest)
         {
-            /* Test BBB Is Ok */
-            var platformSettings = await _meetingSettingsService.IsSettingsOkAsync(createMeetingRequest.MeetingId);
-            if (!platformSettings.Success)
-                return BadRequest($"{platformSettings.Platform} Settings Have Problem.");
-
             /* Use Capable Server For Creating Meeting On That */
             var server = await _handleMeetingService.UseMostCapableAndActiveServer();
             if (server.Data is null)
                 return BadRequest(server.Error);
 
-            /* Change BBB Configuration Settings For New Server */
+            /* Change Server Configuration Settings For New Server */
             var changeSettings = await _connectionService.ChangeServerSettings(server.Data);
 
             if (!changeSettings.Success)
                 return BadRequest(changeSettings.OnFailedMessage);
 
-            /* Create Meeting On BBB With its Apis */
+            /* Create Meeting On Platform With its Apis */
             var createMeetingConnection = await _connectionService
                 .CreateMeetingOnPlatform(
                     new MeetingAddDto(
@@ -118,7 +113,7 @@ namespace LIMS.Api.Controllers
             [FromBody] BbbJoinMeetingRequestModel joinOnMeetingRequest
         )
         {
-            /* Test BBB Is Ok */
+            /* Test Platform Is Ok */
             var platformSettings = await _meetingSettingsService.IsSettingsOkAsync(meetingId);
             if (!platformSettings.Success)
                 return BadRequest($"{platformSettings.Platform} Settings Have Problem.");
@@ -131,7 +126,7 @@ namespace LIMS.Api.Controllers
                     ? BadRequest(canJoinOnMeeting.Errors)
                     : BadRequest(canJoinOnMeeting.Error);
 
-            /* Join On Meeting With BBB Api */
+            /* Join On Meeting With Plaform Api */
             var url = await _connectionService.JoiningOnMeeting(meetingId, joinOnMeetingRequest);
 
             if (!url.Success)
@@ -147,12 +142,12 @@ namespace LIMS.Api.Controllers
         [HttpGet("[action]", Name = nameof(EndMeeting))]
         public async ValueTask<IActionResult> EndMeeting(string meetingId, string password)
         {
-            /* Test BBB Is Ok */
+            /* Test Platform Is Ok */
             var platformSettings = await _meetingSettingsService.IsSettingsOkAsync(meetingId);
             if (!platformSettings.Success)
                 return BadRequest($"{platformSettings.Platform} Settings Have Problem.");
 
-            /* End Existed Meeting With BBB Api */
+            /* End Existed Meeting With Platform Api */
             var endExistMeeting = await _connectionService.EndExistMeeting(meetingId, password);
 
             if (!endExistMeeting.Success)

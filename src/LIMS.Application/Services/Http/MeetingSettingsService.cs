@@ -42,7 +42,7 @@ namespace LIMS.Application.Services.Http
             var settingsOk = await platform.IsOkSettings(meetingId);
 
             if (!settingsOk.Data)
-                return MeetingSettingsSingleResponse.OnFail(platformName);
+                return MeetingSettingsSingleResponse.OnFail();
 
             return MeetingSettingsSingleResponse.OnOk(platformName);
         }
