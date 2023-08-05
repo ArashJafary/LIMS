@@ -15,13 +15,14 @@ namespace LIMS.Domain.Entities
     {
         public string Name { get; private set; }
         public string Description { get; private set; }
-
         public DateTime StartDataTime { get; private set; }
         public DateTime EndDateTime { get; private set; }
         public bool Published { get; private set; }
         public RecordStateTypes State { get; private set; }
 
+        public long MeetingId { get; private set; }
         public Meeting Meeting { get; private set; }
+
         public IReadOnlyList<Playback> Playbacks { get; }
 
         public void IsValid(string name, string description, Meeting meeting)

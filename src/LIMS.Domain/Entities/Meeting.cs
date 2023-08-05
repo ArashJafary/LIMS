@@ -21,36 +21,14 @@ public sealed class Meeting : BaseEntity
     public PlatformTypes Platform { get; private set; }
     public MeetingTypes Type { get; private set; } = MeetingTypes.Public;
 
-    public List<Record> Records { get; }
+    public Record Record { get; }
     public Server Server { get; private set; }
     public List<User> Users { get; private set; }
     public IReadOnlyList<MemberShip> MemberShips { get; }
 
     private Meeting() { }
 
-    private void IsValid(
-        string name,
-        string moderatorPassword,
-        string attendeePassword,
-        int limitCapacity,
-        DateTime inputDateTime,
-        Server server
-    )
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentNullException($"The {nameof(name)} is Null Or Invalid.");
-        if (string.IsNullOrWhiteSpace(moderatorPassword))
-            throw new ArgumentNullException($"The {nameof(moderatorPassword)} is Null Or Invalid.");
-        if (string.IsNullOrWhiteSpace(attendeePassword))
-            throw new ArgumentNullException($"The {nameof(attendeePassword)} is Null Or Invalid.");
-        if (limitCapacity <= 0)
-            throw new ArgumentException($"The {nameof(LimitCapacity)}  Cant be zero or less");
-        if (inputDateTime < DateTime.UtcNow)
-            throw new ArgumentException($"The {nameof(inputDateTime)} is Null Or Invalid.");
-        if (server is null)
-            throw new ArgumentException($"The {nameof(server)} is Null Or Invalid.");
-    }
-
+   
     private void IsValid(
         string name,
         string moderatorPassword,
@@ -88,7 +66,10 @@ public sealed class Meeting : BaseEntity
         PlatformTypes platformType
         )
     {
-        IsValid(name, moderatorPassword, attendeePassword, limitCapacity, startDateTime, server);
+        IsValid(name, moderatorPassword, attendeePassword, limitCapacity, startDateTime);
+
+        if (server is null)
+            throw new ArgumentException($"The {nameof(server)} is Null Or Invalid.");
 
         ParentMeetingId = !isBreakout
             ? null
