@@ -4,6 +4,7 @@ using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LIMS.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(LimsContext))]
-    partial class LimsContextModelSnapshot : ModelSnapshot
+    [Migration("20230806054100_UpdateManyToManyRelationMeeting")]
+    partial class UpdateManyToManyRelationMeeting
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -208,17 +211,27 @@ namespace LIMS.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("MeetingId")
-                        .HasColumnType("bigint");
-
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MeetingId");
-
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("MeetingUser", b =>
+                {
+                    b.Property<long>("MeetingsId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UsersId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("MeetingsId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("MeetingUser");
                 });
 
             modelBuilder.Entity("LIMS.Domain.Entities.Meeting", b =>
@@ -273,11 +286,19 @@ namespace LIMS.Infrastructure.Persistence.Migrations
                     b.Navigation("Meeting");
                 });
 
-            modelBuilder.Entity("LIMS.Domain.Entities.User", b =>
+            modelBuilder.Entity("MeetingUser", b =>
                 {
                     b.HasOne("LIMS.Domain.Entities.Meeting", null)
-                        .WithMany("Users")
-                        .HasForeignKey("MeetingId");
+                        .WithMany()
+                        .HasForeignKey("MeetingsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LIMS.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("LIMS.Domain.Entities.Meeting", b =>
@@ -286,8 +307,6 @@ namespace LIMS.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Record")
                         .IsRequired();
-
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("LIMS.Domain.Entities.Record", b =>

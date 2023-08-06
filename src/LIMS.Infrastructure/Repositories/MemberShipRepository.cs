@@ -33,10 +33,13 @@ namespace LIMS.Persistence.Repositories
         {
             var memberShip = await _memberShips.AddAsync(new MemberShip(meeting, user));
 
-            ThrowException(memberShip.Entity,true);
+            ThrowException(memberShip.Entity, true);
 
             return memberShip.Entity.Id;
         }
+
+        public async ValueTask<long> GetAllMemberShipCountAsync(List<MemberShip> memberShips,Meeting meeting) => await Task.Run(() =>
+            memberShips.Where(memberShip => memberShip.Meeting == meeting && (!memberShip.UserRejected && !memberShip.UserExited)).LongCount());
 
         private void ThrowException(MemberShip? meeting, bool notCreatedInDatabase = false)
         {

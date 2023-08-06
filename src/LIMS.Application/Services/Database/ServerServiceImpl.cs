@@ -1,13 +1,8 @@
 using LIMS.Application.DTOs;
 using LIMS.Domain.IRepositories;
-using LIMS.Application.DTOs;
 using LIMS.Domain.Entities;
 using LIMS.Application.Models;
-using System.Net.NetworkInformation;
 using LIMS.Application.Mappers;
-using System;
-using Hangfire.Annotations;
-using LIMS.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using LIMS.Application.Services.Http;
 
@@ -98,11 +93,15 @@ public class ServerServiceImpl
         }
     }
 
-    public async ValueTask<OperationResult<ServerAddEditDto>> MostCapableServer()
+    public async ValueTask<OperationResult<ServerAddEditDto>> GetMostCapableServer()
     {
         try
         {
-            var capableServer = await _servers.GetCapableAsync();
+            var activeServers = await _servers.GetAllActiveAsync();
+
+            var orderedServers = await _servers.GetAllOrderedDescendingAsync(activeServers);
+
+            var capableServer = await _servers.GetFirstAsync(orderedServers);
 
             var serverDto = ServerDtoMapper.Map(capableServer);
 

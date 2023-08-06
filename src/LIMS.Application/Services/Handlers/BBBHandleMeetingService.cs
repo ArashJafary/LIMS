@@ -39,7 +39,7 @@ namespace LIMS.Application.Services.Handlers
 
         public async Task<ResultSingleResponse<ServerAddEditDto>> UseMostCapableAndActiveServer()
         {
-            var server = await _serverService.MostCapableServer();
+            var server = await _serverService.GetMostCapableServer();
 
             if (!server.Success)
                 return ResultSingleResponse<ServerAddEditDto>.OnFailed(server.OnFailedMessage);
@@ -54,7 +54,7 @@ namespace LIMS.Application.Services.Handlers
                 if (!serverIsDown.Result)
                     break;
 
-                server = await _serverService.MostCapableServer();
+                server = await _serverService.GetMostCapableServer();
 
             } while (server.Result.IsActive);
 

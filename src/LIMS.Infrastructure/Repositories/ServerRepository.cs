@@ -9,8 +9,12 @@ namespace LIMS.Persistence.Repositories;
 public class ServerRepository : IServerRepository
 {
     private readonly DbSet<Server> _servers;
+    private readonly IMeetingRepository _meetings;
+    private readonly IMemberShipRepository _memberShips;
 
-    public ServerRepository(LimsContext context) => _servers = context.Set<Server>();
+    public ServerRepository(LimsContext context,
+        IMeetingRepository meetings,
+        IMemberShipRepository memberShips) => (_servers, _meetings, _memberShips) = (context.Set<Server>(), meetings, memberShips);
 
     public async ValueTask<long> CreateAsync(Server server)
     {
@@ -51,23 +55,18 @@ public class ServerRepository : IServerRepository
     public async ValueTask<List<Server>> GetAllAsync()
         => await _servers.ToListAsync();
 
-    public async ValueTask<Server> GetCapableAsync()
-    {
-        var activeServers = _servers.Where(server => server.IsActive);
+    public async ValueTask<List<Server>> GetAllActiveAsync()
+       => await _servers.Where(server => server.IsActive).ToListAsync();
 
-        var orderedServers = activeServers
-                .OrderByDescending(server => server.ServerLimit - server.Meetings
-                .Where(meeting => meeting.IsRunning)
-                                  .Sum(meeting => meeting.MemberShips
-                                  .Where(memberShip => memberShip.Meeting == meeting && (!memberShip.UserRejected && !memberShip.UserExited))
-                                  .Count()))!;
-
-        var capableServer = await orderedServers.FirstOrDefaultAsync();
-
-        ThrowExpectedExceptions(capableServer);
-
-        return capableServer!;
-    }
+    public async ValueTask<List<Server>> GetAllOrderedDescendingAsync(List<Server> activedServers) => await Task.Run(() =>
+         activedServers.OrderByDescending(server => server.ServerLimit - _meetings
+                  .GetAllRunningsAsync(server)
+                  .GetAwaiter()
+                  .GetResult()
+                      .Sum(meeting => _memberShips
+                          .GetAllMemberShipCountAsync(meeting.MemberShips, meeting)
+                          .GetAwaiter()
+                          .GetResult())).ToList());
 
     private void ThrowExpectedExceptions(Server? server, bool argumentNullThrow = false, bool createdInDatabase = false)
     {
@@ -79,4 +78,6 @@ public class ServerRepository : IServerRepository
             else
                 throw new NotAnyEntityFoundInDatabaseException("Not Any Server Found With Expected Datas");
     }
+
+    public async ValueTask<Server> GetFirstAsync(List<Server> servers) => servers.FirstOrDefault();
 }

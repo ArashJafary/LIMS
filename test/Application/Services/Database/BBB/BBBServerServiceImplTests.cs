@@ -181,7 +181,7 @@ namespace LIMS.Test.Application.Services.Database.BBB
 
             var service =new ServerServiceImpl(_activeServiceMock.Object, _serverRepositoryMock.Object, _unitOfWorkMock.Object,_loggerMock.Object);
 
-            var result = await service.MostCapableServer();
+            var result = await service.GetMostCapableServer();
 
             Assert.Equal(ServerDtoMapper.Map(result.Result), expectedServer);
             Assert.Null(result.OnFailedMessage);

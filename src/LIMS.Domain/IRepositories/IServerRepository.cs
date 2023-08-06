@@ -8,5 +8,7 @@ public interface IServerRepository
     ValueTask<Server> GetByUrlAsync(string url);
     ValueTask<List<Server>> GetAllAsync();
     ValueTask<long> CreateAsync(Server server);
-    ValueTask<Server> GetCapableAsync();
+    ValueTask<List<Server>> GetAllActiveAsync();
+    ValueTask<List<Server>> GetAllOrderedDescendingAsync(List<Server> activedServers);
+    ValueTask<Server> GetFirstAsync(List<Server> servers);
 }

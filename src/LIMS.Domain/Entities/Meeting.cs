@@ -24,7 +24,7 @@ public sealed class Meeting : BaseEntity
     public Record Record { get; }
     public Server Server { get; private set; }
     public List<User> Users { get; private set; }
-    public IReadOnlyList<MemberShip> MemberShips { get; }
+    public List<MemberShip> MemberShips { get; }
 
     private Meeting() { }
 

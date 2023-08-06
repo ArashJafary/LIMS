@@ -22,7 +22,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddUserSecrets<Program>().Build();
 
-var connectionString = builder.Configuration.GetConnectionString("Hangfire");
+var hangfireConnectionString = builder.Configuration.GetConnectionString("Hangfire");
+
+var mssqlConnectionString = builder.Configuration.GetConnectionString("MSSQL");
 
 var logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).Enrich.FromLogContext().CreateLogger();
 
@@ -60,7 +62,7 @@ builder.Services.AddImplementationServices();
 
 builder.Services.AddScoped<HangfireSchedulerService>();
 
-builder.Services.AddDbContext<LimsContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<LimsContext>(options => options.UseSqlServer(mssqlConnectionString));
 
 builder.Services.AddScoped<IUnitOfWork, LimsContext>();
 
@@ -83,7 +85,7 @@ app.UseGlobalExceptionHandler();
 app.UseHangfireDashboard(
     options: new DashboardOptions() { DashboardTitle = "Server Alive Schedulers", IgnoreAntiforgeryToken = false },
     pathMatch: "/Scheduler",
-    storage: new SqlServerStorage(connectionString));
+    storage: new SqlServerStorage(hangfireConnectionString));
 
 app.UseHttpsRedirection();
 

@@ -50,6 +50,9 @@ namespace LIMS.Persistence.Repositories
             return meeting!;
         }
 
+        public async ValueTask<List<Meeting>> GetAllRunningsAsync(Server server) => await Task.Run(()
+            => _meetings.Where(meeting => meeting.IsRunning).ToListAsync());
+
         private void ThrowExpectedExceptions(Meeting? meeting, bool argumentNullThrow = false, bool createdInDatabase = false)
         {
             if (meeting == null)

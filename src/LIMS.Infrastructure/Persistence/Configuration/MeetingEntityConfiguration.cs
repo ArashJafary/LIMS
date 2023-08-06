@@ -10,8 +10,6 @@ public class MeetingEntityConfiguration : IEntityTypeConfiguration<Meeting>
     {
         builder.HasKey(meeting => meeting.Id);
 
-        builder.HasMany(meeting => meeting.Users).WithMany(user => user.Meetings);
-
         builder
             .HasOne(meeting => meeting.Server)
             .WithMany(server => server.Meetings)

@@ -20,10 +20,8 @@ public class OperationResult<TResult> : OperationResult
 {
     public OperationResult(TResult result) : base()
         => (Result) = (result);
-    public OperationResult(string message) : base()
-        => (Success, OnFailedMessage) = (false, message);
-    public OperationResult(Exception ex) : base()
-        => (Success, Exception) = (false, ex);
+    public OperationResult(string message) : base(message) { }
+    public OperationResult(Exception exception) : base(exception) { }
 
     public TResult Result { get; protected set; }
 
