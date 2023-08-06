@@ -47,10 +47,11 @@ namespace LIMS.Application.Services.Http
 
         });
 
-        public async Task<OperationResult<bool>> CheckServerBeingDown(string serverUrl) => await Task.Run(() =>
+        public async Task<OperationResult<bool>> IsServerDown(string serverUrl) => await Task.Run(() =>
         {
             try
             {
+                //TODO: make sure this code works correct
                 var ping = new Ping();
 
                 var reply = ping.Send(serverUrl, 60 * 1000);

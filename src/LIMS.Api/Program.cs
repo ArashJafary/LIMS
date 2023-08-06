@@ -74,6 +74,12 @@ builder.Services.AddServiceHandler();
 
 var app = builder.Build();
 
+using (var contextScope = app.Services.CreateScope())
+{
+    var context = contextScope.ServiceProvider.GetRequiredService<LimsContext>();
+    await context.Database.EnsureCreatedAsync();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

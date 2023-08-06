@@ -197,9 +197,9 @@ public class ServerServiceImpl
         {
             var server = await _servers.GetByUrlAsync(url);
 
-            var checkServerIsDown = await _activeService.CheckServerBeingDown(server.ServerUrl);
+            var isDown = await _activeService.IsServerDown(server.ServerUrl);
 
-            if (!checkServerIsDown.Result)
+            if (!isDown.Result)
             {
                 _logger.LogInformation($"{server.ServerUrl} Is Active And Ready For Joining On That.");
 

@@ -7,6 +7,7 @@ using LIMS.Domain.Entities;
 using LIMS.Domain.IRepositories;
 using LIMS.Application.Models;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace LIMS.Application.Services.Database
 {

@@ -135,7 +135,7 @@ namespace BigBlueButtonAPI.Core
         /// <returns></returns>
         public async Task<CreateMeetingResponse> CreateMeetingAsync(CreateMeetingRequest request)
         {
-            if (request == null) throw new ArgumentNullException("request");
+            _= request ?? throw new ArgumentNullException("request");
 
             //if (string.IsNullOrEmpty(request.attendeePW)) request.attendeePW = HashHelper.Sha1Hash(request.meetingID + "attendeePW");
             //if (string.IsNullOrEmpty(request.moderatorPW)) request.moderatorPW = HashHelper.Sha1Hash(request.meetingID + "moderatorPW");
