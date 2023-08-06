@@ -62,9 +62,9 @@ builder.Services.AddImplementationServices();
 
 builder.Services.AddScoped<HangfireSchedulerService>();
 
-builder.Services.AddDbContext<LimsContext>(options => options.UseSqlServer(mssqlConnectionString));
-
 builder.Services.AddScoped<IUnitOfWork, LimsContext>();
+
+builder.Services.AddDbContext<LimsContext>(options => options.UseSqlServer(mssqlConnectionString));
 
 builder.Services.AddRepositories();
 

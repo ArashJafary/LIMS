@@ -85,7 +85,12 @@ namespace LIMS.Api.Controllers
                     ));
 
             /* Create Meeting Information On Database */
-            await _handleMeetingService.CreateMeetingOnDatabase(createMeetingConnection.Result);
+            var createMeeting =await _handleMeetingService.CreateMeetingOnDatabase(createMeetingConnection.Result);
+
+            if (createMeeting.Data is null)
+                return createMeeting.Errors.Count() > 1
+                    ? BadRequest(createMeeting.Errors)
+                    : BadRequest(createMeeting.Error);
 
             /* Get Information of Meeting For Indicate To Client */
             var getMeetingInformation = await _connectionService.GetMeetingInformations(createMeetingRequest.MeetingId);

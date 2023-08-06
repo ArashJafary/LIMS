@@ -17,9 +17,11 @@ namespace LIMS.Application.Services.Database
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMemberShipRepository _memberShips;
 
-        public MeetingServiceImpl(IMeetingRepository meetings, IUnitOfWork unitOfWork, ILogger<MeetingServiceImpl> logger) =>
-            (_meetings, _unitOfWork, _logger
-            ) = (meetings, unitOfWork, logger);
+        public MeetingServiceImpl(
+            IMeetingRepository meetings,
+            IUnitOfWork unitOfWork,
+            ILogger<MeetingServiceImpl> logger,IMemberShipRepository memberShips) =>
+            (_meetings, _unitOfWork, _logger,_memberShips) = (meetings, unitOfWork, logger,memberShips);
 
         public async ValueTask<OperationResult<string>> CreateNewMeeting(MeetingAddDto meeting)
         {
