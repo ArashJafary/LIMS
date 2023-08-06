@@ -6,6 +6,7 @@ using LIMS.Application.Models.Http;
 using LIMS.Domain.Services;
 using LIMS.Application.Services.Interfaces;
 using LIMS.Application.Services.Http;
+using System.Reflection.Metadata;
 
 namespace LIMS.Api.Controllers
 {
@@ -59,14 +60,9 @@ namespace LIMS.Api.Controllers
         {
             /* Use Capable Server For Creating Meeting On That */
             var server = await _handleMeetingService.UseMostCapableAndActiveServer();
-            if (server.Data is null)
-                return BadRequest(server.Error);
 
             /* Change Server Configuration Settings For New Server */
-            var changeSettings = await _connectionService.ChangeServerSettings(server.Data);
-
-            if (!changeSettings.Success)
-                return BadRequest(changeSettings.OnFailedMessage);
+            await _connectionService.ChangeServerSettings(server.Data!);
 
             /* Create Meeting On Platform With its Apis */
             var createMeetingConnection = await _connectionService
@@ -83,28 +79,19 @@ namespace LIMS.Api.Controllers
                         createMeetingRequest.StartDateTime,
                         createMeetingRequest.EndDateTime,
                         createMeetingRequest.LimitCapacity,
-                        server.Data,
+                        server.Data!,
                         createMeetingRequest.AutoStartRecord,
                         createMeetingRequest.Platform
                     ));
 
-            if (!createMeetingConnection.Success)
-                return BadRequest(createMeetingConnection.OnFailedMessage);
-
             /* Create Meeting Information On Database */
-            var createMeeting = await _handleMeetingService.CreateMeetingOnDatabase(createMeetingConnection.Result);
-
-            if (createMeeting.Data is null)
-                return BadRequest(createMeeting.Error);
+            await _handleMeetingService.CreateMeetingOnDatabase(createMeetingConnection.Result);
 
             /* Get Information of Meeting For Indicate To Client */
             var getMeetingInformation = await _connectionService.GetMeetingInformations(createMeetingRequest.MeetingId);
 
-            if (!getMeetingInformation.Success)
-                return BadRequest(getMeetingInformation.OnFailedMessage);
-
             /* Return Information To Client */
-            return Ok(getMeetingInformation);
+            return Ok(getMeetingInformation.Result);
         }
 
         [HttpPost("[action]/{meetingId}", Name = nameof(JoinOnMeeting))]

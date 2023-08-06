@@ -1,6 +1,5 @@
 namespace LIMS.Domain.IRepositories;
-public interface IUnitOfWork
+public interface IUnitOfWork : IDisposable
 {
-    ValueTask<int> SaveChangesAsync(CancellationToken cancellationToken);
-    ValueTask<int> SaveChangesAsync();
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

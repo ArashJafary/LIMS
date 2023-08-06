@@ -26,7 +26,7 @@ namespace LIMS.Application.Services.Database
             try
             {
                 var result = await _meetings
-                    .CreateAsync(await MeetingDtoMapper.Map(meeting));
+                    .CreateAsync(await MeetingDtoMapper.MapAsync(meeting));
 
                 await _unitOfWork.SaveChangesAsync();
 

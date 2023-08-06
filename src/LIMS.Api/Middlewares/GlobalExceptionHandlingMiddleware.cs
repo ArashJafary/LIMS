@@ -31,6 +31,7 @@ public class GlobalExceptionHandlingMiddleware
         _ = exception switch
         {
             NotAnyEntityFoundInDatabaseException => status = HttpStatusCode.NotFound,
+            ArgumentNullException => status = HttpStatusCode.BadRequest,
             UserCannotLoginException => status = HttpStatusCode.BadRequest,
             EntityConnotAddInDatabaseException => status = HttpStatusCode.NotFound,
             _ => status = HttpStatusCode.InternalServerError

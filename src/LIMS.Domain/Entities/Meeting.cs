@@ -1,5 +1,3 @@
-using LIMS.Domain.Entities;
-using LIMS.Domain.Entities;
 using LIMS.Domain.Enumerables;
 
 namespace LIMS.Domain.Entities;
@@ -12,7 +10,7 @@ public sealed class Meeting : BaseEntity
     public string ModeratorPassword { get; private set; }
     public string AttendeePassword { get; private set; }
     public DateTime StartDateTime { get; }
-    public DateTime EndDateTime { get; private set;  }
+    public DateTime EndDateTime { get; private set; }
     public bool IsRunning { get; private set; } = true;
     public int LimitCapacity { get; private set; }
     public bool IsBreakout { get; private set; }
@@ -28,13 +26,12 @@ public sealed class Meeting : BaseEntity
 
     private Meeting() { }
 
-   
+
     private void IsValid(
         string name,
         string moderatorPassword,
         string attendeePassword,
-        int limitCapacity,
-        DateTime inputDateTime
+        int limitCapacity
     )
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -45,8 +42,6 @@ public sealed class Meeting : BaseEntity
             throw new ArgumentNullException($"The {nameof(attendeePassword)} is Null Or Invalid.");
         if (limitCapacity <= 0)
             throw new ArgumentException($"The {nameof(LimitCapacity)}  Cant be zero or less");
-        if (inputDateTime < DateTime.UtcNow)
-            throw new ArgumentException($"The {nameof(inputDateTime)} is Null Or Invalid.");
     }
 
     public Meeting(
@@ -66,7 +61,7 @@ public sealed class Meeting : BaseEntity
         PlatformTypes platformType
         )
     {
-        IsValid(name, moderatorPassword, attendeePassword, limitCapacity, startDateTime);
+        IsValid(name, moderatorPassword, attendeePassword, limitCapacity);
 
         if (server is null)
             throw new ArgumentException($"The {nameof(server)} is Null Or Invalid.");
@@ -121,8 +116,7 @@ public sealed class Meeting : BaseEntity
             name,
             moderatorPassword,
             attendeePassword,
-            limitCapacity,
-            new DateTime());
+            limitCapacity);
 
         Name = name;
         ModeratorPassword = moderatorPassword;

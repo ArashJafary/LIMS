@@ -18,7 +18,6 @@ namespace LIMS.Application.DTOs
         ServerAddEditDto Server,
         bool AutoStartRecord,
         PlatformTypes Platform
-
         );
 
     public record MeetingEditDto(

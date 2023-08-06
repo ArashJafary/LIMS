@@ -1,5 +1,4 @@
 using LIMS.Domain.Entities;
-using LIMS.Domain.Entities;
 
 namespace LIMS.Domain.IRepositories;
 public interface IMeetingRepository

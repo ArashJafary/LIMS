@@ -16,14 +16,9 @@ public class LimsContext : DbContext, IUnitOfWork
     public virtual DbSet<MemberShip> MemberShips { get; set; } = default!;
     public virtual DbSet<Server> Servers { get; set; } = default!;
 
-    public async ValueTask<int> SaveChangesAsync(CancellationToken cancellationToken)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return await base.SaveChangesAsync(cancellationToken);
-    }
-
-    public async ValueTask<int> SaveChangesAsync()
-    {
-        return await base.SaveChangesAsync();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
