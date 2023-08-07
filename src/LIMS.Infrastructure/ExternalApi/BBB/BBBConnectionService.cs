@@ -133,13 +133,13 @@ namespace LIMS.Infrastructure.ExternalApi.BBB
         {
             try
             {
-                var meeting = _bbbClient.GetMeetingInfoAsync(new GetMeetingInfoRequest { meetingID = meetingId });
-
                 var endMeeting = await _bbbClient.EndMeetingAsync(
                     new EndMeetingRequest { meetingID = meetingId, password = moderatorPassword });
 
                 if (endMeeting.Returncode == Returncode.Failed)
                     return OperationResult.OnFailed(endMeeting.Message);
+
+                var meeting = _bbbClient.GetMeetingInfoAsync(new GetMeetingInfoRequest { meetingID = meetingId });
 
                 _logger.LogInformation($"the Started Meeting : {meeting.Result.meetingName} is Stop and Finished at {DateTime.Now}.");
 

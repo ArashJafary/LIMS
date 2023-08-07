@@ -7,6 +7,9 @@ using LIMS.Domain.Services;
 using LIMS.Application.Services.Interfaces;
 using LIMS.Application.Services.Http;
 using System.Reflection.Metadata;
+using LIMS.Infrastructure.Persistence;
+using LIMS.Domain.Entities;
+using LIMS.Domain.IRepositories;
 
 namespace LIMS.Api.Controllers
 {
@@ -21,6 +24,9 @@ namespace LIMS.Api.Controllers
         private readonly MeetingSettingsService _meetingSettingsService;
 
         public MeetingController(
+            IServerRepository server,
+            IUnitOfWork unitOfWork,
+            LimsContext context,
             UserServiceImpl userService,
             MeetingSettingsService meetingSettingsService,
             IConnectionService connectionService,
@@ -85,7 +91,7 @@ namespace LIMS.Api.Controllers
                     ));
 
             /* Create Meeting Information On Database */
-            var createMeeting =await _handleMeetingService.CreateMeetingOnDatabase(createMeetingConnection.Result);
+            var createMeeting = await _handleMeetingService.CreateMeetingOnDatabase(createMeetingConnection.Result);
 
             if (createMeeting.Data is null)
                 return createMeeting.Errors.Count() > 1

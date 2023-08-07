@@ -11,7 +11,7 @@ namespace LIMS.Persistence.Repositories
     {
         private readonly DbSet<Meeting> _meetings;
 
-        public MeetingRepository(LimsContext context)
+        public MeetingRepository(IUnitOfWork context)
             => (_meetings) = (context.Set<Meeting>());
 
         public async ValueTask<string> CreateAsync(Meeting meeting)

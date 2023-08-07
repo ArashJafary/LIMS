@@ -8,7 +8,7 @@ public class LimsContext : DbContext, IUnitOfWork
 {
 
     public LimsContext(DbContextOptions<LimsContext> options)
-        : base(options) {}
+        : base(options) { }
 
     public virtual DbSet<User> Users { get; set; } = default!;
     public virtual DbSet<Playback> Playbacks { get; set; } = default!;
@@ -24,6 +24,7 @@ public class LimsContext : DbContext, IUnitOfWork
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(LimsContext).Assembly);
+
         base.OnModelCreating(modelBuilder);
     }
 

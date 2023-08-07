@@ -1,6 +1,5 @@
 using LIMS.Domain.IRepositories;
 using LIMS.Domain.Entities;
-using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using LIMS.Domain.Exceptions.Database.BBB;
 
@@ -12,7 +11,8 @@ public class ServerRepository : IServerRepository
     private readonly IMeetingRepository _meetings;
     private readonly IMemberShipRepository _memberShips;
 
-    public ServerRepository(LimsContext context,
+    public ServerRepository(
+        IUnitOfWork context,
         IMeetingRepository meetings,
         IMemberShipRepository memberShips) => (_servers, _meetings, _memberShips) = (context.Set<Server>(), meetings, memberShips);
 

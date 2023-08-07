@@ -10,7 +10,7 @@ namespace LIMS.Persistence.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly DbSet<User> _User;
-        public UserRepository(LimsContext context) => _User = context.Set<User>();
+        public UserRepository(IUnitOfWork context) => _User = context.Set<User>();
 
         public async ValueTask<long> CreateAsync(User User)
         {

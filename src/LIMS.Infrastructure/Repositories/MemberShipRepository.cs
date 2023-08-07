@@ -12,7 +12,7 @@ namespace LIMS.Persistence.Repositories
     public class MemberShipRepository : IMemberShipRepository
     {
         private readonly DbSet<MemberShip> _memberShips;
-        public MemberShipRepository(LimsContext context)
+        public MemberShipRepository(IUnitOfWork context)
             => _memberShips = context.Set<MemberShip>();
 
         public async ValueTask<MemberShip> GetAsync(long userId, long meetingId)

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LIMS.Domain.Entities;
+﻿using LIMS.Domain.Entities;
 using LIMS.Domain.Exceptions.Database.BBB;
 using LIMS.Domain.IRepositories;
-using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace LIMS.Infrastructure.Repositories
@@ -15,7 +9,7 @@ namespace LIMS.Infrastructure.Repositories
     {
         private readonly DbSet<Record> _records;
 
-        public RecordRepository(LimsContext context)
+        public RecordRepository(IUnitOfWork context)
             => _records = context.Set<Record>();
 
         public async ValueTask<long> CreateForMeetingAsync(Record record)
