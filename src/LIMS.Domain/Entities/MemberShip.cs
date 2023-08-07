@@ -15,6 +15,9 @@ public class MemberShip : BaseEntity
 
     private MemberShip() { }
 
+    public MemberShip(long id ,Meeting meeting, User user)
+       => (Id,Meeting, User) = (id, meeting, user);
+    
     public MemberShip(Meeting meeting, User user) 
         => (Meeting, User) = (meeting, user);
 }

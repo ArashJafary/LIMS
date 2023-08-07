@@ -12,7 +12,7 @@ namespace LIMS.Domain.Entities
     }
     public abstract class BaseEntity<TKey> : IBaseEntity<TKey>
     {
-        public TKey Id { get; private set; }
+        public TKey Id { get; protected set; }
     }
     public class BaseEntity : BaseEntity<long>
     {

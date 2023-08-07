@@ -24,9 +24,6 @@ namespace LIMS.Api.Controllers
         private readonly MeetingSettingsService _meetingSettingsService;
 
         public MeetingController(
-            IServerRepository server,
-            IUnitOfWork unitOfWork,
-            LimsContext context,
             UserServiceImpl userService,
             MeetingSettingsService meetingSettingsService,
             IConnectionService connectionService,
@@ -44,16 +41,16 @@ namespace LIMS.Api.Controllers
             meetingSettingsService
         );
 
-        [HttpGet("[action]", Name = nameof(GetMeetingInformation))]
-        public async ValueTask<IActionResult> GetMeetingInformation([FromQuery] GetMeetingInfoRequest meetingRequest)
+        [HttpGet("[action]/{meeting}", Name = nameof(GetMeetingInformation))]
+        public async ValueTask<IActionResult> GetMeetingInformation([FromRoute] string meeting)
         {
             /* Test Platform Is Ok */
-            var platformSettings = await _meetingSettingsService.IsSettingsOkAsync(meetingRequest.meetingID);
+            var platformSettings = await _meetingSettingsService.IsSettingsOkAsync(meeting);
             if (!platformSettings.Success)
                 return BadRequest($"{platformSettings.Platform} Settings Have Problem.");
 
             /* Get Informations of Meeting For Indicate To Client */
-            var getMeetingInformation = await _connectionService.GetMeetingInformations(meetingRequest.meetingID);
+            var getMeetingInformation = await _connectionService.GetMeetingInformations(meeting);
             if (!getMeetingInformation.Success)
                 return BadRequest(getMeetingInformation.OnFailedMessage);
 
@@ -137,8 +134,8 @@ namespace LIMS.Api.Controllers
             return Redirect(url.Result);
         }
 
-        [HttpGet("[action]", Name = nameof(EndMeeting))]
-        public async ValueTask<IActionResult> EndMeeting(string meetingId, string password)
+        [HttpPost("[action]/{meetingId}", Name = nameof(EndMeeting))]
+        public async ValueTask<IActionResult> EndMeeting([FromRoute] string meetingId, [FromBody] string password)
         {
             /* Test Platform Is Ok */
             var platformSettings = await _meetingSettingsService.IsSettingsOkAsync(meetingId);

@@ -58,7 +58,7 @@ public class ServerRepository : IServerRepository
     public async ValueTask<List<Server>> GetAllActiveAsync()
        => await _servers.Where(server => server.IsActive).ToListAsync();
 
-    public async ValueTask<List<Server>> GetAllOrderedDescendingAsync(List<Server> activedServers) => await Task.Run(() =>
+    public async ValueTask<List<Server>> GetAllOrderedDescendingAsync(List<Server> activedServers,List<MemberShip> memberShips) => await Task.Run(() =>
          activedServers.OrderByDescending(server => server.ServerLimit - _meetings
                   .GetAllRunningsAsync(server)
                   .GetAwaiter()

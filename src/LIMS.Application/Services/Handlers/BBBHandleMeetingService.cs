@@ -80,7 +80,7 @@ namespace LIMS.Application.Services.Handlers
                     { meetingID = meetingId });
 
                 if (result.Returncode is Returncode.Failed)
-                    return ResultSingleResponse<bool>.OnFailed(result.Message);
+                    return ResultSingleResponse<bool>.OnSuccess(false);
 
                 return ResultSingleResponse<bool>.OnSuccess(true);
             }

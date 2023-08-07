@@ -20,9 +20,6 @@ namespace LIMS.Application.Services.Http
 
             string platformName;
 
-            if (!meeting.Success)
-                return MeetingSettingsSingleResponse.OnFail(meeting.OnFailedMessage);
-
             IHandleMeetingService platform = null!;
 
             switch (meeting.Result.Platform)

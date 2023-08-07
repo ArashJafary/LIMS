@@ -1,15 +1,15 @@
-using LIMS.Domain.Enumerables;
+    using LIMS.Domain.Enumerables;
 
 namespace LIMS.Domain.Entities;
 public sealed class Meeting : BaseEntity
 {
-    public string MeetingId { get; }
-    public string? ParentMeetingId { get; }
-    public bool IsRecord { get; }
+    public string MeetingId { get; private set; }
+    public string? ParentMeetingId { get; private set; }
+    public bool IsRecord { get; private set; }
     public string Name { get; private set; }
     public string ModeratorPassword { get; private set; }
     public string AttendeePassword { get; private set; }
-    public DateTime StartDateTime { get; }
+    public DateTime StartDateTime { get; private set;  }
     public DateTime EndDateTime { get; private set; }
     public bool IsRunning { get; private set; } = true;
     public int LimitCapacity { get; private set; }
@@ -25,7 +25,6 @@ public sealed class Meeting : BaseEntity
     public List<MemberShip> MemberShips { get; }
 
     private Meeting() { }
-
 
     private void IsValid(
         string name,

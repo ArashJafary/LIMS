@@ -8,6 +8,8 @@ public sealed class User : BaseEntity
     public string Alias { get; private set; }
     public UserRoleTypes Role { get; private set; }
 
+    public List<Meeting> Meetings { get; }
+
     public User(string fullName, string alias, UserRoleTypes role) =>
         (FullName, Alias, Role) = (fullName, alias, role);
 

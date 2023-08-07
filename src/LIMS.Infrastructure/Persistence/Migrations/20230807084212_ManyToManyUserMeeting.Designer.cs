@@ -4,6 +4,7 @@ using LIMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LIMS.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(LimsContext))]
-    partial class LimsContextModelSnapshot : ModelSnapshot
+    [Migration("20230807084212_ManyToManyUserMeeting")]
+    partial class ManyToManyUserMeeting
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -46,18 +49,11 @@ namespace LIMS.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsBreakout")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsRecord")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsRunning")
                         .HasColumnType("bit");
 
                     b.Property<int>("LimitCapacity")
                         .HasColumnType("int");
-
-                    b.Property<string>("MeetingId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ModeratorPassword")
                         .IsRequired()
@@ -67,17 +63,11 @@ namespace LIMS.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ParentMeetingId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("Platform")
                         .HasColumnType("int");
 
                     b.Property<long>("ServerId")
                         .HasColumnType("bigint");
-
-                    b.Property<DateTime>("StartDateTime")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -129,18 +119,8 @@ namespace LIMS.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("Length")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("RecordId")
                         .HasColumnType("bigint");
-
-                    b.Property<long>("Size")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

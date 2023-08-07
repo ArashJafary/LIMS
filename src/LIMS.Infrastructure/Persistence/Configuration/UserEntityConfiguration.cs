@@ -9,5 +9,7 @@ public class UserEntityConfiguration : IEntityTypeConfiguration<User>
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.HasKey(user => user.Id);
+
+        builder.HasMany(user => user.Meetings).WithMany(meeting => meeting.Users);
     }
 }
