@@ -1,15 +1,10 @@
 using LIMS.Application.DTOs;
-using BigBlueButtonAPI.Core;
 using Microsoft.AspNetCore.Mvc;
 using LIMS.Application.Services.Database;
 using LIMS.Application.Models.Http;
 using LIMS.Domain.Services;
 using LIMS.Application.Services.Interfaces;
 using LIMS.Application.Services.Http;
-using System.Reflection.Metadata;
-using LIMS.Infrastructure.Persistence;
-using LIMS.Domain.Entities;
-using LIMS.Domain.IRepositories;
 
 namespace LIMS.Api.Controllers
 {
@@ -44,30 +39,24 @@ namespace LIMS.Api.Controllers
         [HttpGet("[action]/{meeting}", Name = nameof(GetMeetingInformation))]
         public async ValueTask<IActionResult> GetMeetingInformation([FromRoute] string meeting)
         {
-            /* Test Platform Is Ok */
             var platformSettings = await _meetingSettingsService.IsSettingsOkAsync(meeting);
             if (!platformSettings.Success)
                 return BadRequest($"{platformSettings.Platform} Settings Have Problem.");
 
-            /* Get Informations of Meeting For Indicate To Client */
             var getMeetingInformation = await _connectionService.GetMeetingInformations(meeting);
             if (!getMeetingInformation.Success)
                 return BadRequest(getMeetingInformation.OnFailedMessage);
 
-            /* Return Information To Client */
             return Ok(getMeetingInformation.Result);
         }
 
         [HttpPost("[action]", Name = nameof(CreateMeeting))]
         public async Task<IActionResult> CreateMeeting([FromBody] BbbCreateMeetingRequestModel createMeetingRequest)
         {
-            /* Use Capable Server For Creating Meeting On That */
             var server = await _handleMeetingService.UseMostCapableAndActiveServer();
 
-            /* Change Server Configuration Settings For New Server */
             await _connectionService.ChangeServerSettings(server.Data!);
 
-            /* Create Meeting On Platform With its Apis */
             var createMeetingConnection = await _connectionService
                 .CreateMeetingOnPlatform(
                     new MeetingAddDto(
@@ -87,7 +76,6 @@ namespace LIMS.Api.Controllers
                         createMeetingRequest.Platform
                     ));
 
-            /* Create Meeting Information On Database */
             var createMeeting = await _handleMeetingService.CreateMeetingOnDatabase(createMeetingConnection.Result);
 
             if (createMeeting.Data is null)
@@ -95,10 +83,8 @@ namespace LIMS.Api.Controllers
                     ? BadRequest(createMeeting.Errors)
                     : BadRequest(createMeeting.Error);
 
-            /* Get Information of Meeting For Indicate To Client */
             var getMeetingInformation = await _connectionService.GetMeetingInformations(createMeetingRequest.MeetingId);
 
-            /* Return Information To Client */
             return Ok(getMeetingInformation.Result);
         }
 
@@ -108,12 +94,10 @@ namespace LIMS.Api.Controllers
             [FromBody] BbbJoinMeetingRequestModel joinOnMeetingRequest
         )
         {
-            /* Test Platform Is Ok */
             var platformSettings = await _meetingSettingsService.IsSettingsOkAsync(meetingId);
             if (!platformSettings.Success)
                 return BadRequest($"{platformSettings.Platform} Settings Have Problem.");
 
-            /* Checking User Can Join On Meeting */
             var canJoinOnMeeting = await _handleMeetingService.CanJoinOnMeetingHandler(meetingId, joinOnMeetingRequest);
 
             if (!canJoinOnMeeting.Data)
@@ -121,28 +105,23 @@ namespace LIMS.Api.Controllers
                     ? BadRequest(canJoinOnMeeting.Errors)
                     : BadRequest(canJoinOnMeeting.Error);
 
-            /* Join On Meeting With Plaform Api */
             var url = await _connectionService.JoiningOnMeeting(meetingId, joinOnMeetingRequest);
 
             if (!url.Success)
                 return url.Exception is null ? BadRequest(url.OnFailedMessage) : BadRequest(url.Exception.Data.ToString());
 
-            /* Join Creating For Database */
             await _handleMeetingService.JoiningOnMeetingOnDatabase(joinOnMeetingRequest.UserId, meetingId);
 
-            /* Redirect Into URL of Meeting */
             return Redirect(url.Result);
         }
 
         [HttpPost("[action]/{meetingId}", Name = nameof(EndMeeting))]
         public async ValueTask<IActionResult> EndMeeting([FromRoute] string meetingId, [FromBody] string password)
         {
-            /* Test Platform Is Ok */
             var platformSettings = await _meetingSettingsService.IsSettingsOkAsync(meetingId);
             if (!platformSettings.Success)
                 return BadRequest($"{platformSettings.Platform} Settings Have Problem.");
 
-            /* End Existed Meeting With Platform Api */
             var endExistMeeting = await _connectionService.EndExistMeeting(meetingId, password);
 
             if (!endExistMeeting.Success)
@@ -150,13 +129,11 @@ namespace LIMS.Api.Controllers
                     ? BadRequest(endExistMeeting.OnFailedMessage)
                     : BadRequest(new { endExistMeeting.Exception.Message });
 
-            /* End Meeting On Database */
             var handleEnd = await _handleMeetingService.EndMeetingHandlerOnDatabase(meetingId, DateTime.Now);
 
             if (handleEnd.Data is null)
                 return handleEnd.Errors.Count() > 1 ? BadRequest(handleEnd.Errors) : BadRequest(handleEnd.Error);
 
-            /* Return Datas Into Client */
             return Ok(handleEnd.Data);
         }
     }

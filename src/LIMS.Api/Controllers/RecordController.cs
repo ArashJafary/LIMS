@@ -25,7 +25,6 @@ namespace LIMS.Api.Controllers
         [NonAction]
         private async ValueTask<bool> IsBigBlueSettingsOkAsync(string meetingId)
         {
-            /* Check Settings Will Be Ok */
             var meeting = await _handleMeetingService.IsOkSettings(meetingId);
 
             return meeting.Data;

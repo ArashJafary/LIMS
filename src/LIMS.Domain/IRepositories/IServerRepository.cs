@@ -11,4 +11,5 @@ public interface IServerRepository
     ValueTask<List<Server>> GetAllActiveAsync();
     ValueTask<List<Server>> GetAllOrderedDescendingAsync(List<Server> activedServers);
     ValueTask<Server> GetFirstAsync(List<Server> servers);
+    Task<bool> CanJoinOnServerAsync(Server server);
 }

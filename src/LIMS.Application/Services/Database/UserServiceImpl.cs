@@ -14,7 +14,6 @@ namespace LIMS.Application.Services.Database
         private readonly IUserRepository _users;
         private readonly ILogger<ServerServiceImpl> _logger;
 
-
         public UserServiceImpl(IUnitOfWork unitOfWork,
             IUserRepository users,
             ILogger<ServerServiceImpl> logger) =>
@@ -42,80 +41,44 @@ namespace LIMS.Application.Services.Database
 
         public async ValueTask<OperationResult> EditExistedUser(long Id, UserAddEditDto userDto)
         {
-            try
-            {
-                var user = await _users.GetByIdAsync(Id);
+            var user = await _users.GetByIdAsync(Id);
 
-                user.UserUpdate(userDto.FullName, userDto.Alias, userDto.Role);
+            user.UserUpdate(userDto.FullName, userDto.Alias, userDto.Role);
 
-                await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
-                return new OperationResult();
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, exception.Message);
-
-                return OperationResult.OnException(exception);
-            }
+            return new OperationResult();
         }
 
         public async ValueTask<OperationResult<UserAddEditDto>> GetUserById(long userId)
         {
-            try
-            {
-                var user = UserDtoMapper.Map(await _users.GetByIdAsync(userId));
+            var user = UserDtoMapper.Map(await _users.GetByIdAsync(userId));
 
-                if (user is null)
-                    return OperationResult<UserAddEditDto>.OnFailed("User Not Found.");
+            if (user is null)
+                return OperationResult<UserAddEditDto>.OnFailed("User Not Found.");
 
-                return OperationResult<UserAddEditDto>.OnSuccess(user);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, exception.Message);
-
-                return OperationResult<UserAddEditDto>.OnException(exception);
-            }
+            return OperationResult<UserAddEditDto>.OnSuccess(user);
         }
 
         public async ValueTask<OperationResult<List<UserAddEditDto>>> GetAllUsers()
         {
-            try
-            {
-                var users = await _users.GetAllAsync();
+            var users = await _users.GetAllAsync();
 
-                var userDto = new List<UserAddEditDto>();
+            var userDto = new List<UserAddEditDto>();
 
-                foreach (var User in users)
-                    userDto.Add(UserDtoMapper.Map(User));
+            foreach (var User in users)
+                userDto.Add(UserDtoMapper.Map(User));
 
-                return OperationResult<List<UserAddEditDto>>.OnSuccess(userDto);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, exception.Message);
-
-                return OperationResult<List<UserAddEditDto>>.OnException(exception);
-            }
+            return OperationResult<List<UserAddEditDto>>.OnSuccess(userDto);
         }
 
         public async ValueTask<OperationResult<long>> DeleteOneUser(long id)
         {
-            try
-            {
-                var userId = await _users.DeleteAsync(id);
+            var userId = await _users.DeleteAsync(id);
 
-                await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
-                return OperationResult<long>.OnSuccess(userId);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, exception.Message);
-
-                return OperationResult<long>.OnException(exception);
-            }
+            return OperationResult<long>.OnSuccess(userId);
         }
     }
 }

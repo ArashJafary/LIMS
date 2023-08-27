@@ -38,8 +38,8 @@ namespace LIMS.Persistence.Repositories
             return memberShip.Entity.Id;
         }
 
-        public async ValueTask<long> GetAllMemberShipCountAsync(List<MemberShip> memberShips,Meeting meeting) => await Task.Run(() =>
-            memberShips.Where(memberShip => memberShip.Meeting == meeting && (!memberShip.UserRejected && !memberShip.UserExited)).LongCount());
+        public async ValueTask<long> GetAllMemberShipCountAsync(List<MemberShip> memberShips, Meeting meeting) => await Task.Run(() =>
+            memberShips?.Where(memberShip => memberShip.Meeting == meeting && (!memberShip.UserRejected && !memberShip.UserExited))?.Count() ?? 0);
 
         private void ThrowException(MemberShip? meeting, bool notCreatedInDatabase = false)
         {

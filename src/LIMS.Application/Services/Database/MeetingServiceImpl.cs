@@ -20,8 +20,8 @@ namespace LIMS.Application.Services.Database
         public MeetingServiceImpl(
             IMeetingRepository meetings,
             IUnitOfWork unitOfWork,
-            ILogger<MeetingServiceImpl> logger,IMemberShipRepository memberShips) =>
-            (_meetings, _unitOfWork, _logger,_memberShips) = (meetings, unitOfWork, logger,memberShips);
+            ILogger<MeetingServiceImpl> logger, IMemberShipRepository memberShips) =>
+            (_meetings, _unitOfWork, _logger, _memberShips) = (meetings, unitOfWork, logger, memberShips);
 
         public async ValueTask<OperationResult<string>> CreateNewMeeting(MeetingAddDto meeting)
         {
@@ -74,25 +74,13 @@ namespace LIMS.Application.Services.Database
 
         private async ValueTask<OperationResult<bool>> CheckUserBanned(long userId, long meetingId)
         {
-            try
-            {
-                var memberShip = await _memberShips.GetAsync(userId, meetingId);
+            var memberShip = await _memberShips.GetAsync(userId, meetingId);
 
-                if (memberShip.UserRejected)
-                    return OperationResult<bool>.OnSuccess(true);
-                else
-                {
-                    _logger.LogInformation($"{memberShip.User.FullName} is Banned And Cannot Login");
+            if (memberShip.UserRejected)
+                return OperationResult<bool>.OnSuccess(true);
 
-                    return OperationResult<bool>.OnSuccess(false);
-                }
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, exception.Message);
-
-                return OperationResult<bool>.OnException(exception);
-            }
+            _logger.LogInformation($"{memberShip.User.FullName} is Banned And Cannot Login");
+            return OperationResult<bool>.OnSuccess(false);
         }
 
         public async ValueTask<OperationResult<bool>> CanLoginOnExistMeeting(string meetingId, User user, string password)
@@ -136,65 +124,38 @@ namespace LIMS.Application.Services.Database
             }
         }
 
-        public async ValueTask<OperationResult<Domain.Entities.Meeting>> FindOneMeeting(long id)
+        public async ValueTask<OperationResult<Meeting>> FindOneMeeting(long id)
         {
-            try
-            {
-                var meeting = await _meetings.GetAsync(id);
+            var meeting = await _meetings.GetAsync(id);
 
-                if (meeting is null)
-                    return OperationResult<Domain.Entities.Meeting>.OnFailed("Meeting Information is Null");
+            if (meeting is null)
+                return OperationResult<Meeting>.OnFailed("Meeting Information is Null");
 
-                return OperationResult<Domain.Entities.Meeting>.OnSuccess(meeting);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, exception.Message);
-
-                return OperationResult<Domain.Entities.Meeting>.OnException(exception);
-            }
+            return OperationResult<Meeting>.OnSuccess(meeting);
         }
 
-        public async ValueTask<OperationResult<Domain.Entities.Meeting>> FindOneMeetingWithMeetingId(string meetingId)
+        public async ValueTask<OperationResult<Meeting>> FindOneMeetingWithMeetingId(string meetingId)
         {
-            try
-            {
-                var meeting = await _meetings.GetByMeetingIdAsync(meetingId);
+            var meeting = await _meetings.GetByMeetingIdAsync(meetingId);
 
-                if (meeting is null)
-                    return OperationResult<Domain.Entities.Meeting>.OnFailed("Meeting Information is Null");
+            if (meeting is null)
+                return OperationResult<Meeting>.OnFailed("Meeting Information is Null");
 
-                return OperationResult<Domain.Entities.Meeting>.OnSuccess(meeting);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, exception.Message);
-
-                return OperationResult<Domain.Entities.Meeting>.OnException(exception);
-            }
+            return OperationResult<Meeting>.OnSuccess(meeting);
         }
 
         public async ValueTask<OperationResult> UpdateExistedMeeting(long id, MeetingEditDto meetingInput)
         {
-            try
-            {
-                var meeting = await _meetings.GetAsync(id);
+            var meeting = await _meetings.GetAsync(id);
 
-                meeting.Update(meetingInput.Name,
-                    meetingInput.ModeratorPassword,
-                    meetingInput.AttendeePassword,
-                    meetingInput.limitCapacity);
+            meeting.Update(meetingInput.Name,
+                meetingInput.ModeratorPassword,
+                meetingInput.AttendeePassword,
+                meetingInput.limitCapacity);
 
-                await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
-                return new OperationResult();
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, exception.Message);
-
-                return OperationResult.OnException(exception);
-            }
+            return new OperationResult();
         }
 
         public async ValueTask<OperationResult> StopRunningMeeting(string meetingId, DateTime now)

@@ -8,8 +8,9 @@ namespace LIMS.Api.Middlewares;
 public class GlobalExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly ILogger<GlobalExceptionHandlingMiddleware> _logger;
 
-    public GlobalExceptionHandlingMiddleware(RequestDelegate next) => _next = next;
+    public GlobalExceptionHandlingMiddleware(RequestDelegate next, ILogger<GlobalExceptionHandlingMiddleware> logger) => (_next, _logger) = (next, logger);
 
     public async Task InvokeAsync(HttpContext context, IWebHostEnvironment environment)
     {
@@ -23,7 +24,7 @@ public class GlobalExceptionHandlingMiddleware
         }
     }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception, IWebHostEnvironment environment)
+    private Task HandleExceptionAsync(HttpContext context, Exception exception, IWebHostEnvironment environment)
     {
         var response = context.Response;
         HttpStatusCode status;
@@ -47,6 +48,8 @@ public class GlobalExceptionHandlingMiddleware
         response.ContentType = "application/json";
         response.ContentLength = errorDetailsJson.Length;
         response.StatusCode = (int)status;
+
+        _logger.LogError(exception, exception.Message);
 
         return response.WriteAsync(errorDetailsJson);
     }

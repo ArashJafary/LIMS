@@ -58,7 +58,7 @@ public class ServerRepository : IServerRepository
     public async ValueTask<List<Server>> GetAllActiveAsync()
        => await _servers.Where(server => server.IsActive).ToListAsync();
 
-    public async ValueTask<List<Server>> GetAllOrderedDescendingAsync(List<Server> activedServers,List<MemberShip> memberShips) => await Task.Run(() =>
+    public async ValueTask<List<Server>> GetAllOrderedDescendingAsync(List<Server> activedServers) => await Task.Run(() =>
          activedServers.OrderByDescending(server => server.ServerLimit - _meetings
                   .GetAllRunningsAsync(server)
                   .GetAwaiter()
@@ -79,5 +79,12 @@ public class ServerRepository : IServerRepository
                 throw new NotAnyEntityFoundInDatabaseException("Not Any Server Found With Expected Datas");
     }
 
-    public async ValueTask<Server> GetFirstAsync(List<Server> servers) => servers.FirstOrDefault();
+    public async ValueTask<Server> GetFirstAsync(List<Server> servers) => servers.FirstOrDefault()!;
+
+    public async Task<bool> CanJoinOnServerAsync(Server server)
+    {
+        ThrowExpectedExceptions(server,true);
+
+        return server!.ServerLimit <= server.Meetings.Sum(meeting => meeting.Users.Count) ? false : true;
+    }
 }

@@ -19,26 +19,17 @@ namespace LIMS.Application.Services.Handlers
 
         public async ValueTask<ResultSingleResponse<List<Recording>>> GetAllRecordedVideos(string meetingId)
         {
-            try
+            var result = new GetRecordingsRequest
             {
-                var result = new GetRecordingsRequest
-                {
-                    meetingID = meetingId
-                };
+                meetingID = meetingId
+            };
 
-                var recordedVideos = await _client.GetRecordingsAsync(result);
+            var recordedVideos = await _client.GetRecordingsAsync(result);
 
-                if (recordedVideos is null)
-                    return ResultSingleResponse<List<Recording>>.OnFailed("No Any Record Exists.");
+            if (recordedVideos is null)
+                return ResultSingleResponse<List<Recording>>.OnFailed("No Any Record Exists.");
 
-                return ResultSingleResponse<List<Recording>>.OnSuccess(recordedVideos.recordings);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception.Message);
-
-                return ResultSingleResponse<List<Recording>>.OnFailed(exception.Message);
-            }
+            return ResultSingleResponse<List<Recording>>.OnSuccess(recordedVideos.recordings);
         }
 
         public async Task<ResultSingleResponse<PublishRecordingsResponse>> PublishRecordings(string recordId, bool publish)

@@ -1,126 +1,112 @@
-﻿using LIMS.Application.Mappers;
-using LIMS.Domain.IRepositories;
-using LIMS.Domain.IRepositories;
-using LIMS.Domain.Entities;
-using LIMS.Domain.IRepositories;
+﻿using LIMS.Domain.IRepositories;
 using LIMS.Application.Models;
 using Microsoft.Extensions.Logging;
 
-namespace LIMS.Application.Services.Database
+namespace LIMS.Application.Services.Database;
+
+public class MemberShipServiceImpl
 {
-    public class MemberShipServiceImpl
+    private readonly IUserRepository _users;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMeetingRepository _meetings;
+    private readonly IMemberShipRepository _memberShips;
+    private readonly ILogger<MemberShipServiceImpl> _logger;
+
+    public MemberShipServiceImpl(
+        IUnitOfWork unitOfWork,
+        IMemberShipRepository memberShips,
+        IUserRepository users,
+        IMeetingRepository meetings,
+         ILogger<MemberShipServiceImpl> logger)
+            => (_unitOfWork, _memberShips, _users, _meetings, _logger)
+                = (unitOfWork, memberShips, users, meetings, logger);
+
+    public async ValueTask<OperationResult<bool>> CanJoinUserOnMeeting(long meetingId)
     {
-        private readonly IUserRepository _users;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMeetingRepository _meetings;
-        private readonly IMemberShipRepository _memberShips;
-        private readonly ILogger<MemberShipServiceImpl> _logger;
+        var meeting = await _meetings.GetAsync(meetingId);
 
-        public MemberShipServiceImpl(
-            IUnitOfWork unitOfWork,
-            IMemberShipRepository memberShips,
-            IUserRepository users,
-            IMeetingRepository meetings,
-             ILogger<MemberShipServiceImpl> logger)
-                => (_unitOfWork, _memberShips, _users, _meetings, _logger)
-                    = (unitOfWork, memberShips, users, meetings, logger);
+        if (meeting is null)
+            return OperationResult<bool>.OnFailed("Meeting Not Found.");
 
-        public async ValueTask<OperationResult<bool>> CanJoinUserOnMeeting(long meetingId)
+        var memberShips = await _memberShips.GetAllAsync();
+
+        if (memberShips is null)
+            return OperationResult<bool>.OnFailed("No Joining Found.");
+
+        var userCountOfMeeting = memberShips.Where(memberShip => memberShip.Meeting.Id == meetingId)!.Count();
+
+        if (meeting.LimitCapacity <= userCountOfMeeting)
         {
-            try
-            {
-                var meeting = await _meetings.GetAsync(meetingId);
+            _logger.LogWarning($"Meeting {meeting.Name} is Full Capacity and Cannot Another Join On That.");
 
-                if (meeting is null)
-                    return OperationResult<bool>.OnFailed("Meeting Not Found.");
-
-                var memberShips = await _memberShips.GetAllAsync();
-
-                if (memberShips is null)
-                    return OperationResult<bool>.OnFailed("No Joining Found.");
-
-                var userCountOfMeeting = memberShips.Where(memberShip => memberShip.Meeting.Id == meetingId)!.Count();
-
-                if (meeting.LimitCapacity <= userCountOfMeeting)
-                {
-                    _logger.LogWarning($"Meeting {meeting.Name} is Full Capacity and Cannot Another Join On That.");
-
-                    return OperationResult<bool>.OnFailed("Cannot Join On Meeting Because of Meeting Capacity is Fulled.");
-                }
-
-                return OperationResult<bool>.OnSuccess(true);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, exception.Message);
-
-                return OperationResult<bool>.OnException(exception);
-            }
+            return OperationResult<bool>.OnFailed("Cannot Join On Meeting Because of Meeting Capacity is Fulled.");
         }
 
-        public async ValueTask<OperationResult<long>> JoinUserOnMeeting(long userId, string meetingId)
+        return OperationResult<bool>.OnSuccess(true);
+    }
+
+    public async ValueTask<OperationResult<long>> JoinUserOnMeeting(long userId, string meetingId)
+    {
+        try
         {
-            try
-            {
-                var user = await _users.GetByIdAsync(userId);
+            var user = await _users.GetByIdAsync(userId);
 
-                if (user is null)
-                    return OperationResult<long>.OnFailed("User is Not Valid.");
+            if (user is null)
+                return OperationResult<long>.OnFailed("User is Not Valid.");
 
-                var meeting = await _meetings.GetByMeetingIdAsync(meetingId);
+            var meeting = await _meetings.GetByMeetingIdAsync(meetingId);
 
-                if (meeting is null)
-                    return OperationResult<long>.OnFailed("Meeting is Not Valid.");
+            if (meeting is null)
+                return OperationResult<long>.OnFailed("Meeting is Not Valid.");
 
-                var result = await _memberShips.CreateForMeetingAsync(meeting, user);
+            var result = await _memberShips.CreateForMeetingAsync(meeting, user);
 
-                await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
-                _logger.LogInformation($"User {user.FullName} is Joined on {meeting.Name}.");
+            _logger.LogInformation($"User {user.FullName} is Joined on {meeting.Name}.");
 
-                return OperationResult<long>.OnSuccess(result);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, exception.Message);
-
-                return OperationResult<long>.OnException(exception);
-            }
+            return OperationResult<long>.OnSuccess(result);
         }
-
-        public async ValueTask<OperationResult> BanUserFromMeeting(long userId, string meetingId)
+        catch (Exception exception)
         {
-            try
-            {
-                var user = await _users.GetByIdAsync(userId);
+            _logger.LogError(exception, exception.Message);
 
-                if (user is null)
-                    return OperationResult.OnFailed("User is Not Valid.");
+            return OperationResult<long>.OnException(exception);
+        }
+    }
 
-                var meeting = await _meetings.GetByMeetingIdAsync(meetingId);
+    public async ValueTask<OperationResult> BanUserFromMeeting(long userId, string meetingId)
+    {
+        try
+        {
+            var user = await _users.GetByIdAsync(userId);
 
-                if (meeting is null)
-                    return OperationResult.OnFailed("Meeting is Not Valid.");
+            if (user is null)
+                return OperationResult.OnFailed("User is Not Valid.");
 
-                var member = await _memberShips.GetAsync(user.Id, meeting.Id);
+            var meeting = await _meetings.GetByMeetingIdAsync(meetingId);
 
-                if (member is null)
-                    return OperationResult.OnFailed("Your Considered Joining Was Not Found.");
+            if (meeting is null)
+                return OperationResult.OnFailed("Meeting is Not Valid.");
 
-                member.BanUser();
+            var member = await _memberShips.GetAsync(user.Id, meeting.Id);
 
-                await _unitOfWork.SaveChangesAsync();
+            if (member is null)
+                return OperationResult.OnFailed("Your Considered Joining Was Not Found.");
 
-                _logger.LogInformation($"User {user.FullName} is Banned From {meeting.Name} and Cannot Join Another.");
+            member.BanUser();
 
-                return new OperationResult();
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, exception.Message);
+            await _unitOfWork.SaveChangesAsync();
 
-                return OperationResult.OnException(exception);
-            }
+            _logger.LogInformation($"User {user.FullName} is Banned From {meeting.Name} and Cannot Join Another.");
+
+            return new OperationResult();
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, exception.Message);
+
+            return OperationResult.OnException(exception);
         }
     }
 }

@@ -25,12 +25,12 @@ public class ServerServiceImpl
     {
         try
         {
-            var server = await _servers
-                .GetByIdAsync(id);
-            if (server is null)
-                return OperationResult<bool>.OnFailed("Server Not Found.");
+            var server = await _servers.GetByIdAsync(id);
 
-            if (server.ServerLimit <= server.Meetings.Sum(meeting => meeting.Users.Count))
+            if (server is null)
+                return OperationResult<bool>.OnFailed("Expected Server Not Found.");
+
+            if (await _servers.CanJoinOnServerAsync(server))
             {
                 _logger.LogWarning($"{server.ServerUrl} is Full Capacity and Cannot Join On That Anymore.");
 
@@ -49,48 +49,31 @@ public class ServerServiceImpl
 
     public async Task<OperationResult> UpdateServer(long id, ServerAddEditDto server)
     {
-        try
-        {
-            if (server is null)
-                return OperationResult<Server>.OnFailed("Server Cannot Be Null.");
+        if (server is null)
+            return OperationResult<Server>.OnFailed("Server Cannot Be Null.");
 
-            var newServer = await _servers.GetByIdAsync(id);
+        var newServer = await _servers.GetByIdAsync(id);
 
-            if (newServer is null)
-                return OperationResult<Server>.OnFailed("Server Not Found");
+        if (newServer is null)
+            return OperationResult<Server>.OnFailed("Server Not Found");
 
-            await newServer.UpdateServer(server.ServerUrl, server.ServerSecret, server.ServerLimit);
+        await newServer.UpdateServer(server.ServerUrl, server.ServerSecret, server.ServerLimit);
 
-            await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
 
-            return new OperationResult();
-        }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception, exception.Message);
-
-            return OperationResult<Server>.OnException(exception);
-        }
+        return new OperationResult();
     }
+
     public async ValueTask<OperationResult<long>> CreateServer(ServerAddEditDto serverAddEditDto)
     {
-        try
-        {
-            if (serverAddEditDto is null)
-                return OperationResult<long>.OnFailed("Please Send Valid Server Entity.");
+        if (serverAddEditDto is null)
+            return OperationResult<long>.OnFailed("Please Send Valid Server Entity.");
 
-            var serverId = await _servers.CreateAsync(ServerDtoMapper.Map(serverAddEditDto));
+        var serverId = await _servers.CreateAsync(ServerDtoMapper.Map(serverAddEditDto));
 
-            await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
 
-            return OperationResult<long>.OnSuccess(serverId);
-        }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception, exception.Message);
-
-            return OperationResult<long>.OnException(exception);
-        }
+        return OperationResult<long>.OnSuccess(serverId);
     }
 
     public async ValueTask<OperationResult<ServerAddEditDto>> GetMostCapableServer()
@@ -114,56 +97,31 @@ public class ServerServiceImpl
             return OperationResult<ServerAddEditDto>.OnException(exception);
         }
     }
+
     public async ValueTask<OperationResult> DeleteServer(long Id)
     {
-        try
-        {
-            await _servers.DeleteAsync(Id);
+        await _servers.DeleteAsync(Id);
 
-            return new OperationResult();
-        }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception, exception.Message);
-
-            return OperationResult.OnException(exception);
-        }
+        return new OperationResult();
     }
+
     public async ValueTask<OperationResult<ServerAddEditDto>> GetServer(long Id)
     {
-        try
-        {
-            var server = ServerDtoMapper.Map(await _servers.GetByIdAsync(Id));
+        var server = ServerDtoMapper.Map(await _servers.GetByIdAsync(Id));
 
-            return OperationResult<ServerAddEditDto>.OnSuccess(server);
-        }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception, exception.Message);
-
-            return OperationResult<ServerAddEditDto>.OnException(exception);
-        }
+        return OperationResult<ServerAddEditDto>.OnSuccess(server);
     }
 
     public async ValueTask<OperationResult<List<ServerAddEditDto>>> GetAllServers()
     {
-        try
-        {
-            var servers = await _servers.GetAllAsync();
+        var servers = await _servers.GetAllAsync();
 
-            var serversDto = new List<ServerAddEditDto>();
+        var serversDto = new List<ServerAddEditDto>();
 
-            foreach (var server in servers)
-                serversDto.Add(ServerDtoMapper.Map(server));
+        foreach (var server in servers)
+            serversDto.Add(ServerDtoMapper.Map(server));
 
-            return OperationResult<List<ServerAddEditDto>>.OnSuccess(serversDto);
-        }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception, exception.Message);
-
-            return OperationResult<List<ServerAddEditDto>>.OnException(exception);
-        }
+        return OperationResult<List<ServerAddEditDto>>.OnSuccess(serversDto);
     }
 
     public async Task<OperationResult> UpdateServersForActivate()

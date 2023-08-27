@@ -44,14 +44,12 @@ namespace LIMS.Application.Services.Http
 
                 return OperationResult<List<Server>>.OnException(exception);
             }
-
         });
 
         public async Task<OperationResult<bool>> IsServerDown(string serverUrl) => await Task.Run(() =>
         {
             try
             {
-                //TODO: make sure this code works correct
                 var ping = new Ping();
 
                 var reply = ping.Send(serverUrl, 60 * 1000);
